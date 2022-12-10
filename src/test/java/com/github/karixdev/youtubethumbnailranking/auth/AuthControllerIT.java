@@ -1,5 +1,7 @@
 package com.github.karixdev.youtubethumbnailranking.auth;
 
+import com.github.karixdev.youtubethumbnailranking.emailverification.EmailVerificationToken;
+import com.github.karixdev.youtubethumbnailranking.emailverification.EmailVerificationTokenRepository;
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserRepository;
 import com.github.karixdev.youtubethumbnailranking.user.UserRole;
@@ -25,10 +27,14 @@ public class AuthControllerIT {
     UserRepository userRepository;
 
     @Autowired
+    EmailVerificationTokenRepository tokenRepository;
+
+    @Autowired
     UserService userService;
 
     @AfterEach
     void tearDown() {
+        tokenRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -88,10 +94,12 @@ public class AuthControllerIT {
 
         assertThat(userRepository.findAll().size())
                 .isEqualTo(1);
+        assertThat(tokenRepository.findAll())
+                .isEmpty();
     }
 
     @Test
-    void shouldRegisterUser() {
+    void shouldRegisterUserAndCreateEmailVerificationToken() {
         String payload = """
                 {
                     "email": "email@email.com",
@@ -118,6 +126,13 @@ public class AuthControllerIT {
         assertThat(user.getEmail()).isEqualTo("email@email.com");
         assertThat(user.getUsername()).isEqualTo("username");
         assertThat(user.getIsEnabled()).isEqualTo(Boolean.FALSE);
+
+        assertThat(tokenRepository.findAll().size())
+                .isEqualTo(1);
+
+        EmailVerificationToken token = tokenRepository.findAll().get(0);
+
+        assertThat(token.getUser()).isEqualTo(user);
     }
 
 }
