@@ -23,7 +23,7 @@ public class UserService {
     }
 
     @Transactional
-    public User createUser(String email, String username, String plainPassword, UserRole userRole) {
+    public User createUser(String email, String username, String plainPassword, UserRole userRole, Boolean isEnabled) {
         if (!isEmailAvailable(email)) {
             throw new EmailNotAvailableException();
         }
@@ -38,6 +38,7 @@ public class UserService {
                 .username(username)
                 .password(encodedPassword)
                 .userRole(userRole)
+                .isEnabled(isEnabled)
                 .build();
 
         return repository.save(user);

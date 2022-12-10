@@ -69,6 +69,12 @@ public class User {
     )
     private String password;
 
+    @Column(
+            name = "is_enabled",
+            nullable = false
+    )
+    private Boolean isEnabled;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -77,11 +83,12 @@ public class User {
         return Objects.equals(id, user.id) &&
                 Objects.equals(username, user.username) &&
                 Objects.equals(email, user.email) &&
-                Objects.equals(userRole, user.userRole);
+                Objects.equals(userRole, user.userRole) &&
+                Objects.equals(isEnabled, user.isEnabled);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, email, userRole);
+        return Objects.hash(id, username, email, userRole, isEnabled);
     }
 }

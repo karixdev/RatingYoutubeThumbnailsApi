@@ -48,7 +48,7 @@ public class AuthServiceTest {
                 .username("username")
                 .build();
 
-        when(userService.createUser(any(), any(), any(), any()))
+        when(userService.createUser(any(), any(), any(), any(), any()))
                 .thenReturn(user);
 
         // When
@@ -56,7 +56,7 @@ public class AuthServiceTest {
 
         // Then
         assertThat(result.getMessage()).isEqualTo("success");
-        verify(userService).createUser(any(), any(), any(), any());
+        verify(userService).createUser(any(), any(), any(), any(), any());
     }
 
 }

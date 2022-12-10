@@ -2,13 +2,11 @@ package com.github.karixdev.youtubethumbnailranking.user;
 
 import com.github.karixdev.youtubethumbnailranking.user.exception.EmailNotAvailableException;
 import com.github.karixdev.youtubethumbnailranking.user.exception.UsernameNotAvailableException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -40,6 +38,7 @@ public class UserServiceTest {
                 .password("password")
                 .username("username")
                 .userRole(UserRole.ROLE_USER)
+                .isEnabled(Boolean.FALSE)
                 .build();
     }
 
@@ -117,7 +116,8 @@ public class UserServiceTest {
                         user.getEmail(),
                         user.getUsername(),
                         user.getPassword(),
-                        user.getUserRole()))
+                        user.getUserRole(),
+                        user.getIsEnabled()))
                 .isInstanceOf(EmailNotAvailableException.class)
                 .hasMessage("Email not available");
     }
@@ -136,7 +136,8 @@ public class UserServiceTest {
                         user.getEmail(),
                         user.getUsername(),
                         user.getPassword(),
-                        user.getUserRole()))
+                        user.getUserRole(),
+                        user.getIsEnabled()))
                 .isInstanceOf(UsernameNotAvailableException.class)
                 .hasMessage("Username not available");
     }
@@ -148,6 +149,7 @@ public class UserServiceTest {
         String username = user.getUsername();
         String password = user.getPassword();
         UserRole userRole = user.getUserRole();
+        Boolean isEnabled = user.getIsEnabled();
 
         when(passwordEncoder.encode(any()))
                 .thenReturn(user.getPassword());
@@ -156,7 +158,7 @@ public class UserServiceTest {
                 .thenReturn(user);
 
         // When
-        User result = underTest.createUser(email, username, password, userRole);
+        User result = underTest.createUser(email, username, password, userRole, isEnabled);
 
         // Then
         assertThat(result).isEqualTo(result);

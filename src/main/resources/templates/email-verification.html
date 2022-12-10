@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify your email</title>
+</head>
+<body>
+    <div class="container">
+        <h1 th:text="'Hi ' + ${username}"></h1>
+        <p>Here's link to veify your email: <a th:href="${verificationLink}">click me!</a> - it only lasts for 24 hours.</p>
+    </div>
+</body>
+</html>

@@ -4,7 +4,6 @@ import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserRepository;
 import com.github.karixdev.youtubethumbnailranking.user.UserRole;
 import com.github.karixdev.youtubethumbnailranking.user.UserService;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,8 @@ public class AuthControllerIT {
                 "email@email.com",
                 "username",
                 "password",
-                UserRole.ROLE_USER
+                UserRole.ROLE_USER,
+                Boolean.FALSE
         );
 
         String payload = """
@@ -67,7 +67,8 @@ public class AuthControllerIT {
                 "email@email.com",
                 "username",
                 "password",
-                UserRole.ROLE_USER
+                UserRole.ROLE_USER,
+                Boolean.FALSE
         );
 
         String payload = """
@@ -116,6 +117,7 @@ public class AuthControllerIT {
         assertThat(user.getUserRole()).isEqualTo(UserRole.ROLE_USER);
         assertThat(user.getEmail()).isEqualTo("email@email.com");
         assertThat(user.getUsername()).isEqualTo("username");
+        assertThat(user.getIsEnabled()).isEqualTo(Boolean.FALSE);
     }
 
 }

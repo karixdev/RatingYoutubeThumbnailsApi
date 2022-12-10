@@ -31,6 +31,7 @@ public class UserRepositoryTest {
                 .username("username")
                 .password("secret-password")
                 .userRole(UserRole.ROLE_USER)
+                .isEnabled(Boolean.FALSE)
                 .build();
 
         em.persistAndFlush(user);
