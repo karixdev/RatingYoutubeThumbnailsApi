@@ -69,6 +69,9 @@ public class EmailVerificationServiceTest {
         when(repository.save(any()))
                 .thenReturn(token);
 
+        when(clock.getZone()).thenReturn(NOW.getZone());
+        when(clock.instant()).thenReturn(NOW.toInstant());
+
         // When
         EmailVerificationToken result = underTest.createToken(user);
 
