@@ -11,6 +11,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 import javax.mail.internet.MimeMessage;
 
+import java.util.Map;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -19,7 +21,7 @@ import static org.awaitility.Awaitility.await;
 @ActiveProfiles("test")
 public class EmailServiceIT {
     @Autowired
-    EmailService emailService;
+    EmailService underTest;
 
     @RegisterExtension
     static GreenMailExtension greenMail =
@@ -30,7 +32,7 @@ public class EmailServiceIT {
 
     @Test
     void shouldSendCorrectEmail() {
-        emailService.sendEmailToUser(
+        underTest.sendEmailToUser(
                 "recipient@email.com",
                 "test-mail",
                 "<p>test mail</p>"
@@ -55,6 +57,15 @@ public class EmailServiceIT {
             String recipient = receivedMessage.getAllRecipients()[0].toString();
             assertThat(recipient).isEqualTo("recipient@email.com");
         });
+    }
+
+    @Test
+    void shouldLoadTemplateWithVariables() {
+        Map<String, Object> variables = Map.of("name", "test");
+
+        String result = underTest.getMailTemplate("test.html", variables);
+
+        assertThat(result).isEqualTo("<p>test</p>");
     }
 
 }
