@@ -30,3 +30,9 @@ services:
     ports:
       - '1025:1025'
       - '1080:1080'
+
+  greenmail:
+    container_name: greenmail
+    image: greenmail/standalone:latest
+    ports:
+      - '3025:3025'
