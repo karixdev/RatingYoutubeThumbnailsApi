@@ -13,7 +13,6 @@ import javax.transaction.Transactional;
 public class UserService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
-
     public boolean isEmailAvailable(String email) {
         return repository.findByEmail(email).isEmpty();
     }
@@ -42,5 +41,11 @@ public class UserService {
                 .build();
 
         return repository.save(user);
+    }
+
+    @Transactional
+    public void enableUser(User user) {
+        user.setIsEnabled(Boolean.TRUE);
+        repository.save(user);
     }
 }

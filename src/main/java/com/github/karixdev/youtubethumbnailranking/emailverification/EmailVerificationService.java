@@ -1,7 +1,12 @@
 package com.github.karixdev.youtubethumbnailranking.emailverification;
 
 import com.github.karixdev.youtubethumbnailranking.email.EmailService;
+import com.github.karixdev.youtubethumbnailranking.emailverification.exception.EmailAlreadyVerifiedException;
+import com.github.karixdev.youtubethumbnailranking.emailverification.exception.EmailVerificationTokenExpiredException;
+import com.github.karixdev.youtubethumbnailranking.shared.exception.ResourceNotFoundException;
+import com.github.karixdev.youtubethumbnailranking.shared.payload.response.SuccessResponse;
 import com.github.karixdev.youtubethumbnailranking.user.User;
+import com.github.karixdev.youtubethumbnailranking.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,6 +23,7 @@ public class EmailVerificationService {
     private final EmailVerificationTokenRepository tokenRepository;
     private final Clock clock;
     private final EmailService emailService;
+    private final UserService userService;
     @Value("${email-verification.expiration-hours}")
     private Integer tokenExpirationHours;
 
@@ -52,4 +58,30 @@ public class EmailVerificationService {
         this.tokenExpirationHours = expirationHours;
     }
 
+    @Transactional
+    public SuccessResponse verify(String token) {
+        EmailVerificationToken emailVerificationToken =
+                tokenRepository.findByToken(token).orElseThrow(() -> {
+                    throw new ResourceNotFoundException(
+                            "Email verification token not found"
+                    );
+                });
+
+        LocalDateTime now = LocalDateTime.now(clock);
+
+        if (emailVerificationToken.getUser().getIsEnabled()) {
+            throw new EmailAlreadyVerifiedException();
+        }
+
+        if (!now.isBefore(emailVerificationToken.getExpiresAt())) {
+            throw new EmailVerificationTokenExpiredException();
+        }
+
+        userService.enableUser(emailVerificationToken.getUser());
+
+        emailVerificationToken.setConfirmedAt(now);
+        tokenRepository.save(emailVerificationToken);
+
+        return new SuccessResponse();
+    }
 }

@@ -17,6 +17,7 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeRequests(auth -> auth
                         .antMatchers("/api/v1/auth/**").permitAll()
+                        .antMatchers("/api/v1/email-verification").permitAll()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
