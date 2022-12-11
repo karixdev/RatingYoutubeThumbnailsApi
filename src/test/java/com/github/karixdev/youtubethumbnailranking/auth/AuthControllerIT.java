@@ -6,8 +6,13 @@ import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserRepository;
 import com.github.karixdev.youtubethumbnailranking.user.UserRole;
 import com.github.karixdev.youtubethumbnailranking.user.UserService;
+import com.icegreen.greenmail.configuration.GreenMailConfiguration;
+import com.icegreen.greenmail.junit5.GreenMailExtension;
+import com.icegreen.greenmail.util.ServerSetupTest;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -15,7 +20,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import javax.mail.internet.MimeMessage;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -31,6 +41,13 @@ public class AuthControllerIT {
 
     @Autowired
     UserService userService;
+
+    @RegisterExtension
+    static GreenMailExtension greenMail =
+            new GreenMailExtension(ServerSetupTest.SMTP)
+                    .withConfiguration(GreenMailConfiguration.aConfig()
+                            .withUser("greenmail-user", "greenmail-password"))
+                    .withPerMethodLifecycle(false);
 
     @AfterEach
     void tearDown() {
@@ -133,6 +150,25 @@ public class AuthControllerIT {
         EmailVerificationToken token = tokenRepository.findAll().get(0);
 
         assertThat(token.getUser()).isEqualTo(user);
+
+        await().atMost(2, SECONDS).untilAsserted(() -> {
+            MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
+
+            assertThat(receivedMessages).hasSize(1);
+
+            MimeMessage receivedMessage = receivedMessages[0];
+
+            assertThat(receivedMessage.getSubject()).isEqualTo("Verify your email");
+            assertThat(receivedMessage.getFrom()).hasSize(1);
+
+            String from = receivedMessage.getFrom()[0].toString();
+            assertThat(from).isEqualTo("test@youtube-thumbnail-ranking.com");
+
+            assertThat(receivedMessage.getAllRecipients()).hasSize(1);
+
+            String recipient = receivedMessage.getAllRecipients()[0].toString();
+            assertThat(recipient).isEqualTo("email@email.com");
+        });
     }
 
 }
