@@ -1,6 +1,6 @@
 package com.github.karixdev.youtubethumbnailranking.email;
 
-import com.github.karixdev.youtubethumbnailranking.user.User;
+import com.github.karixdev.youtubethumbnailranking.email.exception.EmailSendingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
