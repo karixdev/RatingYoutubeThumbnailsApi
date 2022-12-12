@@ -1,5 +1,6 @@
 package com.github.karixdev.youtubethumbnailranking.user;
 
+import com.github.karixdev.youtubethumbnailranking.shared.exception.ResourceNotFoundException;
 import com.github.karixdev.youtubethumbnailranking.user.exception.EmailNotAvailableException;
 import com.github.karixdev.youtubethumbnailranking.user.exception.UsernameNotAvailableException;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import javax.transaction.Transactional;
 public class UserService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
+
     public boolean isEmailAvailable(String email) {
         return repository.findByEmail(email).isEmpty();
     }
@@ -47,5 +49,13 @@ public class UserService {
     public void enableUser(User user) {
         user.setIsEnabled(Boolean.TRUE);
         repository.save(user);
+    }
+
+    public User findByEmail(String email) {
+        return repository.findByEmail(email)
+                .orElseThrow(() -> {
+                    throw new ResourceNotFoundException(
+                            "User with provided email not found");
+                });
     }
 }

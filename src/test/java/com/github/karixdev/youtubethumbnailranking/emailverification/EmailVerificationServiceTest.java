@@ -3,6 +3,8 @@ package com.github.karixdev.youtubethumbnailranking.emailverification;
 import com.github.karixdev.youtubethumbnailranking.email.EmailService;
 import com.github.karixdev.youtubethumbnailranking.emailverification.exception.EmailAlreadyVerifiedException;
 import com.github.karixdev.youtubethumbnailranking.emailverification.exception.EmailVerificationTokenExpiredException;
+import com.github.karixdev.youtubethumbnailranking.emailverification.exception.TooManyEmailVerificationTokensException;
+import com.github.karixdev.youtubethumbnailranking.emailverification.payload.request.ResendEmailVerificationTokenRequest;
 import com.github.karixdev.youtubethumbnailranking.shared.exception.ResourceNotFoundException;
 import com.github.karixdev.youtubethumbnailranking.shared.payload.response.SuccessResponse;
 import com.github.karixdev.youtubethumbnailranking.user.User;
@@ -18,6 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +45,9 @@ public class EmailVerificationServiceTest {
 
     @Mock
     EmailService emailService;
+
+    @Mock
+    EmailVerificationProperties properties;
 
     private static final ZonedDateTime NOW = ZonedDateTime.of(
             2022,
@@ -234,5 +241,180 @@ public class EmailVerificationServiceTest {
 
         verify(userService).enableUser(any());
         verify(repository).save(any());
+    }
+
+    @Test
+    void GivenUserWithTokensCountLessThanMaxNumberOfMailsPerHour_WhenResend_ThenCreatesNewTokenAndReturnsSuccessResponse() {
+        // Given
+        var payload = new ResendEmailVerificationTokenRequest("email@email.com");
+
+        User user = User.builder()
+                .email("email@email.com")
+                .username("username")
+                .password("secret-password")
+                .userRole(UserRole.ROLE_USER)
+                .isEnabled(Boolean.FALSE)
+                .build();
+
+        when(userService.findByEmail(any()))
+                .thenReturn(user);
+
+        EmailVerificationToken token = EmailVerificationToken.builder()
+                .token("random")
+                .user(user)
+                .createdAt(NOW.toLocalDateTime())
+                .expiresAt(NOW.plusHours(24).toLocalDateTime())
+                .build();
+
+        when(repository.findByUserOrderByCreatedAtDesc(any()))
+                .thenReturn(List.of(token));
+
+        when(properties.getMaxNumberOfMailsPerHour())
+                .thenReturn(5);
+
+        when(repository.save(any()))
+                .thenReturn(token);
+
+        when(clock.getZone()).thenReturn(NOW.getZone());
+        when(clock.instant()).thenReturn(NOW.toInstant());
+
+        when(emailService.getMailTemplate(any(), any()))
+                .thenReturn("template");
+
+        doNothing().when(emailService)
+                .sendEmailToUser(any(), any(), any());
+
+        // When
+        SuccessResponse result = underTest.resend(payload);
+
+        // Then
+        assertThat(result.getMessage()).isEqualTo("success");
+        verify(repository).save(any());
+    }
+
+    @Test
+    void GivenUserWithTokensCountBiggerThanMaxButCreatedMoreThanHourAgo_WhenResend_ThenCreatesNewTokenAndReturnsSuccessResponse() {
+        // Given
+        var payload = new ResendEmailVerificationTokenRequest("email@email.com");
+
+        User user = User.builder()
+                .email("email@email.com")
+                .username("username")
+                .password("secret-password")
+                .userRole(UserRole.ROLE_USER)
+                .isEnabled(Boolean.FALSE)
+                .build();
+
+        when(userService.findByEmail(any()))
+                .thenReturn(user);
+
+        List<EmailVerificationToken> tokens = new LinkedList<>();
+
+        for (int i = 0; i < 10; i++) {
+            EmailVerificationToken token = EmailVerificationToken.builder()
+                    .token("random")
+                    .user(user)
+                    .createdAt(NOW.minusHours(20).toLocalDateTime())
+                    .expiresAt(NOW.minusHours(44).toLocalDateTime())
+                    .build();
+
+            tokens.add(token);
+        }
+
+        when(repository.findByUserOrderByCreatedAtDesc(any()))
+                .thenReturn(tokens);
+
+        when(properties.getMaxNumberOfMailsPerHour())
+                .thenReturn(5);
+
+        when(repository.save(any()))
+                .thenReturn(EmailVerificationToken.builder()
+                        .token("random")
+                        .user(user)
+                        .createdAt(NOW.toLocalDateTime())
+                        .expiresAt(NOW.plusHours(24).toLocalDateTime())
+                        .build());
+
+        when(clock.getZone()).thenReturn(NOW.getZone());
+        when(clock.instant()).thenReturn(NOW.toInstant());
+
+        when(emailService.getMailTemplate(any(), any()))
+                .thenReturn("template");
+
+        doNothing().when(emailService)
+                .sendEmailToUser(any(), any(), any());
+
+        // When
+        SuccessResponse result = underTest.resend(payload);
+
+        // Then
+        assertThat(result.getMessage()).isEqualTo("success");
+        verify(repository).save(any());
+    }
+
+    @Test
+    void GivenAlreadyEnabledUser_WhenResend_ThenThrowsEmailAlreadyVerifiedException() {
+        // Given
+        var payload = new ResendEmailVerificationTokenRequest("email@email.com");
+
+        User user = User.builder()
+                .email("email@email.com")
+                .username("username")
+                .password("secret-password")
+                .userRole(UserRole.ROLE_USER)
+                .isEnabled(Boolean.TRUE)
+                .build();
+
+        when(userService.findByEmail(any()))
+                .thenReturn(user);
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.resend(payload))
+                .isInstanceOf(EmailAlreadyVerifiedException.class)
+                .hasMessage("Email is already verified");
+    }
+
+    @Test
+    void GivenUserWithTokensCountBiggerThanMaxButCreatedLessThanHourAgo_WhenResend_ThenThrowsTooManyEmailVerificationTokensException() {
+        // Given
+        var payload = new ResendEmailVerificationTokenRequest("email@email.com");
+
+        User user = User.builder()
+                .email("email@email.com")
+                .username("username")
+                .password("secret-password")
+                .userRole(UserRole.ROLE_USER)
+                .isEnabled(Boolean.FALSE)
+                .build();
+
+        when(userService.findByEmail(any()))
+                .thenReturn(user);
+
+        List<EmailVerificationToken> tokens = new LinkedList<>();
+
+        for (int i = 0; i < 6; i++) {
+            EmailVerificationToken token = EmailVerificationToken.builder()
+                    .token("random")
+                    .user(user)
+                    .createdAt(NOW.minusMinutes(20 - i).toLocalDateTime())
+                    .expiresAt(NOW.plusHours(24).toLocalDateTime())
+                    .build();
+
+            tokens.add(token);
+        }
+
+        when(repository.findByUserOrderByCreatedAtDesc(any()))
+                .thenReturn(tokens);
+
+        when(properties.getMaxNumberOfMailsPerHour())
+                .thenReturn(5);
+
+        when(clock.getZone()).thenReturn(NOW.getZone());
+        when(clock.instant()).thenReturn(NOW.toInstant());
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.resend(payload))
+                .isInstanceOf(TooManyEmailVerificationTokensException.class)
+                .hasMessage("You have requested too many email verification tokens");
     }
 }

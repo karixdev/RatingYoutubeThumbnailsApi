@@ -3,6 +3,8 @@ package com.github.karixdev.youtubethumbnailranking.emailverification;
 import com.github.karixdev.youtubethumbnailranking.email.EmailService;
 import com.github.karixdev.youtubethumbnailranking.emailverification.exception.EmailAlreadyVerifiedException;
 import com.github.karixdev.youtubethumbnailranking.emailverification.exception.EmailVerificationTokenExpiredException;
+import com.github.karixdev.youtubethumbnailranking.emailverification.exception.TooManyEmailVerificationTokensException;
+import com.github.karixdev.youtubethumbnailranking.emailverification.payload.request.ResendEmailVerificationTokenRequest;
 import com.github.karixdev.youtubethumbnailranking.shared.exception.ResourceNotFoundException;
 import com.github.karixdev.youtubethumbnailranking.shared.payload.response.SuccessResponse;
 import com.github.karixdev.youtubethumbnailranking.user.User;
@@ -13,7 +15,10 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,6 +29,7 @@ public class EmailVerificationService {
     private final Clock clock;
     private final EmailService emailService;
     private final UserService userService;
+    private final EmailVerificationProperties properties;
     @Value("${email-verification.expiration-hours}")
     private Integer tokenExpirationHours;
 
@@ -54,10 +60,6 @@ public class EmailVerificationService {
         emailService.sendEmailToUser(token.getUser().getEmail(), "Verify your email", body);
     }
 
-    public void setTokenExpirationHours(Integer expirationHours) {
-        this.tokenExpirationHours = expirationHours;
-    }
-
     @Transactional
     public SuccessResponse verify(String token) {
         EmailVerificationToken emailVerificationToken =
@@ -83,5 +85,55 @@ public class EmailVerificationService {
         tokenRepository.save(emailVerificationToken);
 
         return new SuccessResponse();
+    }
+
+    @Transactional
+    public SuccessResponse resend(ResendEmailVerificationTokenRequest payload) {
+        User user = userService.findByEmail(payload.getEmail());
+
+        if (user.getIsEnabled()) {
+            throw new EmailAlreadyVerifiedException();
+        }
+
+        if (!canUserCreateNewEmailVerificationToken(user)) {
+            throw new TooManyEmailVerificationTokensException();
+        }
+
+        EmailVerificationToken newToken = createToken(user);
+        sendEmailWithVerificationLink(newToken);
+
+        return new SuccessResponse();
+    }
+
+    private boolean canUserCreateNewEmailVerificationToken(User user) {
+        List<EmailVerificationToken> userTokens =
+                tokenRepository.findByUserOrderByCreatedAtDesc(user);
+
+        if (userTokens.size() <= properties.getMaxNumberOfMailsPerHour()) {
+            return true;
+        }
+
+        EmailVerificationToken latest = userTokens.get(0);
+
+        long hoursBetweenNowAndLatest = ChronoUnit.HOURS.between(
+                latest.getCreatedAt(),
+                LocalDateTime.now(clock)
+        );
+
+        if (hoursBetweenNowAndLatest > 1) {
+            return true;
+        }
+
+        EmailVerificationToken oldest =
+                userTokens.get(properties.getMaxNumberOfMailsPerHour());
+
+        long hoursBetweenLatestAndOldest = ChronoUnit.HOURS.between(
+                latest.getCreatedAt(), oldest.getCreatedAt());
+
+        return hoursBetweenLatestAndOldest > 1;
+    }
+
+    public void setTokenExpirationHours(Integer expirationHours) {
+        this.tokenExpirationHours = expirationHours;
     }
 }

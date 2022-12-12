@@ -2,7 +2,6 @@ package com.github.karixdev.youtubethumbnailranking.emailverification;
 
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserRole;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +11,10 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -26,11 +26,11 @@ public class EmailVerificationTokenRepositoryTest {
     @Autowired
     TestEntityManager em;
 
-    EmailVerificationToken eToken;
+    User user;
 
     @BeforeEach
     void setUp() {
-        User user = User.builder()
+        user = User.builder()
                 .email("abc@abc.pl")
                 .username("username")
                 .password("secret-password")
@@ -39,8 +39,14 @@ public class EmailVerificationTokenRepositoryTest {
                 .build();
 
         em.persist(user);
+    }
 
-        eToken = EmailVerificationToken.builder()
+    @Test
+    void GivenNonExistingToken_WhenFindByToken_ThenReturnsEmptyOptional() {
+        // Given
+        String token = "i-do-not-exist";
+
+        EmailVerificationToken eToken = EmailVerificationToken.builder()
                 .user(user)
                 .token("token")
                 .expiresAt(LocalDateTime.now().plusHours(1))
@@ -48,12 +54,6 @@ public class EmailVerificationTokenRepositoryTest {
                 .build();
 
         em.persistAndFlush(eToken);
-    }
-
-    @Test
-    void GivenNonExistingToken_WhenFindByToken_ThenReturnsEmptyOptional() {
-        // Given
-        String token = "i-do-not-exist";
 
         // When
         var result = underTest.findByToken(token);
@@ -67,6 +67,15 @@ public class EmailVerificationTokenRepositoryTest {
         // Given
         String token = "token";
 
+        EmailVerificationToken eToken = EmailVerificationToken.builder()
+                .user(user)
+                .token("token")
+                .expiresAt(LocalDateTime.now().plusHours(1))
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        em.persistAndFlush(eToken);
+
         // When
         var result = underTest.findByToken(token);
 
@@ -76,6 +85,33 @@ public class EmailVerificationTokenRepositoryTest {
         var resultToken = result.get();
 
         assertThat(resultToken).isEqualTo(eToken);
+    }
+
+    @Test
+    void GivenUser_WhenFindUserOrderByCreatedAtDesc_ThenReturnsProperlySortedList() {
+        for (int i = 0; i < 2; i++) {
+            EmailVerificationToken eToken = EmailVerificationToken.builder()
+                    .user(user)
+                    .token("token-" + i)
+                    .expiresAt(LocalDateTime.now().plusHours(1 + i))
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            em.persist(eToken);
+        }
+        em.flush();
+
+        // When
+        List<EmailVerificationToken> eTokens =
+                underTest.findByUserOrderByCreatedAtDesc(user);
+
+        // Then
+        assertThat(eTokens).hasSize(2);
+
+        EmailVerificationToken latest = eTokens.get(0);
+        EmailVerificationToken oldest = eTokens.get(1);
+
+        assertThat(latest.getCreatedAt()).isAfter(oldest.getCreatedAt());
     }
 
 }

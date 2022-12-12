@@ -1,5 +1,6 @@
 package com.github.karixdev.youtubethumbnailranking.user;
 
+import com.github.karixdev.youtubethumbnailranking.shared.exception.ResourceNotFoundException;
 import com.github.karixdev.youtubethumbnailranking.user.exception.EmailNotAvailableException;
 import com.github.karixdev.youtubethumbnailranking.user.exception.UsernameNotAvailableException;
 import org.junit.jupiter.api.BeforeEach;
@@ -176,6 +177,35 @@ public class UserServiceTest {
         // Then
         assertThat(user.getIsEnabled()).isTrue();
         verify(userRepository).save(any());
+    }
+
+    @Test
+    void GivenNotExistingUserEmail_WhenFindByEmail_ThenThrowsResourceNotFoundExceptionWithProperMessage() {
+        // Given
+        String email = "i-do-not-exist@email.com";
+
+        when(userRepository.findByEmail(any()))
+                .thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.findByEmail(email))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("User with provided email not found");
+    }
+
+    @Test
+    void GivenExistingUserEmail_WhenFindByEmail_ThenReturnsCorrectUser() {
+        // Given
+        String email = "i-do-not-exist@email.com";
+
+        when(userRepository.findByEmail(any()))
+                .thenReturn(Optional.of(user));
+
+        // When
+        User result = underTest.findByEmail(email);
+
+        // Then
+        assertThat(result).isEqualTo(user);
     }
 
 }

@@ -24,6 +24,8 @@ spring:
 
 email-verification:
   expiration-hours: 24
+  max-number-of-mails-per-hour: 5
 
 email-sender:
   sender: test@youtube-thumbnail-ranking.com
+
