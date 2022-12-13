@@ -74,7 +74,7 @@ Verifies token sent to user after registration or request new email verification
 
 **Success response**:
 
-Code: `201`
+Code: `200`
 ```json
 {
     "message": "success"
@@ -122,7 +122,7 @@ Resends an email with email verification token. There is a limit which states ho
 
 **Success response**:
 
-Code: `201`
+Code: `200`
 ```json
 {
     "message": "success"
