@@ -10,7 +10,6 @@ import com.github.karixdev.youtubethumbnailranking.shared.payload.response.Succe
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserRole;
 import com.github.karixdev.youtubethumbnailranking.user.UserService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -59,11 +58,6 @@ public class EmailVerificationServiceTest {
             0,
             ZoneId.of("UTC+1")
     );
-
-    @BeforeEach
-    void setUp() {
-        underTest.setTokenExpirationHours(24);
-    }
 
     @Test
     void GivenUser_WhenCreateToken_ThenReturnsCorrectEmailVerificationToken() {

@@ -10,12 +10,10 @@ import com.github.karixdev.youtubethumbnailranking.shared.payload.response.Succe
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -30,8 +28,6 @@ public class EmailVerificationService {
     private final EmailService emailService;
     private final UserService userService;
     private final EmailVerificationProperties properties;
-    @Value("${email-verification.expiration-hours}")
-    private Integer tokenExpirationHours;
 
     @Transactional
     public EmailVerificationToken createToken(User user) {
@@ -42,7 +38,7 @@ public class EmailVerificationService {
                 .token(uuid)
                 .user(user)
                 .createdAt(now)
-                .expiresAt(now.plusHours(tokenExpirationHours))
+                .expiresAt(now.plusHours(properties.getTokenExpirationHours()))
                 .build();
 
         return tokenRepository.save(token);
@@ -131,9 +127,5 @@ public class EmailVerificationService {
                 latest.getCreatedAt(), oldest.getCreatedAt());
 
         return hoursBetweenLatestAndOldest > 1;
-    }
-
-    public void setTokenExpirationHours(Integer expirationHours) {
-        this.tokenExpirationHours = expirationHours;
     }
 }
