@@ -38,7 +38,7 @@ Code: `400`
 {
     "timestamp": "timestamp when error occurred",
     "status": 400,
-    "error": "Conflict",
+    "error": "Bad Request",
     "path": "/api/v1/auth/register"
 }
 ```
@@ -56,5 +56,39 @@ Code: `409`
 }
 ```
 
-
 ---
+
+### POST /api/v1/email-verification/{token}
+
+Verifies token sent to user after registration or request new email verification token. If provided token in path is valid then enables user owning the token.
+
+**Auth required**: NO
+
+**Permissions required**: NONE
+
+**Path variables**:
+
+| Name     | Type   | Required |
+|----------|--------|----------|
+| token    | String | True     |
+
+**Success response**:
+
+Code: `201`
+```json
+{
+    "message": "success"
+}
+```
+
+**Error response**:
+
+Code: `400`
+```json
+{
+    "timestamp": "timestamp when error occurred",
+    "status": 400,
+    "error": "Bad Request",
+    "path": "/api/v1/auth/register"
+}
+```
