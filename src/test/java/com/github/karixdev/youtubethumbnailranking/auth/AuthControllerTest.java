@@ -1,14 +1,10 @@
 package com.github.karixdev.youtubethumbnailranking.auth;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.karixdev.youtubethumbnailranking.auth.payload.request.RegisterRequest;
-import com.github.karixdev.youtubethumbnailranking.user.UserRepository;
 import com.github.karixdev.youtubethumbnailranking.user.exception.EmailNotAvailableException;
 import com.github.karixdev.youtubethumbnailranking.user.exception.UsernameNotAvailableException;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.mockito.stubbing.Stubber;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -35,7 +31,7 @@ public class AuthControllerTest {
     ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    void GivenInvalidCredentials_WhenRegister_ShouldResponseWithBadRequestStatus() throws Exception {
+    void GivenInvalidCredentials_WhenRegister_ThenResponsesWithBadRequestStatus() throws Exception {
         RegisterRequest payload =
                 new RegisterRequest("abc", "abc", "abc");
         String content = mapper.writeValueAsString(payload);
@@ -48,7 +44,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    void GivenTakenEmail_WhenRegister_ShouldResponseWithConflictStatus() throws Exception {
+    void GivenTakenEmail_WhenRegister_ThenResponsesWithConflictStatus() throws Exception {
         RegisterRequest payload =
                 new RegisterRequest("taken@email.com", "username", "password");
         String content = mapper.writeValueAsString(payload);
@@ -65,7 +61,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    void GivenTakenUsername_WhenRegister_ShouldResponseWithConflictStatus() throws Exception {
+    void GivenTakenUsername_WhenRegister_ThenResponsesWithConflictStatus() throws Exception {
         RegisterRequest payload =
                 new RegisterRequest("available@email.com", "taken-username", "password");
         String content = mapper.writeValueAsString(payload);
