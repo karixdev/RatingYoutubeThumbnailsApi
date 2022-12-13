@@ -21,7 +21,7 @@ Creates new, disabled user based on provided credentials and sends an email with
 
 **Success response**:
 
-Code: 201
+Code: `201`
 ```json
 {
     "message": "success"
@@ -33,7 +33,7 @@ Code: 201
 (1)
 If provided request body is invalid
 
-Code: 400
+Code: `400`
 ```json
 {
     "timestamp": "timestamp when error occurred",
@@ -46,7 +46,7 @@ Code: 400
 (2)
 If username or email is already taken
 
-Code: 409
+Code: `409`
 ```json
 {
     "timestamp": "timestamp when error occurred",
