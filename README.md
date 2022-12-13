@@ -106,4 +106,51 @@ If user is already enabled or `token` has expired:
     "path": "/api/v1/email-verification/{token}"
 }
 ```
+### POST /api/v1/email-verification/resend
 
+Resends an email with email verification token. There is a limit which states how many tokens can user request per hour, you can specify it in `application.yaml` under `email-verification.max-number-of-mails-per-hour` (the default value is 5). 
+
+**Auth required**: NO
+
+**Permissions required**: NONE
+
+**Request body**:
+
+| Name    | Type   | Constraints                   |
+|---------|--------|-------------------------------|
+| `email` | String | Must follow the email format. |
+
+**Success response**:
+
+Code: `201`
+```json
+{
+    "message": "success"
+}
+```
+
+**Error response**:
+
+(1)
+If user with provided `email` was not found
+
+Code: `404`
+```json
+{
+    "timestamp": "timestamp when error occurred",
+    "status": 404,
+    "error": "Not Found",
+    "path": "/api/v1/email-verification/resend"
+}
+```
+
+(2)
+If user is already enabled or requested too many tokens in one hour:
+```json
+{
+    "timestamp": "timestamp when error occurred",
+    "status": 400,
+    "error": "Bad request",
+    "path": "/api/v1/email-verification/{token}"
+}
+```
