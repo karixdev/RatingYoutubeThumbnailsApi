@@ -12,11 +12,11 @@ Creates new, disabled user based on provided credentials and sends an email with
 
 **Request body**:
 
-| Name     | Type   | Constraints                                           |
-|----------|--------|-------------------------------------------------------|
-| email    | String | Must follow the email format.                         |
-| username | String | Length must be at least 8 and at most 255 characters. |
-| password | String | Length must be at least 8 and at most 255 characters. |
+| Name       | Type   | Constraints                                           |
+|------------|--------|-------------------------------------------------------|
+| `email`    | String | Must follow the email format.                         |
+| `username` | String | Length must be at least 8 and at most 255 characters. |
+| `password` | String | Length must be at least 8 and at most 255 characters. |
 
 
 **Success response**:
@@ -68,9 +68,9 @@ Verifies token sent to user after registration or request new email verification
 
 **Path variables**:
 
-| Name     | Type   | Required |
-|----------|--------|----------|
-| token    | String | True     |
+| Name    | Type   | Required |
+|---------|--------|----------|
+| `token` | String | True     |
 
 **Success response**:
 
