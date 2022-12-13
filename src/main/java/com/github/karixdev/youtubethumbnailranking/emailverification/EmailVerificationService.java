@@ -109,7 +109,7 @@ public class EmailVerificationService {
         List<EmailVerificationToken> userTokens =
                 tokenRepository.findByUserOrderByCreatedAtDesc(user);
 
-        if (userTokens.size() <= properties.getMaxNumberOfMailsPerHour()) {
+        if (userTokens.size() < properties.getMaxNumberOfMailsPerHour()) {
             return true;
         }
 
@@ -125,7 +125,7 @@ public class EmailVerificationService {
         }
 
         EmailVerificationToken oldest =
-                userTokens.get(properties.getMaxNumberOfMailsPerHour());
+                userTokens.get(properties.getMaxNumberOfMailsPerHour() - 1);
 
         long hoursBetweenLatestAndOldest = ChronoUnit.HOURS.between(
                 latest.getCreatedAt(), oldest.getCreatedAt());

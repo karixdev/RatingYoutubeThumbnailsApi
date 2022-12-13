@@ -195,7 +195,7 @@ public class EmailVerificationControllerIT {
                 "password",
                 "username",
                 UserRole.ROLE_USER,
-                Boolean.TRUE
+                Boolean.FALSE
         );
 
         for (int i = 0; i < properties.getMaxNumberOfMailsPerHour(); i++) {

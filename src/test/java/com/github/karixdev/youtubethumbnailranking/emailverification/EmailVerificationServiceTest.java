@@ -392,7 +392,7 @@ public class EmailVerificationServiceTest {
 
         List<EmailVerificationToken> tokens = new LinkedList<>();
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 5; i++) {
             EmailVerificationToken token = EmailVerificationToken.builder()
                     .token("random")
                     .user(user)
