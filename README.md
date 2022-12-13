@@ -83,12 +83,27 @@ Code: `201`
 
 **Error response**:
 
-Code: `400`
+(1) 
+If `token` was not found
+
+Code: `404`
+```json
+{
+    "timestamp": "timestamp when error occurred",
+    "status": 404,
+    "error": "Not Found",
+    "path": "/api/v1/email-verification/{token}"
+}
+```
+
+(2)
+If user is already enabled or `token` has expired:
 ```json
 {
     "timestamp": "timestamp when error occurred",
     "status": 400,
-    "error": "Bad Request",
-    "path": "/api/v1/auth/register"
+    "error": "Bad request",
+    "path": "/api/v1/email-verification/{token}"
 }
 ```
+
