@@ -1,8 +1,12 @@
 package com.github.karixdev.youtubethumbnailranking.auth;
 
 import com.github.karixdev.youtubethumbnailranking.auth.payload.request.RegisterRequest;
+import com.github.karixdev.youtubethumbnailranking.auth.payload.request.SignInRequest;
+import com.github.karixdev.youtubethumbnailranking.auth.payload.response.SignInResponse;
 import com.github.karixdev.youtubethumbnailranking.emailverification.EmailVerificationService;
 import com.github.karixdev.youtubethumbnailranking.emailverification.EmailVerificationToken;
+import com.github.karixdev.youtubethumbnailranking.jwt.JwtService;
+import com.github.karixdev.youtubethumbnailranking.security.UserPrincipal;
 import com.github.karixdev.youtubethumbnailranking.shared.payload.response.SuccessResponse;
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserRole;
@@ -13,6 +17,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.time.LocalDateTime;
 
@@ -24,15 +31,16 @@ import static org.mockito.Mockito.*;
 public class AuthServiceTest {
     @InjectMocks
     AuthService underTest;
-
     @Mock
     UserService userService;
-
     @Mock
     EmailVerificationService emailVerificationService;
+    @Mock
+    AuthenticationManager authenticationManager;
+    @Mock
+    JwtService jwtService;
 
     User user;
-
     EmailVerificationToken token;
 
     @BeforeEach
@@ -42,6 +50,7 @@ public class AuthServiceTest {
                 .password("password")
                 .username("username")
                 .userRole(UserRole.ROLE_USER)
+                .isEnabled(Boolean.TRUE)
                 .build();
 
         token = EmailVerificationToken.builder()
@@ -79,6 +88,37 @@ public class AuthServiceTest {
         verify(userService).createUser(any(), any(), any(), any(), any());
         verify(emailVerificationService).createToken(any());
         verify(emailVerificationService).sendEmailWithVerificationLink(any());
+    }
+
+    @Test
+    @WithMockUser("customUsername")
+    void GivenSignInRequest_WhenSignIn_ThenReturnsCorrectSignInResponse() {
+        // Given
+        SignInRequest payload =
+                new SignInRequest("email@email.com", "password");
+
+        when(authenticationManager.authenticate(any()))
+                .thenReturn(new UsernamePasswordAuthenticationToken(
+                        new UserPrincipal(user),
+                        "email@email.com:password"
+                ));
+
+        when(jwtService.createToken(any()))
+                .thenReturn("token");
+
+        // When
+        SignInResponse result = underTest.signIn(payload);
+
+        // Then
+        assertThat(result.getAccessToken()).isEqualTo("token");
+
+        assertThat(result.getUserResponse().getIsEnabled()).isTrue();
+        assertThat(result.getUserResponse().getUserRole())
+                .isEqualTo(UserRole.ROLE_USER);
+        assertThat(result.getUserResponse().getUsername())
+                .isEqualTo("username");
+        assertThat(result.getUserResponse().getEmail())
+                .isEqualTo("email@email.com");
     }
 
 }

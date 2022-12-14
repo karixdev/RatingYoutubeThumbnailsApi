@@ -1,6 +1,8 @@
 package com.github.karixdev.youtubethumbnailranking.auth;
 
 import com.github.karixdev.youtubethumbnailranking.auth.payload.request.RegisterRequest;
+import com.github.karixdev.youtubethumbnailranking.auth.payload.request.SignInRequest;
+import com.github.karixdev.youtubethumbnailranking.auth.payload.response.SignInResponse;
 import com.github.karixdev.youtubethumbnailranking.shared.payload.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,5 +27,15 @@ public class AuthController {
         return new ResponseEntity<>(
                 service.registerNewUser(payload),
                 HttpStatus.CREATED);
+    }
+
+    @PostMapping("/sign-in")
+    public ResponseEntity<SignInResponse> signIn(
+            @Valid @RequestBody SignInRequest payload
+    ) {
+        return new ResponseEntity<>(
+                service.signIn(payload),
+                HttpStatus.OK
+        );
     }
 }

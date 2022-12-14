@@ -1,7 +1,9 @@
 package com.github.karixdev.youtubethumbnailranking.auth;
 
+import com.github.karixdev.youtubethumbnailranking.auth.payload.response.SignInResponse;
 import com.github.karixdev.youtubethumbnailranking.emailverification.EmailVerificationToken;
 import com.github.karixdev.youtubethumbnailranking.emailverification.EmailVerificationTokenRepository;
+import com.github.karixdev.youtubethumbnailranking.jwt.JwtService;
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserRepository;
 import com.github.karixdev.youtubethumbnailranking.user.UserRole;
@@ -9,7 +11,6 @@ import com.github.karixdev.youtubethumbnailranking.user.UserService;
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.ServerSetupTest;
-import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -21,7 +22,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import javax.mail.internet.MimeMessage;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +41,9 @@ public class AuthControllerIT {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    JwtService jwtService;
 
     @RegisterExtension
     static GreenMailExtension greenMail =
@@ -171,4 +174,107 @@ public class AuthControllerIT {
         });
     }
 
+    @Test
+    void shouldNotSignInNotEnabledUser() {
+        userService.createUser(
+                "email@email.com",
+                "username",
+                "password",
+                UserRole.ROLE_USER,
+                Boolean.FALSE
+        );
+
+        String payload = """
+                {
+                    "email": "email@email.com",
+                    "password": "password"
+                }
+                """;
+
+        webClient.post().uri("/api/v1/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(payload)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void shouldNotSignInNotExistingUser() {
+        String payload = """
+                {
+                    "email": "i-do-not-exist@email.com",
+                    "password": "password"
+                }
+                """;
+
+        webClient.post().uri("/api/v1/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(payload)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void shouldNotSignInUserGivenInvalidCredentials() {
+        userService.createUser(
+                "email@email.com",
+                "username",
+                "password",
+                UserRole.ROLE_USER,
+                Boolean.TRUE
+        );
+
+        String payload = """
+                {
+                    "email": "email@email.pl",
+                    "password": "password"
+                }
+                """;
+
+        webClient.post().uri("/api/v1/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(payload)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void shouldSignInUserWithValidCredentials() {
+        userService.createUser(
+                "email@email.com",
+                "username",
+                "password",
+                UserRole.ROLE_USER,
+                Boolean.TRUE
+        );
+
+        String payload = """
+                {
+                    "email": "email@email.com",
+                    "password": "password"
+                }
+                """;
+
+        var response = webClient.post().uri("/api/v1/auth/sign-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(payload)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(SignInResponse.class)
+                .returnResult()
+                .getResponseBody();
+
+        assertThat(response).isNotNull();
+
+        assertThat(response.getUserResponse().getEmail()).isEqualTo("email@email.com");
+        assertThat(response.getUserResponse().getUsername()).isEqualTo("username");
+        assertThat(response.getUserResponse().getIsEnabled()).isEqualTo(Boolean.TRUE);
+        assertThat(response.getUserResponse().getUserRole()).isEqualTo(UserRole.ROLE_USER);
+
+        assertThat(jwtService.isTokenValid(response.getAccessToken())).isTrue();
+    }
 }
