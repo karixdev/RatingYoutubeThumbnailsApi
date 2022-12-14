@@ -2,7 +2,7 @@
 
 ## 1. Available endpoints
 
-### POST /api/v1/auth/register/
+### POST /api/v1/auth/register
 
 Creates new, disabled user based on provided credentials and sends an email with email verification token.
 
