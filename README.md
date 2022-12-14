@@ -228,6 +228,6 @@ If user is already enabled or requested too many tokens in one hour:
   "timestamp": "timestamp when error occurred",
   "status": 400,
   "error": "Bad request",
-  "path": "/api/v1/email-verification/{token}"
+  "path": "/api/v1/email-verification/resend"
 }
 ```
