@@ -37,3 +37,7 @@ jwt:
   key:
     public: classpath:certs/public.pem
     private: classpath:certs/private.pem
+
+youtube-api:
+  base-url: https://youtube.googleapis.com/youtube/v3
+  key:

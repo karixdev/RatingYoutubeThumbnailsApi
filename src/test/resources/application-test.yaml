@@ -29,3 +29,6 @@ email-verification:
 email-sender:
   sender: test@youtube-thumbnail-ranking.com
 
+youtube-api:
+  base-url: https://youtube.googleapis.com/youtube/v3
+  key: api-key
