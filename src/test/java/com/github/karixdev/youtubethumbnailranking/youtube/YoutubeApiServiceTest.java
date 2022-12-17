@@ -1,4 +1,4 @@
-package com.github.karixdev.youtubethumbnailranking.youtubeapi;
+package com.github.karixdev.youtubethumbnailranking.youtube;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

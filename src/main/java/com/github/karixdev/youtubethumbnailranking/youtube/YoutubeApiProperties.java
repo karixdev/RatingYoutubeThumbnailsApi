@@ -1,4 +1,4 @@
-package com.github.karixdev.youtubethumbnailranking.youtubeapi;
+package com.github.karixdev.youtubethumbnailranking.youtube;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,6 +1,5 @@
-package com.github.karixdev.youtubethumbnailranking.youtubeapi;
+package com.github.karixdev.youtubethumbnailranking.youtube;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
