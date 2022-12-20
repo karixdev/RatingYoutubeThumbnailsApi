@@ -1,0 +1,74 @@
+package com.github.karixdev.youtubethumbnailranking.thumnail;
+
+import com.github.karixdev.youtubethumbnailranking.user.User;
+import lombok.*;
+
+import javax.persistence.*;
+import java.util.Objects;
+
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "thumbnail")
+public class Thumbnail {
+    @Id
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "thumbnail_gen"
+    )
+    @SequenceGenerator(
+            name = "thumbnail_gen",
+            sequenceName = "thumbnail_seq",
+            allocationSize = 1
+    )
+    @Column(
+            name = "id",
+            nullable = false,
+            updatable = false
+    )
+    @Setter(AccessLevel.NONE)
+    private Long id;
+
+    @Column(
+            name = "youtube_video_id",
+            nullable = false
+    )
+    private String youtubeVideoId;
+
+    @Column(
+            name = "url",
+            nullable = false
+    )
+    private String url;
+
+    @ToString.Exclude
+    @ManyToOne
+    @JoinColumn(
+            name = "added_by_id",
+            referencedColumnName = "id",
+            foreignKey = @ForeignKey(
+                    name = "added_by_id_fk"
+            )
+    )
+    private User addedBy;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Thumbnail thumbnail = (Thumbnail) o;
+        return Objects.equals(id, thumbnail.id) &&
+                Objects.equals(youtubeVideoId, thumbnail.youtubeVideoId) &&
+                Objects.equals(url, thumbnail.url) &&
+                Objects.equals(addedBy.getId(), thumbnail.addedBy.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, youtubeVideoId, url, addedBy.getId());
+    }
+}
