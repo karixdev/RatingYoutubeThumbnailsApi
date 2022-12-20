@@ -30,5 +30,5 @@ email-sender:
   sender: test@youtube-thumbnail-ranking.com
 
 youtube-api:
-  base-url: https://youtube.googleapis.com/youtube/v3
+  base-url: http://test-youtube-api
   key: api-key

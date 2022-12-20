@@ -17,7 +17,7 @@ public class YoutubeApiPropertiesIT {
     @Test
     void shouldLoadBaseUrl() {
         assertThat(underTest.getBaseUrl())
-                .isEqualTo("https://youtube.googleapis.com/youtube/v3");
+                .isEqualTo("http://test-youtube-api");
     }
 
     @Test
