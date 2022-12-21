@@ -267,4 +267,117 @@ public class ThumbnailControllerIT {
         assertThat(thumbnail.getAddedBy()).isEqualTo(userPrincipal.getUser());
     }
 
+    @Test
+    void shouldNotDeleteNotExistingThumbnail() {
+        UserPrincipal userPrincipal = new UserPrincipal(
+                userService.createUser(
+                        "email@email.pl",
+                        "username",
+                        "password",
+                        UserRole.ROLE_USER,
+                        Boolean.TRUE
+                ));
+
+        String token = jwtService.createToken(userPrincipal);
+
+        webClient.delete().uri("/api/v1/thumbnail/1")
+                .header("Authorization", "Bearer " + token)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void shouldNotDeleteForUserWhoIsNotAnAdminAndNotAnAuthorOfThumbnail() {
+        Thumbnail thumbnail = thumbnailRepository.save(Thumbnail.builder()
+                .url("thumbnail-url")
+                .youtubeVideoId("youtube-id")
+                .addedBy(userService.createUser(
+                        "email@email.pl",
+                        "username",
+                        "password",
+                        UserRole.ROLE_USER,
+                        Boolean.TRUE
+                ))
+                .build());
+
+        UserPrincipal userPrincipal = new UserPrincipal(
+                userService.createUser(
+                        "email-2@email.pl",
+                        "username-2",
+                        "password-2",
+                        UserRole.ROLE_USER,
+                        Boolean.TRUE
+                ));
+
+        String token = jwtService.createToken(userPrincipal);
+
+        webClient.delete().uri("/api/v1/thumbnail/" + thumbnail.getId())
+                .header("Authorization", "Bearer " + token)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isForbidden();
+    }
+
+    @Test
+    void shouldDeleteForUserWhoIsAnAdminAndNotAnAuthorOfThumbnail() {
+        Thumbnail thumbnail = thumbnailRepository.save(Thumbnail.builder()
+                .url("thumbnail-url")
+                .youtubeVideoId("youtube-id")
+                .addedBy(userService.createUser(
+                        "email@email.pl",
+                        "username",
+                        "password",
+                        UserRole.ROLE_USER,
+                        Boolean.TRUE
+                ))
+                .build());
+
+        UserPrincipal userPrincipal = new UserPrincipal(
+                userService.createUser(
+                        "email-2@email.pl",
+                        "username-2",
+                        "password-2",
+                        UserRole.ROLE_ADMIN,
+                        Boolean.TRUE
+                ));
+
+        String token = jwtService.createToken(userPrincipal);
+
+        webClient.delete().uri("/api/v1/thumbnail/" + thumbnail.getId())
+                .header("Authorization", "Bearer " + token)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("success");
+    }
+
+    @Test
+    void shouldDeleteForAnAuthorOfThumbnail() {
+        UserPrincipal userPrincipal = new UserPrincipal(
+                userService.createUser(
+                        "email@email.pl",
+                        "username",
+                        "password",
+                        UserRole.ROLE_USER,
+                        Boolean.TRUE
+                ));
+
+        Thumbnail thumbnail = thumbnailRepository.save(Thumbnail.builder()
+                .url("thumbnail-url")
+                .youtubeVideoId("youtube-id")
+                .addedBy(userPrincipal.getUser())
+                .build());
+
+        String token = jwtService.createToken(userPrincipal);
+
+        webClient.delete().uri("/api/v1/thumbnail/" + thumbnail.getId())
+                .header("Authorization", "Bearer " + token)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("success");
+    }
 }

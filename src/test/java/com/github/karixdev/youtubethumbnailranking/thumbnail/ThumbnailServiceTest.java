@@ -1,6 +1,9 @@
 package com.github.karixdev.youtubethumbnailranking.thumbnail;
 
 import com.github.karixdev.youtubethumbnailranking.security.UserPrincipal;
+import com.github.karixdev.youtubethumbnailranking.shared.exception.PermissionDeniedException;
+import com.github.karixdev.youtubethumbnailranking.shared.exception.ResourceNotFoundException;
+import com.github.karixdev.youtubethumbnailranking.shared.payload.response.SuccessResponse;
 import com.github.karixdev.youtubethumbnailranking.thumnail.Thumbnail;
 import com.github.karixdev.youtubethumbnailranking.thumnail.ThumbnailRepository;
 import com.github.karixdev.youtubethumbnailranking.thumnail.ThumbnailService;
@@ -115,5 +118,87 @@ public class ThumbnailServiceTest {
         assertThat(result).isEqualTo(new ThumbnailResponse(thumbnail));
 
         verify(youtubeVideoService).getVideoDetails(any());
+    }
+
+    @Test
+    void GivenNotExistingThumbnailId_WhenDelete_ThenThrowsResourceNotFoundExceptionWithCorrectMessage() {
+        // Given
+        Long id = 4L;
+
+        when(thumbnailRepository.findById(any()))
+                .thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.delete(id, userPrincipal))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Thumbnail with provided id does not found");
+    }
+
+    @Test
+    void GivenUserPrincipalWhoIsNotAnAdminAndNotAndAuthorOfThumbnail_WhenDelete_ThenThrowsPermissionDeniedExceptionWithCorrectMessage() {
+        // Given
+        Long id = 1L;
+
+        UserPrincipal otherUserPrincipal = new UserPrincipal(
+                User.builder()
+                        .email("email-2@email.com")
+                        .username("username-2")
+                        .password("password-2")
+                        .isEnabled(Boolean.TRUE)
+                        .userRole(UserRole.ROLE_USER)
+                        .build()
+        );
+
+        when(thumbnailRepository.findById(any()))
+                .thenReturn(Optional.of(thumbnail));
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.delete(id, otherUserPrincipal))
+                .isInstanceOf(PermissionDeniedException.class)
+                .hasMessage("Cannot delete thumbnail with provided id");
+    }
+
+    @Test
+    void GivenAdminUserPrincipalWhoIsNotAuthorOfThumbnail_WhenDelete_ThenReturnsSuccessResponse() {
+        // Given
+        Long id = 1L;
+
+        UserPrincipal adminUserPrincipal = new UserPrincipal(
+                User.builder()
+                        .email("email-2@email.com")
+                        .username("username-2")
+                        .password("password-2")
+                        .isEnabled(Boolean.TRUE)
+                        .userRole(UserRole.ROLE_ADMIN)
+                        .build()
+        );
+
+        when(thumbnailRepository.findById(any()))
+                .thenReturn(Optional.of(thumbnail));
+
+        // When
+        SuccessResponse result = underTest.delete(id, adminUserPrincipal);
+
+        // Then
+        assertThat(result.getMessage()).isEqualTo("success");
+
+        verify(thumbnailRepository).delete(eq(thumbnail));
+    }
+
+    @Test
+    void GivenUserPrincipalWhoIsAuthorOfThumbnail_WhenDelete_ThenReturnsSuccessResponse() {
+        // Given
+        Long id = 1L;
+
+        when(thumbnailRepository.findById(any()))
+                .thenReturn(Optional.of(thumbnail));
+
+        // When
+        SuccessResponse result = underTest.delete(id, userPrincipal);
+
+        // Then
+        assertThat(result.getMessage()).isEqualTo("success");
+
+        verify(thumbnailRepository).delete(eq(thumbnail));
     }
 }
