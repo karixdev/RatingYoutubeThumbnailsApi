@@ -1,4 +1,4 @@
-# Youtube Thumbnail Ranking
+# YouTube Thumbnail Ranking
 
 ## 1. Available endpoints
 
@@ -248,7 +248,7 @@ Adds thumbnail based on provided `youtube_video_id`. When endpoint is called the
 
 **Success response**:
 
-Code: `200`
+Code: `201`
 
 ```json
 {
@@ -316,5 +316,59 @@ Code: `503`
   "status": 503,
   "error": "Bad request",
   "path": "/api/v1/thumbnail"
+}
+```
+
+### DELETE /api/v1/thumbnail/{id}
+
+Deletes a thumbnail based on the given `id`. Authors can delete their thumbnails, the only exception is users with the role `ADMIN` - they can delete everyone's thumbnail.
+
+**Auth required**: YES
+
+**Permissions required**: NONE
+
+**Path variables**:
+
+| Name | Type | Constraints                           |
+|------|------|---------------------------------------|
+| `id` | Long | Length must be at least 5 characters. |
+
+**Success response**:
+
+Code: `200`
+
+```json
+{
+  "message": "success"
+}
+```
+
+**Error response**:
+
+(1)
+If thumbnail with provided `id` was not found.
+
+Code: `404`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 404,
+  "error": "Not Found",
+  "path": "/api/v1/thumbnail/{id}"
+}
+```
+
+(2)
+If user is not an author and is hasn't got `ADMIN` role.
+
+Code: `403`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 403,
+  "error": "Not Found",
+  "path": "/api/v1/thumbnail/{id}"
 }
 ```
