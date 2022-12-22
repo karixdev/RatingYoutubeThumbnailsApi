@@ -231,3 +231,90 @@ If user is already enabled or requested too many tokens in one hour:
   "path": "/api/v1/email-verification/resend"
 }
 ```
+
+### POST /api/v1/thumbnail
+
+Adds thumbnail based on provided `youtube_video_id`. When endpoint is called then app calls YouTube API to get details about video. From YouTube API response the url for thumbnail is extracted and then new thumbnail is added to database.  
+
+**Auth required**: YES
+
+**Permissions required**: NONE
+
+**Request body**:
+
+| Name               | Type   | Constraints                           |
+|--------------------|--------|---------------------------------------|
+| `youtube_video_id` | String | Length must be at least 5 characters. |
+
+**Success response**:
+
+Code: `200`
+
+```json
+{
+  "id": 1,
+  "youtube_video_id": "dQw4w9WgXcQ",
+  "url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+  "added_by": {
+    "username": "user123"
+  }
+}
+```
+
+**Error response**:
+
+(1)
+If YouTube API responses with empty `items` list.
+
+Code: `404`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 404,
+  "error": "Not Found",
+  "path": "/api/v1/thumbnail"
+}
+```
+
+(2)
+If `youtube_video_id` is too short.
+
+Code: `400`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 400,
+  "error": "Bad request",
+  "path": "/api/v1/thumbnail"
+}
+```
+
+(3)
+If thumbnail with provided `youtube_video_id` already exists in database.
+
+Code: `409`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 409,
+  "error": "Bad request",
+  "path": "/api/v1/thumbnail"
+}
+```
+
+(4)
+If YouTube API is unavailable.
+
+Code: `503`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 503,
+  "error": "Bad request",
+  "path": "/api/v1/thumbnail"
+}
+```
