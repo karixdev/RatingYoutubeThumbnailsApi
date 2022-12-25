@@ -32,3 +32,7 @@ email-sender:
 youtube-api:
   base-url: http://test-youtube-api
   key: api-key
+
+rating:
+  base-points: 1400
+  k-parameter: 32

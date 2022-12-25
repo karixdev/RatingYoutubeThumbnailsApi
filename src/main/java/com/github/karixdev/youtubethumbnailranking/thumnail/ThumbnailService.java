@@ -4,6 +4,7 @@ import com.github.karixdev.youtubethumbnailranking.security.UserPrincipal;
 import com.github.karixdev.youtubethumbnailranking.shared.exception.PermissionDeniedException;
 import com.github.karixdev.youtubethumbnailranking.shared.exception.ResourceNotFoundException;
 import com.github.karixdev.youtubethumbnailranking.shared.payload.response.SuccessResponse;
+import com.github.karixdev.youtubethumbnailranking.thumnail.exception.EmptyThumbnailsListException;
 import com.github.karixdev.youtubethumbnailranking.thumnail.exception.ThumbnailAlreadyExistsException;
 import com.github.karixdev.youtubethumbnailranking.thumnail.payload.request.ThumbnailRequest;
 import com.github.karixdev.youtubethumbnailranking.thumnail.payload.response.ThumbnailResponse;
@@ -13,6 +14,9 @@ import com.github.karixdev.youtubethumbnailranking.youtube.YoutubeVideoService;
 import com.github.karixdev.youtubethumbnailranking.youtube.payload.response.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -59,5 +63,28 @@ public class ThumbnailService {
         repository.delete(thumbnail);
 
         return new SuccessResponse();
+    }
+
+    public Thumbnail getRandomThumbnailFromList(List<Thumbnail> thumbnails) {
+        if (thumbnails.isEmpty()) {
+            throw new EmptyThumbnailsListException();
+        }
+
+        Random random = new Random();
+        int randomIdx = random.nextInt(thumbnails.size());
+
+        return thumbnails.get(randomIdx);
+    }
+
+    public Thumbnail getRandomThumbnail() {
+        List<Thumbnail> thumbnails = repository.findAll();
+
+        return getRandomThumbnailFromList(thumbnails);
+    }
+
+    public List<Thumbnail> getThumbnailsWithoutUserRating(User user) {
+        return repository.findAll().stream().filter(thumbnail ->
+                thumbnail.getRatings().stream().noneMatch(rating -> rating.getUser().equals(user)))
+                .toList();
     }
 }

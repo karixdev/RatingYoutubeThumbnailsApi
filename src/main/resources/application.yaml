@@ -41,3 +41,7 @@ jwt:
 youtube-api:
   base-url: https://youtube.googleapis.com/youtube/v3
   key:
+
+rating:
+  base-points: 1400
+  k-parameter: 32

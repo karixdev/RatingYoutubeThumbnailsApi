@@ -1,5 +1,6 @@
 package com.github.karixdev.youtubethumbnailranking.thumbnail;
 
+import com.github.karixdev.youtubethumbnailranking.rating.Rating;
 import com.github.karixdev.youtubethumbnailranking.security.UserPrincipal;
 import com.github.karixdev.youtubethumbnailranking.shared.exception.PermissionDeniedException;
 import com.github.karixdev.youtubethumbnailranking.shared.exception.ResourceNotFoundException;
@@ -7,6 +8,7 @@ import com.github.karixdev.youtubethumbnailranking.shared.payload.response.Succe
 import com.github.karixdev.youtubethumbnailranking.thumnail.Thumbnail;
 import com.github.karixdev.youtubethumbnailranking.thumnail.ThumbnailRepository;
 import com.github.karixdev.youtubethumbnailranking.thumnail.ThumbnailService;
+import com.github.karixdev.youtubethumbnailranking.thumnail.exception.EmptyThumbnailsListException;
 import com.github.karixdev.youtubethumbnailranking.thumnail.exception.ThumbnailAlreadyExistsException;
 import com.github.karixdev.youtubethumbnailranking.thumnail.payload.request.ThumbnailRequest;
 import com.github.karixdev.youtubethumbnailranking.thumnail.payload.response.ThumbnailResponse;
@@ -23,7 +25,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -200,5 +202,100 @@ public class ThumbnailServiceTest {
         assertThat(result.getMessage()).isEqualTo("success");
 
         verify(thumbnailRepository).delete(eq(thumbnail));
+    }
+
+    @Test
+    void GivenEmptyThumbnailList_WhenGetRandomThumbnailFromList_ThenThrowsEmptyThumbnailsListExceptionWithCorrectMessage() {
+        // Given
+        List<Thumbnail> thumbnails = List.of();
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.getRandomThumbnailFromList(thumbnails))
+                .isInstanceOf(EmptyThumbnailsListException.class)
+                .hasMessage("Provided list with thumbnails is empty");
+    }
+
+    @Test
+    void GivenNotEmptyThumbnailList_WhenGetRandomThumbnailFromList_ThenReturnsRandomThumbnailFromThumbnailList() {
+        // Given
+        List<Thumbnail> thumbnails = new ArrayList<>();
+
+        for (int i = 0; i < 5; i++) {
+            thumbnails.add(Thumbnail.builder()
+                    .id((long) i)
+                    .addedBy(userPrincipal.getUser())
+                    .url("thumbnail-url-" + i)
+                    .youtubeVideoId("youtube-id-" + i)
+                    .build());
+        }
+
+        // When
+        Thumbnail result = underTest.getRandomThumbnailFromList(thumbnails);
+
+        // Then
+        assertThat(thumbnails).contains(result);
+    }
+
+    @Test
+    void GivenEmptyRepository_WhenGetRandomThumbnail_ThenThrowsEmptyThumbnailsListExceptionWithCorrectMessage() {
+        // Given
+        when(thumbnailRepository.findAll())
+                .thenReturn(List.of());
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.getRandomThumbnail())
+                .isInstanceOf(EmptyThumbnailsListException.class)
+                .hasMessage("Provided list with thumbnails is empty");
+    }
+
+    @Test
+    void GivenNotEmptyRepository_WhenGetRandomThumbnail_ThenReturnsRandomThumbnailFromRepositoryList() {
+        // Given
+        List<Thumbnail> thumbnails = new ArrayList<>();
+
+        for (int i = 0; i < 5; i++) {
+            thumbnails.add(Thumbnail.builder()
+                    .id((long) i)
+                    .addedBy(userPrincipal.getUser())
+                    .url("thumbnail-url-" + i)
+                    .youtubeVideoId("youtube-id-" + i)
+                    .build());
+        }
+
+        when(thumbnailRepository.findAll())
+                .thenReturn(thumbnails);
+
+        // When
+        Thumbnail result = underTest.getRandomThumbnail();
+
+        // Then
+        assertThat(thumbnails).contains(result);
+    }
+
+    @Test
+    void GivenUser_WhenGetThumbnailsWithoutUserRating_ThenReturnsCorrectList() {
+        // Given
+        User user = userPrincipal.getUser();
+
+        when(thumbnailRepository.findAll())
+                .thenReturn(List.of(
+                        thumbnail,
+                        Thumbnail.builder()
+                                .id(2L)
+                                .addedBy(user)
+                                .url("thumbnail-url-2")
+                                .youtubeVideoId("youtube-id-2")
+                                .ratings(Set.of(Rating.builder()
+                                        .user(userPrincipal.getUser())
+                                        .build()))
+                                .build()
+                ));
+
+        // When
+        List<Thumbnail> result = underTest.getThumbnailsWithoutUserRating(user);
+
+        // Then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).isEqualTo(thumbnail);
     }
 }

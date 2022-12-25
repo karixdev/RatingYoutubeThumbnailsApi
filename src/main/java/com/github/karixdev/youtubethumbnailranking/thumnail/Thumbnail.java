@@ -1,10 +1,13 @@
 package com.github.karixdev.youtubethumbnailranking.thumnail;
 
+import com.github.karixdev.youtubethumbnailranking.rating.Rating;
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -55,6 +58,14 @@ public class Thumbnail {
             )
     )
     private User addedBy;
+
+    @OneToMany(
+            mappedBy = "thumbnail",
+            orphanRemoval = true
+    )
+    @ToString.Exclude
+    @Builder.Default
+    private Set<Rating> ratings = new LinkedHashSet<>();
 
     @Override
     public boolean equals(Object o) {
