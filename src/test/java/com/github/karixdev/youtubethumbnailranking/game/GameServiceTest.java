@@ -1,5 +1,6 @@
 package com.github.karixdev.youtubethumbnailranking.game;
 
+import com.github.karixdev.youtubethumbnailranking.game.exception.GameHasNotEndedException;
 import com.github.karixdev.youtubethumbnailranking.game.payload.response.GameResponse;
 import com.github.karixdev.youtubethumbnailranking.rating.RatingService;
 import com.github.karixdev.youtubethumbnailranking.security.UserPrincipal;
@@ -19,9 +20,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 
-import static org.assertj.core.api.Assertions.as;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,6 +43,9 @@ public class GameServiceTest {
 
     @Mock
     Clock clock;
+
+    @Mock
+    GameProperties properties;
 
     User user;
 
@@ -115,6 +119,31 @@ public class GameServiceTest {
         assertThat(result.getThumbnail2().getUrl()).isEqualTo("thumbnail-url-2");
 
         verify(repository).save(any());
+    }
+
+    @Test
+    void GivenUserPrincipalThatHasJustStartedGame_WhenStart_ThenThrowsGameHasNotEndedExceptionWithCorrectMessage() {
+        // Given
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+
+        when(clock.getZone()).thenReturn(NOW.getZone());
+        when(clock.instant()).thenReturn(NOW.toInstant());
+
+        when(repository.findByUserOrderByLastActivityDesc(any()))
+                .thenReturn(List.of(Game.builder()
+                        .id(1L)
+                        .user(user)
+                        .thumbnail1(thumbnail1)
+                        .thumbnail2(thumbnail2)
+                        .lastActivity(NOW.toLocalDateTime().plusMinutes(1))
+                        .build()));
+
+        when(properties.getDuration()).thenReturn(10);
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.start(userPrincipal))
+                .isInstanceOf(GameHasNotEndedException.class)
+                .hasMessage("Game has not ended yet");
     }
 
 }

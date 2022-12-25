@@ -90,4 +90,36 @@ public class GameControllerIT {
         assertThat(game.getThumbnail1()).isNotNull();
         assertThat(game.getThumbnail2()).isNotNull();
     }
+
+    @Test
+    void shouldNotStartGameBecauseThereIsOne() {
+        UserPrincipal userPrincipal = new UserPrincipal(
+                userService.createUser(
+                        "email@email.pl",
+                        "username",
+                        "password",
+                        UserRole.ROLE_USER,
+                        Boolean.TRUE
+                ));
+
+        for (int i = 0; i < 2; i++) {
+            thumbnailRepository.save(Thumbnail.builder()
+                    .addedBy(userPrincipal.getUser())
+                    .url("thumbnail-url-" + i)
+                    .youtubeVideoId("youtube-id-" + i)
+                    .build());
+        }
+
+        String token = jwtService.createToken(userPrincipal);
+
+        webClient.post().uri("/api/v1/game/start")
+                .header("Authorization", "Bearer " + token)
+                .exchange()
+                .expectStatus().isOk();
+
+        webClient.post().uri("/api/v1/game/start")
+                .header("Authorization", "Bearer " + token)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
 }

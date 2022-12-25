@@ -45,3 +45,6 @@ youtube-api:
 rating:
   base-points: 1400
   k-parameter: 32
+
+game:
+  duration: 15

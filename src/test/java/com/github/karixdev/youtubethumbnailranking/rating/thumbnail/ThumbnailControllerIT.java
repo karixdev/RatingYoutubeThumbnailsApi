@@ -1,4 +1,4 @@
-package com.github.karixdev.youtubethumbnailranking.thumbnail;
+package com.github.karixdev.youtubethumbnailranking.rating.thumbnail;
 
 import com.github.karixdev.youtubethumbnailranking.jwt.JwtService;
 import com.github.karixdev.youtubethumbnailranking.security.UserPrincipal;
