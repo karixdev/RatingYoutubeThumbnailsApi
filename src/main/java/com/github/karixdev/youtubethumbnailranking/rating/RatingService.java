@@ -20,7 +20,7 @@ public class RatingService {
     public Thumbnail pickOpponent(Thumbnail thumbnail, User user) {
         Rating thumbnailRating = repository
                 .findByThumbnailAndUser(thumbnail, user)
-                .orElse(repository.save(Rating.builder()
+                .orElseGet(() -> repository.save(Rating.builder()
                         .thumbnail(thumbnail)
                         .user(user)
                         .points(properties.getBasePoints())
