@@ -1,5 +1,6 @@
 package com.github.karixdev.youtubethumbnailranking.game;
 
+import com.github.karixdev.youtubethumbnailranking.game.payload.response.GameResponse;
 import com.github.karixdev.youtubethumbnailranking.security.CurrentUser;
 import com.github.karixdev.youtubethumbnailranking.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class GameController {
     private final GameService service;
 
     @PostMapping("/start")
-    public ResponseEntity<?> start(
+    public ResponseEntity<GameResponse> start(
             @CurrentUser UserPrincipal userPrincipal
     ) {
         return new ResponseEntity<>(
