@@ -1,14 +1,13 @@
 package com.github.karixdev.youtubethumbnailranking.game;
 
+import com.github.karixdev.youtubethumbnailranking.game.payload.request.GameResultRequest;
 import com.github.karixdev.youtubethumbnailranking.game.payload.response.GameResponse;
 import com.github.karixdev.youtubethumbnailranking.security.CurrentUser;
 import com.github.karixdev.youtubethumbnailranking.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/game")
@@ -22,6 +21,18 @@ public class GameController {
     ) {
         return new ResponseEntity<>(
                 service.start(userPrincipal),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/result/{id}")
+    public ResponseEntity<GameResponse> result(
+            @PathVariable(name = "id") Long id,
+            @RequestBody GameResultRequest payload,
+            @CurrentUser UserPrincipal userPrincipal
+    ) {
+        return new ResponseEntity<>(
+                service.result(id, payload, userPrincipal),
                 HttpStatus.OK
         );
     }

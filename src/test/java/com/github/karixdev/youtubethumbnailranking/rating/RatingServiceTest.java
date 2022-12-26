@@ -19,6 +19,8 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -66,9 +68,6 @@ public class RatingServiceTest {
                 .build();
 
         rating.setThumbnail(thumbnail);
-
-        when(properties.getBasePoints())
-                .thenReturn(new BigDecimal(1400));
     }
 
 
@@ -97,7 +96,7 @@ public class RatingServiceTest {
                 .thenReturn(otherThumbnail);
 
         // When
-        Thumbnail result = underTest.pickOpponent(thumbnail, user);
+        Thumbnail result = underTest.pickOpponent(thumbnail, user, null);
 
         // Then
         assertThat(result).isEqualTo(otherThumbnail);
@@ -110,6 +109,9 @@ public class RatingServiceTest {
 
         when(thumbnailService.getThumbnailsWithoutUserRating(any()))
                 .thenReturn(List.of());
+
+        when(properties.getBasePoints())
+                .thenReturn(new BigDecimal(1400));
 
         List<Rating> ratings = new ArrayList<>();
 
@@ -137,7 +139,7 @@ public class RatingServiceTest {
                 .thenReturn(ratings);
 
         // When
-        Thumbnail result = underTest.pickOpponent(thumbnail, user);
+        Thumbnail result = underTest.pickOpponent(thumbnail, user, null);
 
         // Then
         assertThat(result).isEqualTo(ratings.get(4).getThumbnail());
@@ -147,6 +149,9 @@ public class RatingServiceTest {
     void GivenThumbnailAndUserThatFindByUserAndThumbnailNotIsNotEmptyButGetThumbnailsWithoutUserRatingIsNotEmpty_WhenPickOpponent_ThenReturnsRandomThumbnailFromThumbnailServiceGetRandomThumbnailFromList() {
         when(repository.findByThumbnailAndUser(any(), any()))
                 .thenReturn(Optional.of(rating));
+
+        when(properties.getBasePoints())
+                .thenReturn(new BigDecimal(1400));
 
         Thumbnail randomThumbnail = Thumbnail.builder()
                 .id(101L)
@@ -187,9 +192,95 @@ public class RatingServiceTest {
                 .thenReturn(ratings);
 
         // When
-        Thumbnail result = underTest.pickOpponent(thumbnail, user);
+        Thumbnail result = underTest.pickOpponent(thumbnail, user, null);
 
         // Then
         assertThat(result).isEqualTo(randomThumbnail);
+    }
+
+    @Test
+    void GivenThumbnailAndUserAndPreviousOpponentThatFindByUserAndThumbnailNotIsNotEmptyButGetThumbnailsWithoutUserRatingIsEmpty_WhenPickOpponent_ThenReturnsRandomThumbnailFromThumbnailServiceGetRandomThumbnailFromListExcludingPreviousOpponent() {
+        // Given
+        List<Rating> ratings = new ArrayList<>();
+
+        for (int i = 1; i < 6; i++) {
+            Thumbnail otherThumbnail = Thumbnail.builder()
+                    .id((long) i)
+                    .addedBy(user)
+                    .url("thumbnail-url-" + i)
+                    .youtubeVideoId("youtube-id-" + i)
+                    .build();
+
+            Rating newRating = Rating.builder()
+                    .id((long) i)
+                    .user(user)
+                    .thumbnail(otherThumbnail)
+                    .points(new BigDecimal(1500 - i))
+                    .build();
+
+            otherThumbnail.setRatings(Set.of(newRating));
+
+            ratings.add(newRating);
+        }
+
+        Thumbnail previousOpponent = ratings.get(4).getThumbnail();
+
+        when(repository.findByUserAndThumbnailNot(any(), any()))
+                .thenReturn(ratings);
+
+        when(repository.findByThumbnailAndUser(any(), any()))
+                .thenReturn(Optional.of(rating));
+
+        when(thumbnailService.getThumbnailsWithoutUserRating(any()))
+                .thenReturn(List.of());
+
+        when(properties.getBasePoints())
+                .thenReturn(new BigDecimal(1400));
+
+        // When
+        Thumbnail result = underTest.pickOpponent(thumbnail, user, previousOpponent);
+
+        // Then
+        assertThat(result).isEqualTo(ratings.get(3).getThumbnail());
+    }
+
+    @Test
+    void GivenWinnerAndLoserAndUser_WhenUpdateRatings_ThenUpdatesThumbnailsRatings() {
+        // Given
+        Thumbnail otherThumbnail = Thumbnail.builder()
+                .id(2L)
+                .addedBy(user)
+                .url("thumbnail-url-2")
+                .youtubeVideoId("youtube-id-2")
+                .build();
+
+        Rating otherRating = Rating.builder()
+                .id(101L)
+                .user(user)
+                .points(new BigDecimal(1300))
+                .thumbnail(otherThumbnail)
+                .build();
+
+        otherThumbnail.setRatings(Set.of(otherRating));
+
+        when(repository.findByThumbnailAndUser(eq(thumbnail), eq(user)))
+                .thenReturn(Optional.of(rating));
+
+        when(repository.findByThumbnailAndUser(eq(otherThumbnail), eq(user)))
+                .thenReturn(Optional.of(otherRating));
+
+        when(properties.getKParameter()).thenReturn(32);
+
+        // When
+        underTest.updateRatings(thumbnail, otherThumbnail, user);
+
+        // Then
+        assertThat(rating.getPoints())
+                .isGreaterThan(new BigDecimal(1400));
+        assertThat(otherRating.getPoints())
+                .isLessThan(new BigDecimal(1300));
+
+        verify(repository).save(eq((rating)));
+        verify(repository).save(eq(otherRating));
     }
 }
