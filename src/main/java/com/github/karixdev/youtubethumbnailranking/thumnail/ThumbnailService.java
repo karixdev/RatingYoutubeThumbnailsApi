@@ -83,7 +83,7 @@ public class ThumbnailService {
     }
 
     public List<Thumbnail> getThumbnailsWithoutUserRating(User user) {
-        return repository.findAll().stream().filter(thumbnail ->
+        return repository.findAllLoadRatings().stream().filter(thumbnail ->
                 thumbnail.getRatings().stream().noneMatch(rating -> rating.getUser().equals(user)))
                 .toList();
     }
