@@ -1,6 +1,5 @@
 package com.github.karixdev.youtubethumbnailranking.jwt;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,7 +10,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
-public class JwtPropertiesIT {
+public class JwtPropertiesTest {
     @Autowired
     JwtProperties underTest;
 

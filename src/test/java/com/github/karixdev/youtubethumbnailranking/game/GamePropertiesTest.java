@@ -1,4 +1,4 @@
-package com.github.karixdev.youtubethumbnailranking.youtube;
+package com.github.karixdev.youtubethumbnailranking.game;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,19 +10,12 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
-public class YoutubeApiPropertiesIT {
+public class GamePropertiesTest {
     @Autowired
-    YoutubeApiProperties underTest;
+    GameProperties underTest;
 
     @Test
-    void shouldLoadBaseUrl() {
-        assertThat(underTest.getBaseUrl())
-                .isEqualTo("http://test-youtube-api");
-    }
-
-    @Test
-    void shouldLoadApiKey() {
-        assertThat(underTest.getApiKey())
-                .isEqualTo("api-key");
+    void shouldLoadDuration() {
+        assertThat(underTest.getDuration()).isEqualTo(10);
     }
 }
