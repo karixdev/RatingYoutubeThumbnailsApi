@@ -360,18 +360,10 @@ public class GameControllerIT {
                         Boolean.TRUE
                 ));
 
-        String payload = """
-                {
-                    "winner_id": 1
-                }
-                """;
-
         String token = jwtService.createToken(userPrincipal);
 
         webClient.post().uri("/api/v1/game/end/121")
                 .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(payload)
                 .exchange()
                 .expectStatus().isNotFound();
     }
@@ -408,16 +400,8 @@ public class GameControllerIT {
 
         String token = jwtService.createToken(otherPrincipal);
 
-        String payload = """
-                {
-                    "winner_id": 1
-                }
-                """;
-
         webClient.post().uri("/api/v1/game/end/" + gameResponse.getId())
                 .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(payload)
                 .exchange()
                 .expectStatus().isForbidden();
     }
@@ -455,16 +439,8 @@ public class GameControllerIT {
 
         String token = jwtService.createToken(userPrincipal);
 
-        String payload = """
-                {
-                    "winner_id": 1
-                }
-                """;
-
         webClient.post().uri("/api/v1/game/end/" + game.getId())
                 .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(payload)
                 .exchange()
                 .expectStatus().isBadRequest();
     }
@@ -501,16 +477,8 @@ public class GameControllerIT {
 
         String token = jwtService.createToken(userPrincipal);
 
-        String payload = """
-                {
-                    "winner_id": 1
-                }
-                """;
-
         webClient.post().uri("/api/v1/game/end/" + game.getId())
                 .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(payload)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
