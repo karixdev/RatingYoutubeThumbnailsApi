@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,5 +74,15 @@ public class ThumbnailRepositoryTest {
         // Then
         assertThat(result).isNotEmpty();
         assertThat(result.get()).isEqualTo(thumbnail);
+    }
+
+    @Test
+    void WhenFindAllThumbnails_ThenReturnsCorrectList() {
+        // When
+        List<Thumbnail> result = underTest.findAllThumbnails();
+
+        // Then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).isEqualTo(thumbnail);
     }
 }

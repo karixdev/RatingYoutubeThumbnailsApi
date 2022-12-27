@@ -22,5 +22,5 @@ public interface ThumbnailRepository extends JpaRepository<Thumbnail, Long> {
             FROM Thumbnail thumbnail
             LEFT JOIN FETCH thumbnail.ratings
             """)
-    List<Thumbnail> findAllLoadRatings();
+    List<Thumbnail> findAllThumbnails();
 }
