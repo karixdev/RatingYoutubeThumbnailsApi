@@ -45,12 +45,11 @@ public class EmailVerificationService {
     }
 
     public void sendEmailWithVerificationLink(EmailVerificationToken token) {
-        String link = String.format("http://localhost:8080/api/v1/verify/%s", token.getToken());
-
         Map<String, Object> variables = Map.of(
                 "username", token.getUser().getUsername(),
-                "verificationLink", link
+                "token", token.getToken()
         );
+
         String body = emailService.getMailTemplate("email-verification.html", variables);
 
         emailService.sendEmailToUser(token.getUser().getEmail(), "Verify your email", body);

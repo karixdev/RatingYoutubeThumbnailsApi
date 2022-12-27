@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <h1 th:text="'Hi ' + ${username}"></h1>
-        <p>Here's link to veify your email: <a th:href="${verificationLink}">click me!</a> - it only lasts for 24 hours.</p>
+        <p>Here's your token: <p th:text="${token}"></p> - it only lasts for 24 hours.</p>
     </div>
 </body>
 </html>
