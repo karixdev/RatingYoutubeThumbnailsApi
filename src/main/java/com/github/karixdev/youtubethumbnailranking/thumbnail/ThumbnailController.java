@@ -1,10 +1,10 @@
-package com.github.karixdev.youtubethumbnailranking.thumnail;
+package com.github.karixdev.youtubethumbnailranking.thumbnail;
 
 import com.github.karixdev.youtubethumbnailranking.security.CurrentUser;
 import com.github.karixdev.youtubethumbnailranking.security.UserPrincipal;
 import com.github.karixdev.youtubethumbnailranking.shared.payload.response.SuccessResponse;
-import com.github.karixdev.youtubethumbnailranking.thumnail.payload.request.ThumbnailRequest;
-import com.github.karixdev.youtubethumbnailranking.thumnail.payload.response.ThumbnailResponse;
+import com.github.karixdev.youtubethumbnailranking.thumbnail.payload.request.ThumbnailRequest;
+import com.github.karixdev.youtubethumbnailranking.thumbnail.payload.response.ThumbnailResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

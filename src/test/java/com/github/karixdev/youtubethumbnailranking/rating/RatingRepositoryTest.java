@@ -1,9 +1,8 @@
 package com.github.karixdev.youtubethumbnailranking.rating;
 
-import com.github.karixdev.youtubethumbnailranking.thumnail.Thumbnail;
+import com.github.karixdev.youtubethumbnailranking.thumbnail.Thumbnail;
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserRole;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

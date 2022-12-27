@@ -3,7 +3,7 @@ package com.github.karixdev.youtubethumbnailranking.game.payload.response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.karixdev.youtubethumbnailranking.game.Game;
-import com.github.karixdev.youtubethumbnailranking.thumnail.payload.response.ThumbnailResponse;
+import com.github.karixdev.youtubethumbnailranking.thumbnail.payload.response.ThumbnailResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

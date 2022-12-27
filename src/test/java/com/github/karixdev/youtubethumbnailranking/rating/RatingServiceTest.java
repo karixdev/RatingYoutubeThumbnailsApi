@@ -1,7 +1,7 @@
 package com.github.karixdev.youtubethumbnailranking.rating;
 
-import com.github.karixdev.youtubethumbnailranking.thumnail.Thumbnail;
-import com.github.karixdev.youtubethumbnailranking.thumnail.ThumbnailService;
+import com.github.karixdev.youtubethumbnailranking.thumbnail.Thumbnail;
+import com.github.karixdev.youtubethumbnailranking.thumbnail.ThumbnailService;
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserRole;
 import org.junit.jupiter.api.BeforeEach;

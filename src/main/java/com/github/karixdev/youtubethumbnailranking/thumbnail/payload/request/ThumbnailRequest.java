@@ -1,4 +1,4 @@
-package com.github.karixdev.youtubethumbnailranking.thumnail.payload.request;
+package com.github.karixdev.youtubethumbnailranking.thumbnail.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

@@ -1,10 +1,9 @@
 package com.github.karixdev.youtubethumbnailranking.game.payload.response;
 
 import com.github.karixdev.youtubethumbnailranking.game.Game;
-import com.github.karixdev.youtubethumbnailranking.thumnail.Thumbnail;
+import com.github.karixdev.youtubethumbnailranking.thumbnail.Thumbnail;
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserRole;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 
 import java.io.IOException;
-import java.time.Clock;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;

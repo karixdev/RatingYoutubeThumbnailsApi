@@ -1,8 +1,8 @@
-package com.github.karixdev.youtubethumbnailranking.thumnail.payload.response;
+package com.github.karixdev.youtubethumbnailranking.thumbnail.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.karixdev.youtubethumbnailranking.thumnail.Thumbnail;
+import com.github.karixdev.youtubethumbnailranking.thumbnail.Thumbnail;
 import com.github.karixdev.youtubethumbnailranking.user.payload.repsonse.UserResponse;
 import lombok.Data;
 

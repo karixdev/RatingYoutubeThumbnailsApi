@@ -1,7 +1,5 @@
 package com.github.karixdev.youtubethumbnailranking.thumbnail.payload.request;
 
-import com.github.karixdev.youtubethumbnailranking.thumnail.payload.request.ThumbnailRequest;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;

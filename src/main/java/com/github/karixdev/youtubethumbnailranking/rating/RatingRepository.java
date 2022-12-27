@@ -1,6 +1,6 @@
 package com.github.karixdev.youtubethumbnailranking.rating;
 
-import com.github.karixdev.youtubethumbnailranking.thumnail.Thumbnail;
+import com.github.karixdev.youtubethumbnailranking.thumbnail.Thumbnail;
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

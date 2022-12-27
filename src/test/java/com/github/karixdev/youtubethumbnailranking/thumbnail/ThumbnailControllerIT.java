@@ -2,9 +2,6 @@ package com.github.karixdev.youtubethumbnailranking.thumbnail;
 
 import com.github.karixdev.youtubethumbnailranking.jwt.JwtService;
 import com.github.karixdev.youtubethumbnailranking.security.UserPrincipal;
-import com.github.karixdev.youtubethumbnailranking.thumnail.Thumbnail;
-import com.github.karixdev.youtubethumbnailranking.thumnail.ThumbnailRepository;
-import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserRepository;
 import com.github.karixdev.youtubethumbnailranking.user.UserRole;
 import com.github.karixdev.youtubethumbnailranking.user.UserService;

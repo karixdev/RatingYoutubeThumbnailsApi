@@ -1,4 +1,4 @@
-package com.github.karixdev.youtubethumbnailranking.thumnail.exception;
+package com.github.karixdev.youtubethumbnailranking.thumbnail.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

@@ -1,4 +1,4 @@
-package com.github.karixdev.youtubethumbnailranking.thumnail;
+package com.github.karixdev.youtubethumbnailranking.thumbnail;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

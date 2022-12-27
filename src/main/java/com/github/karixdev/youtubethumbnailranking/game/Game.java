@@ -1,6 +1,6 @@
 package com.github.karixdev.youtubethumbnailranking.game;
 
-import com.github.karixdev.youtubethumbnailranking.thumnail.Thumbnail;
+import com.github.karixdev.youtubethumbnailranking.thumbnail.Thumbnail;
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import lombok.*;
 
