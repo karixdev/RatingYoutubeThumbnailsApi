@@ -1,6 +1,9 @@
 package com.github.karixdev.youtubethumbnailranking.thumbnail;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.karixdev.youtubethumbnailranking.shared.exception.PermissionDeniedException;
+import com.github.karixdev.youtubethumbnailranking.shared.exception.ResourceNotFoundException;
+import com.github.karixdev.youtubethumbnailranking.shared.payload.response.SuccessResponse;
 import com.github.karixdev.youtubethumbnailranking.thumnail.Thumbnail;
 import com.github.karixdev.youtubethumbnailranking.thumnail.ThumbnailController;
 import com.github.karixdev.youtubethumbnailranking.thumnail.ThumbnailService;
@@ -20,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -97,5 +101,51 @@ public class ThumbnailControllerTest {
                         jsonPath("$.youtube_video_id").value("youtube-id-1"),
                         jsonPath("$.added_by.username").value("username")
                 );
+    }
+
+    @Test
+    void GivenNotExistingThumbnailId_WhenDelete_ThenRespondsWithNotFoundStatus() throws Exception {
+        ThumbnailRequest payload = new ThumbnailRequest("1234567");
+        String content = mapper.writeValueAsString(payload);
+
+        doThrow(ResourceNotFoundException.class).when(thumbnailService)
+                .delete(any(), any());
+
+        mockMvc.perform(delete("/api/v1/thumbnail/1337")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void GivenValidThumbnailIdAndNotOwnerOfThumbnail_WhenDelete_ThenRespondsWithForbiddenStatus() throws Exception {
+        ThumbnailRequest payload = new ThumbnailRequest("1234567");
+        String content = mapper.writeValueAsString(payload);
+
+        doThrow(PermissionDeniedException.class).when(thumbnailService)
+                .delete(any(), any());
+
+        mockMvc.perform(delete("/api/v1/thumbnail/1337")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void GivenValidThumbnailId_WhenDelete_ThenRespondsSuccessMessageAndOkStatus() throws Exception {
+        ThumbnailRequest payload = new ThumbnailRequest("1234567");
+        String content = mapper.writeValueAsString(payload);
+
+        when(thumbnailService.delete(any(), any()))
+                .thenReturn(new SuccessResponse());
+
+        mockMvc.perform(delete("/api/v1/thumbnail/1337")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("success"));
     }
 }
