@@ -110,22 +110,22 @@ public class GameControllerTest {
     }
 
     @Test
-    void GivenNullWinnerId_WhenResult_ThenRespondsWithBadRequestStatus() throws Exception {
-        mockMvc.perform(post("/api/v1/game/result/1")
+    void GivenNullWinnerId_WhenRoundResult_ThenRespondsWithBadRequestStatus() throws Exception {
+        mockMvc.perform(post("/api/v1/game/round-result/1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void GivenNotExistingGameId_WhenResult_ThenRespondsWithNotFoundStatus() throws Exception {
+    void GivenNotExistingGameId_WhenRoundResult_ThenRespondsWithNotFoundStatus() throws Exception {
         doThrow(ResourceNotFoundException.class)
                 .when(gameService)
-                .result(any(), any(), any());
+                .roundResult(any(), any(), any());
 
         GameResultRequest payload = new GameResultRequest(1L);
         String content = mapper.writeValueAsString(payload);
 
-        mockMvc.perform(post("/api/v1/game/result/1")
+        mockMvc.perform(post("/api/v1/game/round-result/1")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
@@ -133,15 +133,15 @@ public class GameControllerTest {
     }
 
     @Test
-    void GivenNotOwnerOfGame_WhenResult_ThenRespondsWithForbiddenStatus() throws Exception {
+    void GivenNotOwnerOfGame_WhenRoundResult_ThenRespondsWithForbiddenStatus() throws Exception {
         doThrow(PermissionDeniedException.class)
                 .when(gameService)
-                .result(any(), any(), any());
+                .roundResult(any(), any(), any());
 
         GameResultRequest payload = new GameResultRequest(1L);
         String content = mapper.writeValueAsString(payload);
 
-        mockMvc.perform(post("/api/v1/game/result/1")
+        mockMvc.perform(post("/api/v1/game/round-result/1")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
@@ -149,15 +149,15 @@ public class GameControllerTest {
     }
 
     @Test
-    void GivenInvalidWinnerId_WhenResult_ThenRespondsWithBadRequestStatus() throws Exception {
+    void GivenInvalidWinnerId_WhenRoundResult_ThenRespondsWithBadRequestStatus() throws Exception {
         doThrow(InvalidWinnerIdException.class)
                 .when(gameService)
-                .result(any(), any(), any());
+                .roundResult(any(), any(), any());
 
         GameResultRequest payload = new GameResultRequest(1L);
         String content = mapper.writeValueAsString(payload);
 
-        mockMvc.perform(post("/api/v1/game/result/1")
+        mockMvc.perform(post("/api/v1/game/round-result/1")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
@@ -165,7 +165,7 @@ public class GameControllerTest {
     }
 
     @Test
-    void GivenValidWinnerIdAndValidUserAndValidGameId_WhenResult_ThenRespondsWithCorrectBodyAndOkStats() throws Exception {
+    void GivenValidWinnerIdAndValidUserAndValidGameId_WhenRoundResult_ThenRespondsWithCorrectBodyAndOkStats() throws Exception {
         GameResultRequest payload = new GameResultRequest(1L);
         String content = mapper.writeValueAsString(payload);
 
@@ -178,11 +178,11 @@ public class GameControllerTest {
 
         game.setThumbnail2(otherThumbnail);
 
-        when(gameService.result(any(), any(), any()))
+        when(gameService.roundResult(any(), any(), any()))
                 .thenReturn(new GameResponse(game));
 
 
-        mockMvc.perform(post("/api/v1/game/result/1")
+        mockMvc.perform(post("/api/v1/game/round-result/1")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))

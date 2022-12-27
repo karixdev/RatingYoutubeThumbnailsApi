@@ -169,7 +169,7 @@ public class GameControllerIT {
     }
 
     @Test
-    void shouldRespondWith403WhenUserWhoIsNotOwnerOfGameTriesToResult() {
+    void shouldRespondWith403WhenUserWhoIsNotOwnerOfGameTriesToCommitRoundResult() {
         UserPrincipal userPrincipal = new UserPrincipal(
                 userService.createUser(
                         "email@email.pl",
@@ -206,7 +206,7 @@ public class GameControllerIT {
                 }
                 """;
 
-        webClient.post().uri("/api/v1/game/result/" + gameResponse.getId())
+        webClient.post().uri("/api/v1/game/round-result/" + gameResponse.getId())
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(payload)
@@ -215,7 +215,7 @@ public class GameControllerIT {
     }
 
     @Test
-    void shouldRespondWith409WhenGameHasEnded() {
+    void shouldRespondWith409WhenGameHasEndedWhenTryingToCommitRoundResult() {
         UserPrincipal userPrincipal = new UserPrincipal(
                 userService.createUser(
                         "email@email.pl",
@@ -248,7 +248,7 @@ public class GameControllerIT {
                 }
                 """;
 
-        webClient.post().uri("/api/v1/game/result/" + gameResponse.getId())
+        webClient.post().uri("/api/v1/game/round-result/" + gameResponse.getId())
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(payload)
@@ -257,7 +257,7 @@ public class GameControllerIT {
     }
 
     @Test
-    void shouldRespondWith400GivenInvalidWinnerId() {
+    void shouldRespondWith400GivenInvalidWinnerIdWhenTryingTo() {
         UserPrincipal userPrincipal = new UserPrincipal(
                 userService.createUser(
                         "email@email.pl",
@@ -286,7 +286,7 @@ public class GameControllerIT {
                 """;
         payload = String.format(payload, gameResponse.getThumbnail1().getId().intValue() + gameResponse.getThumbnail2().getId().intValue());
 
-        webClient.post().uri("/api/v1/game/result/" + gameResponse.getId())
+        webClient.post().uri("/api/v1/game/round-result/" + gameResponse.getId())
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(payload)
@@ -295,7 +295,7 @@ public class GameControllerIT {
     }
 
     @Test
-    void shouldResult() {
+    void shouldCommitRoundResult() {
         UserPrincipal userPrincipal = new UserPrincipal(
                 userService.createUser(
                         "email@email.pl",
@@ -325,7 +325,7 @@ public class GameControllerIT {
                 """;
         payload = String.format(payload, gameResponse.getThumbnail1().getId());
 
-        webClient.post().uri("/api/v1/game/result/" + gameResponse.getId())
+        webClient.post().uri("/api/v1/game/round-result/" + gameResponse.getId())
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(payload)

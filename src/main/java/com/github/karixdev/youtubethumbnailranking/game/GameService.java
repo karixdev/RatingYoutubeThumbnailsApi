@@ -63,7 +63,7 @@ public class GameService {
     }
 
     @Transactional
-    public GameResponse result(Long gameId, GameResultRequest payload, UserPrincipal userPrincipal) {
+    public GameResponse roundResult(Long gameId, GameResultRequest payload, UserPrincipal userPrincipal) {
         Game game = repository.findById(gameId)
                 .orElseThrow(() -> {
                     throw new ResourceNotFoundException(

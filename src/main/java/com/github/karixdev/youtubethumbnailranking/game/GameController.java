@@ -26,14 +26,14 @@ public class GameController {
         );
     }
 
-    @PostMapping("/result/{id}")
+    @PostMapping("/round-result/{id}")
     public ResponseEntity<GameResponse> result(
             @PathVariable(name = "id") Long id,
             @RequestBody GameResultRequest payload,
             @CurrentUser UserPrincipal userPrincipal
     ) {
         return new ResponseEntity<>(
-                service.result(id, payload, userPrincipal),
+                service.roundResult(id, payload, userPrincipal),
                 HttpStatus.OK
         );
     }

@@ -166,7 +166,7 @@ public class GameServiceTest {
                 .thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> underTest.result(gameId, payload, userPrincipal))
+        assertThatThrownBy(() -> underTest.roundResult(gameId, payload, userPrincipal))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Game with provided id was not found");
     }
@@ -195,7 +195,7 @@ public class GameServiceTest {
                         .build()));
 
         // When & Then
-        assertThatThrownBy(() -> underTest.result(gameId, payload, userPrincipal))
+        assertThatThrownBy(() -> underTest.roundResult(gameId, payload, userPrincipal))
                 .isInstanceOf(PermissionDeniedException.class)
                 .hasMessage("You are not the owner of the game");
     }
@@ -223,7 +223,7 @@ public class GameServiceTest {
                         .build()));
 
         // When & Then
-        assertThatThrownBy(() -> underTest.result(gameId, payload, userPrincipal))
+        assertThatThrownBy(() -> underTest.roundResult(gameId, payload, userPrincipal))
                 .isInstanceOf(GameHasEndedException.class)
                 .hasMessage("Game has ended");
     }
@@ -252,7 +252,7 @@ public class GameServiceTest {
                         .build()));
 
         // When & Then
-        assertThatThrownBy(() -> underTest.result(gameId, payload, userPrincipal))
+        assertThatThrownBy(() -> underTest.roundResult(gameId, payload, userPrincipal))
                 .isInstanceOf(GameHasEndedException.class)
                 .hasMessage("Game has ended");
     }
@@ -280,7 +280,7 @@ public class GameServiceTest {
                         .build()));
 
         // When & Then
-        assertThatThrownBy(() -> underTest.result(gameId, payload, userPrincipal))
+        assertThatThrownBy(() -> underTest.roundResult(gameId, payload, userPrincipal))
                 .isInstanceOf(InvalidWinnerIdException.class)
                 .hasMessage("You have provided invalid winner id");
     }
@@ -324,7 +324,7 @@ public class GameServiceTest {
                 .build());
 
         // When
-        GameResponse result = underTest.result(gameId, payload, userPrincipal);
+        GameResponse result = underTest.roundResult(gameId, payload, userPrincipal);
 
         // Then
         verify(ratingService).updateRatings(eq(thumbnail1), eq(thumbnail2), eq(user));
