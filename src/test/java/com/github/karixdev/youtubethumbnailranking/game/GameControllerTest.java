@@ -2,7 +2,11 @@ package com.github.karixdev.youtubethumbnailranking.game;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.karixdev.youtubethumbnailranking.game.exception.GameHasNotEndedException;
+import com.github.karixdev.youtubethumbnailranking.game.exception.InvalidWinnerIdException;
+import com.github.karixdev.youtubethumbnailranking.game.payload.request.GameResultRequest;
 import com.github.karixdev.youtubethumbnailranking.game.payload.response.GameResponse;
+import com.github.karixdev.youtubethumbnailranking.shared.exception.PermissionDeniedException;
+import com.github.karixdev.youtubethumbnailranking.shared.exception.ResourceNotFoundException;
 import com.github.karixdev.youtubethumbnailranking.thumbnail.Thumbnail;
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserRole;
@@ -20,7 +24,6 @@ import java.time.LocalDateTime;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,9 +43,11 @@ public class GameControllerTest {
 
     Game game;
 
+    User user;
+
     @BeforeEach
     void setUp() {
-        User user = User.builder()
+        user = User.builder()
                 .email("email@email.com")
                 .password("password")
                 .username("username")
@@ -98,6 +103,93 @@ public class GameControllerTest {
                         jsonPath("$.thumbnail1.url").value("thumbnail-url-1"),
                         jsonPath("$.thumbnail2.id").value(2),
                         jsonPath("$.thumbnail2.url").value("thumbnail-url-2")
+                );
+    }
+
+    @Test
+    void GivenNullWinnerId_WhenResult_ThenRespondsWithBadRequestStatus() throws Exception {
+        mockMvc.perform(post("/api/v1/game/result/1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void GivenNotExistingGameId_WhenResult_ThenRespondsWithNotFoundStatus() throws Exception {
+        doThrow(ResourceNotFoundException.class)
+                .when(gameService)
+                .result(any(), any(), any());
+
+        GameResultRequest payload = new GameResultRequest(1L);
+        String content = mapper.writeValueAsString(payload);
+
+        mockMvc.perform(post("/api/v1/game/result/1")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void GivenNotOwnerOfGame_WhenResult_ThenRespondsWithNotFoundStatus() throws Exception {
+        doThrow(PermissionDeniedException.class)
+                .when(gameService)
+                .result(any(), any(), any());
+
+        GameResultRequest payload = new GameResultRequest(1L);
+        String content = mapper.writeValueAsString(payload);
+
+        mockMvc.perform(post("/api/v1/game/result/1")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void GivenInvalidWinnerId_WhenResult_ThenRespondsWithBadRequestStatus() throws Exception {
+        doThrow(InvalidWinnerIdException.class)
+                .when(gameService)
+                .result(any(), any(), any());
+
+        GameResultRequest payload = new GameResultRequest(1L);
+        String content = mapper.writeValueAsString(payload);
+
+        mockMvc.perform(post("/api/v1/game/result/1")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void GivenValidWinnerIdAndValidUserAndValidGameId_WhenResult_ThenRespondsWithCorrectBodyAndOkStats() throws Exception {
+        GameResultRequest payload = new GameResultRequest(1L);
+        String content = mapper.writeValueAsString(payload);
+
+        Thumbnail otherThumbnail = Thumbnail.builder()
+                .id(3L)
+                .addedBy(user)
+                .url("thumbnail-url-3")
+                .youtubeVideoId("youtube-id-3")
+                .build();
+
+        game.setThumbnail2(otherThumbnail);
+
+        when(gameService.result(any(), any(), any()))
+                .thenReturn(new GameResponse(game));
+
+
+        mockMvc.perform(post("/api/v1/game/result/1")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isOk())
+                .andExpectAll(
+                        jsonPath("$.id").value(1),
+                        jsonPath("$.thumbnail1.id").value(1),
+                        jsonPath("$.thumbnail1.url").value("thumbnail-url-1"),
+                        jsonPath("$.thumbnail2.id").value(3),
+                        jsonPath("$.thumbnail2.url").value("thumbnail-url-3")
                 );
     }
 }
