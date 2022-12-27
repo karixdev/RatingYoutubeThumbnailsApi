@@ -1,5 +1,6 @@
 package com.github.karixdev.youtubethumbnailranking.game;
 
+import com.github.karixdev.youtubethumbnailranking.game.exception.GameHasAlreadyEndedException;
 import com.github.karixdev.youtubethumbnailranking.game.exception.GameHasEndedException;
 import com.github.karixdev.youtubethumbnailranking.game.exception.GameHasNotEndedException;
 import com.github.karixdev.youtubethumbnailranking.game.exception.InvalidWinnerIdException;
@@ -9,6 +10,7 @@ import com.github.karixdev.youtubethumbnailranking.rating.RatingService;
 import com.github.karixdev.youtubethumbnailranking.security.UserPrincipal;
 import com.github.karixdev.youtubethumbnailranking.shared.exception.PermissionDeniedException;
 import com.github.karixdev.youtubethumbnailranking.shared.exception.ResourceNotFoundException;
+import com.github.karixdev.youtubethumbnailranking.shared.payload.response.SuccessResponse;
 import com.github.karixdev.youtubethumbnailranking.thumnail.Thumbnail;
 import com.github.karixdev.youtubethumbnailranking.thumnail.ThumbnailService;
 import com.github.karixdev.youtubethumbnailranking.user.User;
@@ -42,7 +44,7 @@ public class GameService {
                     .getLastActivity()
                     .plusMinutes(properties.getDuration());
 
-            if (now.isBefore(expectedEnd)) {
+            if (now.isBefore(expectedEnd) && !userGames.get(0).getHasEnded()) {
                 throw new GameHasNotEndedException();
             }
         }
@@ -76,7 +78,7 @@ public class GameService {
 
         LocalDateTime now = LocalDateTime.now(clock);
 
-        if (now.isAfter(game.getLastActivity().plusMinutes(properties.getDuration()))) {
+        if (now.isAfter(game.getLastActivity().plusMinutes(properties.getDuration())) || game.getHasEnded()) {
             throw new GameHasEndedException();
         }
 
@@ -111,5 +113,29 @@ public class GameService {
         game = repository.save(game);
 
         return new GameResponse(game);
+    }
+
+    @Transactional
+    public SuccessResponse end(Long gameId, UserPrincipal userPrincipal) {
+        Game game = repository.findById(gameId)
+                .orElseThrow(() -> {
+                    throw new ResourceNotFoundException(
+                            "Game with provided id was not found");
+                });
+
+        User user = userPrincipal.getUser();
+
+        if (!game.getUser().equals(user)) {
+            throw new PermissionDeniedException("You are not the owner of the game");
+        }
+
+        if (game.getHasEnded()) {
+            throw new GameHasAlreadyEndedException();
+        }
+
+        game.setHasEnded(Boolean.TRUE);
+        repository.save(game);
+
+        return new SuccessResponse();
     }
 }

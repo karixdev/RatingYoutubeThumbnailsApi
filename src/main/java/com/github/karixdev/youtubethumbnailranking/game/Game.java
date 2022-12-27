@@ -74,6 +74,10 @@ public class Game {
     )
     private LocalDateTime lastActivity;
 
+    @Column(name = "has_ended")
+    @Builder.Default
+    private Boolean hasEnded = Boolean.FALSE;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

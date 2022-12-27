@@ -1,5 +1,6 @@
 package com.github.karixdev.youtubethumbnailranking.game;
 
+import com.github.karixdev.youtubethumbnailranking.game.exception.GameHasAlreadyEndedException;
 import com.github.karixdev.youtubethumbnailranking.game.exception.GameHasEndedException;
 import com.github.karixdev.youtubethumbnailranking.game.exception.GameHasNotEndedException;
 import com.github.karixdev.youtubethumbnailranking.game.exception.InvalidWinnerIdException;
@@ -9,6 +10,7 @@ import com.github.karixdev.youtubethumbnailranking.rating.RatingService;
 import com.github.karixdev.youtubethumbnailranking.security.UserPrincipal;
 import com.github.karixdev.youtubethumbnailranking.shared.exception.PermissionDeniedException;
 import com.github.karixdev.youtubethumbnailranking.shared.exception.ResourceNotFoundException;
+import com.github.karixdev.youtubethumbnailranking.shared.payload.response.SuccessResponse;
 import com.github.karixdev.youtubethumbnailranking.thumnail.Thumbnail;
 import com.github.karixdev.youtubethumbnailranking.thumnail.ThumbnailService;
 import com.github.karixdev.youtubethumbnailranking.user.User;
@@ -199,7 +201,7 @@ public class GameServiceTest {
     }
 
     @Test
-    void GivenEndedGameId_WhenResult_ThenThrowsGameHasEndedExceptionWithCorrectMessage() {
+    void GivenExpiredGameId_WhenResult_ThenThrowsGameHasEndedExceptionWithCorrectMessage() {
         // Given
         Long gameId = 1L;
         GameResultRequest payload = new GameResultRequest(1L);
@@ -218,6 +220,35 @@ public class GameServiceTest {
                         .thumbnail1(thumbnail1)
                         .thumbnail2(thumbnail2)
                         .lastActivity(NOW.toLocalDateTime().minusMinutes(30))
+                        .build()));
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.result(gameId, payload, userPrincipal))
+                .isInstanceOf(GameHasEndedException.class)
+                .hasMessage("Game has ended");
+    }
+
+    @Test
+    void GivenEndedGameId_WhenResult_ThenThrowsGameHasEndedExceptionWithCorrectMessage() {
+        // Given
+        Long gameId = 1L;
+        GameResultRequest payload = new GameResultRequest(1L);
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+
+        when(properties.getDuration())
+                .thenReturn(10);
+
+        when(clock.getZone()).thenReturn(NOW.getZone());
+        when(clock.instant()).thenReturn(NOW.toInstant());
+
+        when(repository.findById(any()))
+                .thenReturn(Optional.of(Game.builder()
+                        .id(1L)
+                        .user(user)
+                        .thumbnail1(thumbnail1)
+                        .thumbnail2(thumbnail2)
+                        .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
+                        .hasEnded(Boolean.TRUE)
                         .build()));
 
         // When & Then
@@ -305,5 +336,109 @@ public class GameServiceTest {
 
         assertThat(result.getThumbnail2().getUrl()).isEqualTo("thumbnail-url-3");
         assertThat(result.getThumbnail2().getId()).isEqualTo(3L);
+    }
+
+    @Test
+    void GivenNotExistingGameId_WhenEnd_ThenThrowsResourceNotFoundExceptionWithCorrectMessage() {
+        // Given
+        Long gameId = 1337L;
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.end(gameId, userPrincipal))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Game with provided id was not found");
+    }
+
+    @Test
+    void GivenUserThatIsNotOwnerOfGame_WhenEnd_ThenThrowsPermissionDeniedExceptionWithCorrectMessage() {
+        // Given
+        Long gameId = 1L;
+
+        UserPrincipal userPrincipal = new UserPrincipal(User.builder()
+                .id(2L)
+                .email("email-2@email.com")
+                .password("password-2")
+                .username("username-2")
+                .userRole(UserRole.ROLE_USER)
+                .isEnabled(Boolean.TRUE)
+                .build());
+
+        when(repository.findById(any()))
+                .thenReturn(Optional.of(Game.builder()
+                        .id(1L)
+                        .user(user)
+                        .thumbnail1(thumbnail1)
+                        .thumbnail2(thumbnail2)
+                        .lastActivity(NOW.toLocalDateTime().minusMinutes(2))
+                        .build()));
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.end(gameId, userPrincipal))
+                .isInstanceOf(PermissionDeniedException.class)
+                .hasMessage("You are not the owner of the game");
+    }
+
+    @Test
+    void GivenGameIdThatHasEnded_WhenEnd_ThenThrowsGameHasAlreadyEndedExceptionWithCorrectMessage() {
+        // Given
+        Long gameId = 1L;
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+
+        Thumbnail otherThumbnail = Thumbnail.builder()
+                .id(3L)
+                .addedBy(user)
+                .url("thumbnail-url-3")
+                .youtubeVideoId("youtube-id-3")
+                .build();
+
+        when(repository.findById(any()))
+                .thenReturn(Optional.of(Game.builder()
+                        .id(1L)
+                        .user(user)
+                        .thumbnail1(thumbnail1)
+                        .thumbnail2(otherThumbnail)
+                        .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
+                        .hasEnded(Boolean.TRUE)
+                        .build()));
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.end(gameId, userPrincipal))
+                .isInstanceOf(GameHasAlreadyEndedException.class)
+                .hasMessage("Game has already ended");
+    }
+
+    @Test
+    void GivenValidGameIdAndValidUserPrincipal_WhenEnd_ThenReturnsMessageResponseAndSetsHasEndedToTrue() {
+        // Given
+        Long gameId = 1L;
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+
+        Thumbnail otherThumbnail = Thumbnail.builder()
+                .id(3L)
+                .addedBy(user)
+                .url("thumbnail-url-3")
+                .youtubeVideoId("youtube-id-3")
+                .build();
+
+        Game game = Game.builder()
+                .id(1L)
+                .user(user)
+                .thumbnail1(thumbnail1)
+                .thumbnail2(otherThumbnail)
+                .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
+                .build();
+
+        when(repository.findById(any()))
+                .thenReturn(Optional.of(game));
+
+        // When
+        SuccessResponse result = underTest.end(gameId, userPrincipal);
+
+        // Then
+        assertThat(result.getMessage()).isEqualTo("success");
+        assertThat(game.getHasEnded()).isTrue();
+
+        verify(repository).save(eq(game));
     }
 }

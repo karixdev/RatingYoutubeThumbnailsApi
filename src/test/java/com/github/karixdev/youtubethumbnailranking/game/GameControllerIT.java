@@ -22,6 +22,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -345,5 +347,177 @@ public class GameControllerIT {
 
         assertThat(rating1.getPoints()).isGreaterThan(ratingProperties.getBasePoints());
         assertThat(rating2.getPoints()).isLessThan(ratingProperties.getBasePoints());
+    }
+
+    @Test
+    void shouldRespondWith404WhenTryingToEndNotExistingGame() {
+        UserPrincipal userPrincipal = new UserPrincipal(
+                userService.createUser(
+                        "email@email.pl",
+                        "username",
+                        "password",
+                        UserRole.ROLE_USER,
+                        Boolean.TRUE
+                ));
+
+        String payload = """
+                {
+                    "winner_id": 1
+                }
+                """;
+
+        String token = jwtService.createToken(userPrincipal);
+
+        webClient.post().uri("/api/v1/game/end/121")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(payload)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void shouldRespondWith403WhenUserTriesToEndNotHisGame() {
+        UserPrincipal userPrincipal = new UserPrincipal(
+                userService.createUser(
+                        "email@email.pl",
+                        "username",
+                        "password",
+                        UserRole.ROLE_USER,
+                        Boolean.TRUE
+                ));
+
+        UserPrincipal otherPrincipal = new UserPrincipal(
+                userService.createUser(
+                        "email-2@email.pl",
+                        "username-2",
+                        "password",
+                        UserRole.ROLE_USER,
+                        Boolean.TRUE
+                ));
+
+        for (int i = 0; i < 2; i++) {
+            thumbnailRepository.save(Thumbnail.builder()
+                    .addedBy(userPrincipal.getUser())
+                    .url("thumbnail-url-" + i)
+                    .youtubeVideoId("youtube-id-" + i)
+                    .build());
+        }
+
+        GameResponse gameResponse = gameService.start(userPrincipal);
+
+        String token = jwtService.createToken(otherPrincipal);
+
+        String payload = """
+                {
+                    "winner_id": 1
+                }
+                """;
+
+        webClient.post().uri("/api/v1/game/end/" + gameResponse.getId())
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(payload)
+                .exchange()
+                .expectStatus().isForbidden();
+    }
+
+    @Test
+    void shouldRespondWith400WhenTryingToEndAlreadyEndedGame() {
+        UserPrincipal userPrincipal = new UserPrincipal(
+                userService.createUser(
+                        "email@email.pl",
+                        "username",
+                        "password",
+                        UserRole.ROLE_USER,
+                        Boolean.TRUE
+                ));
+
+        List<Thumbnail> thumbnails = new ArrayList<>();
+
+        for (int i = 0; i < 2; i++) {
+            Thumbnail thumbnail = thumbnailRepository.save(Thumbnail.builder()
+                    .addedBy(userPrincipal.getUser())
+                    .url("thumbnail-url-" + i)
+                    .youtubeVideoId("youtube-id-" + i)
+                    .build());
+
+            thumbnails.add(thumbnail);
+        }
+
+        Game game = gameRepository.save(Game.builder()
+                .hasEnded(Boolean.TRUE)
+                .user(userPrincipal.getUser())
+                .lastActivity(LocalDateTime.now(clock))
+                .thumbnail1(thumbnails.get(0))
+                .thumbnail2(thumbnails.get(1))
+                .build());
+
+        String token = jwtService.createToken(userPrincipal);
+
+        String payload = """
+                {
+                    "winner_id": 1
+                }
+                """;
+
+        webClient.post().uri("/api/v1/game/end/" + game.getId())
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(payload)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void shouldEndGame() {
+        UserPrincipal userPrincipal = new UserPrincipal(
+                userService.createUser(
+                        "email@email.pl",
+                        "username",
+                        "password",
+                        UserRole.ROLE_USER,
+                        Boolean.TRUE
+                ));
+
+        List<Thumbnail> thumbnails = new ArrayList<>();
+
+        for (int i = 0; i < 2; i++) {
+            Thumbnail thumbnail = thumbnailRepository.save(Thumbnail.builder()
+                    .addedBy(userPrincipal.getUser())
+                    .url("thumbnail-url-" + i)
+                    .youtubeVideoId("youtube-id-" + i)
+                    .build());
+
+            thumbnails.add(thumbnail);
+        }
+
+        Game game = gameRepository.save(Game.builder()
+                .user(userPrincipal.getUser())
+                .lastActivity(LocalDateTime.now(clock))
+                .thumbnail1(thumbnails.get(0))
+                .thumbnail2(thumbnails.get(1))
+                .build());
+
+        String token = jwtService.createToken(userPrincipal);
+
+        String payload = """
+                {
+                    "winner_id": 1
+                }
+                """;
+
+        webClient.post().uri("/api/v1/game/end/" + game.getId())
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(payload)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("success");
+
+        game = gameRepository.findById(game.getId()).orElseThrow();
+
+        assertThat(game.getHasEnded()).isTrue();
     }
 }

@@ -4,6 +4,7 @@ import com.github.karixdev.youtubethumbnailranking.game.payload.request.GameResu
 import com.github.karixdev.youtubethumbnailranking.game.payload.response.GameResponse;
 import com.github.karixdev.youtubethumbnailranking.security.CurrentUser;
 import com.github.karixdev.youtubethumbnailranking.security.UserPrincipal;
+import com.github.karixdev.youtubethumbnailranking.shared.payload.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,17 @@ public class GameController {
     ) {
         return new ResponseEntity<>(
                 service.result(id, payload, userPrincipal),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/end/{id}")
+    public ResponseEntity<SuccessResponse> end(
+            @PathVariable(name = "id") Long id,
+            @CurrentUser UserPrincipal userPrincipal
+    ) {
+        return new ResponseEntity<>(
+                service.end(id, userPrincipal),
                 HttpStatus.OK
         );
     }
