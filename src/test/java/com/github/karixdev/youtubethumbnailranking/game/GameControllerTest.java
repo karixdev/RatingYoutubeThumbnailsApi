@@ -130,7 +130,7 @@ public class GameControllerTest {
     }
 
     @Test
-    void GivenNotOwnerOfGame_WhenResult_ThenRespondsWithNotFoundStatus() throws Exception {
+    void GivenNotOwnerOfGame_WhenResult_ThenRespondsWithForbiddenStatus() throws Exception {
         doThrow(PermissionDeniedException.class)
                 .when(gameService)
                 .result(any(), any(), any());
