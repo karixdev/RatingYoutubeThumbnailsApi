@@ -1,12 +1,14 @@
 package com.github.karixdev.youtubethumbnailranking.game;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.karixdev.youtubethumbnailranking.game.exception.GameHasAlreadyEndedException;
 import com.github.karixdev.youtubethumbnailranking.game.exception.GameHasNotEndedException;
 import com.github.karixdev.youtubethumbnailranking.game.exception.InvalidWinnerIdException;
 import com.github.karixdev.youtubethumbnailranking.game.payload.request.GameResultRequest;
 import com.github.karixdev.youtubethumbnailranking.game.payload.response.GameResponse;
 import com.github.karixdev.youtubethumbnailranking.shared.exception.PermissionDeniedException;
 import com.github.karixdev.youtubethumbnailranking.shared.exception.ResourceNotFoundException;
+import com.github.karixdev.youtubethumbnailranking.shared.payload.response.SuccessResponse;
 import com.github.karixdev.youtubethumbnailranking.thumbnail.Thumbnail;
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserRole;
@@ -191,5 +193,49 @@ public class GameControllerTest {
                         jsonPath("$.thumbnail2.id").value(3),
                         jsonPath("$.thumbnail2.url").value("thumbnail-url-3")
                 );
+    }
+
+    @Test
+    void GivenNotExistingGameId_WhenEnd_ThenRespondsWithNotFoundStatus() throws Exception {
+        doThrow(ResourceNotFoundException.class)
+                .when(gameService)
+                .end(any(), any());
+
+        mockMvc.perform(post("/api/v1/game/end/1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void GivenNotOwnerOfGame_WhenEnd_ThenRespondsWithForbiddenStatus() throws Exception {
+        doThrow(PermissionDeniedException.class)
+                .when(gameService)
+                .end(any(), any());
+
+        mockMvc.perform(post("/api/v1/game/end/1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void GivenGameIdWhichHasEnded_WhenEnd_ThenRespondsWithBadRequestStatus() throws Exception {
+        doThrow(GameHasAlreadyEndedException.class)
+                .when(gameService)
+                .end(any(), any());
+
+        mockMvc.perform(post("/api/v1/game/end/1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void GivenValidGameIdAndValidUser_WhenEnd_ThenRespondsWithCorrectBodyAndOkStats() throws Exception {
+        when(gameService.end(any(), any()))
+                .thenReturn(new SuccessResponse());
+
+        mockMvc.perform(post("/api/v1/game/end/1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("success"));
     }
 }
