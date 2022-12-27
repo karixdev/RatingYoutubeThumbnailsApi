@@ -272,7 +272,7 @@ public class ThumbnailServiceTest {
         // Given
         User user = userPrincipal.getUser();
 
-        when(thumbnailRepository.findAll())
+        when(thumbnailRepository.findAllThumbnails())
                 .thenReturn(List.of(
                         thumbnail,
                         Thumbnail.builder()
