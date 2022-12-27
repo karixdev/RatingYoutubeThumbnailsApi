@@ -2,9 +2,9 @@ package com.github.karixdev.youtubethumbnailranking.youtube;
 
 import com.github.karixdev.youtubethumbnailranking.youtube.exception.YoutubeApiEmptyResponseException;
 import com.github.karixdev.youtubethumbnailranking.youtube.exception.YoutubeVideoNotFoundException;
-import com.github.karixdev.youtubethumbnailranking.youtube.payload.response.Item;
-import com.github.karixdev.youtubethumbnailranking.youtube.payload.response.Snippet;
-import com.github.karixdev.youtubethumbnailranking.youtube.payload.response.Thumbnails;
+import com.github.karixdev.youtubethumbnailranking.youtube.payload.request.ItemRequest;
+import com.github.karixdev.youtubethumbnailranking.youtube.payload.request.SnippetRequest;
+import com.github.karixdev.youtubethumbnailranking.youtube.payload.request.ThumbnailsRequest;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -160,17 +160,17 @@ public class YoutubeVideoServiceTest {
         );
 
         // When
-        Item result = underTest.getVideoDetails(id);
+        ItemRequest result = underTest.getVideoDetails(id);
 
         assertThat(result.getId()).isEqualTo(id);
         assertThat(result.getSnippet()).isNotNull();
 
-        Snippet resultSnippet = result.getSnippet();
+        SnippetRequest resultSnippet = result.getSnippet();
 
         assertThat(resultSnippet.getTitle()).isEqualTo("Music video");
         assertThat(resultSnippet.getDescription()).isEqualTo("Description");
 
-        Thumbnails resultThumbnails = resultSnippet.getThumbnails();
+        ThumbnailsRequest resultThumbnails = resultSnippet.getThumbnails();
 
         assertThat(resultThumbnails.get_default().getUrl()).isEqualTo("https://i.ytimg.com/vi/dQw4w9WgXcQ/default.jpg");
         assertThat(resultThumbnails.getMedium().getUrl()).isEqualTo("https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg");

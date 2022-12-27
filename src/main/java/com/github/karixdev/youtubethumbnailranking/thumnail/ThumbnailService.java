@@ -11,7 +11,7 @@ import com.github.karixdev.youtubethumbnailranking.thumnail.payload.response.Thu
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserRole;
 import com.github.karixdev.youtubethumbnailranking.youtube.YoutubeVideoService;
-import com.github.karixdev.youtubethumbnailranking.youtube.payload.response.Item;
+import com.github.karixdev.youtubethumbnailranking.youtube.payload.request.ItemRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +31,7 @@ public class ThumbnailService {
             throw new ThumbnailAlreadyExistsException();
         }
 
-        Item videoDetails = youtubeVideoService.getVideoDetails(youtubeVideoId);
+        ItemRequest videoDetails = youtubeVideoService.getVideoDetails(youtubeVideoId);
         String maxresThumbnailUrl = videoDetails.getSnippet().getThumbnails()
                 .getMaxres()
                 .getUrl();

@@ -2,8 +2,8 @@ package com.github.karixdev.youtubethumbnailranking.youtube;
 
 import com.github.karixdev.youtubethumbnailranking.youtube.exception.YoutubeApiEmptyResponseException;
 import com.github.karixdev.youtubethumbnailranking.youtube.exception.YoutubeVideoNotFoundException;
-import com.github.karixdev.youtubethumbnailranking.youtube.payload.response.Item;
-import com.github.karixdev.youtubethumbnailranking.youtube.payload.response.YoutubeApiVideoListResponse;
+import com.github.karixdev.youtubethumbnailranking.youtube.payload.request.ItemRequest;
+import com.github.karixdev.youtubethumbnailranking.youtube.payload.request.YoutubeApiVideoListRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -21,7 +21,7 @@ public class YoutubeVideoService {
     private final YoutubeApiService apiService;
     private final WebClient webClient;
 
-    public Item getVideoDetails(String id) {
+    public ItemRequest getVideoDetails(String id) {
         MultiValueMap<String, String> queryParams =
                 new LinkedMultiValueMap<>();
 
@@ -31,17 +31,17 @@ public class YoutubeVideoService {
 
         String uri = apiService.createUri("/videos", queryParams);
 
-        Optional<YoutubeApiVideoListResponse> optionalResponse = webClient.get().uri(uri)
+        Optional<YoutubeApiVideoListRequest> optionalResponse = webClient.get().uri(uri)
                 .accept(APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(YoutubeApiVideoListResponse.class)
+                .bodyToMono(YoutubeApiVideoListRequest.class)
                 .blockOptional();
 
-        YoutubeApiVideoListResponse response = optionalResponse.orElseThrow(() -> {
+        YoutubeApiVideoListRequest response = optionalResponse.orElseThrow(() -> {
             throw new YoutubeApiEmptyResponseException();
         });
 
-        List<Item> items = response.getItems();
+        List<ItemRequest> items = response.getItems();
         if (items.isEmpty()) {
             throw new YoutubeVideoNotFoundException();
         }

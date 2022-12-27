@@ -15,14 +15,12 @@ import com.github.karixdev.youtubethumbnailranking.thumnail.payload.response.Thu
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import com.github.karixdev.youtubethumbnailranking.user.UserRole;
 import com.github.karixdev.youtubethumbnailranking.youtube.YoutubeVideoService;
-import com.github.karixdev.youtubethumbnailranking.youtube.payload.response.*;
-import org.assertj.core.api.Assertions;
+import com.github.karixdev.youtubethumbnailranking.youtube.payload.request.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
@@ -91,19 +89,19 @@ public class ThumbnailServiceTest {
         when(thumbnailRepository.findByYoutubeVideoId(any()))
                 .thenReturn(Optional.empty());
 
-        Thumbnails thumbnails = new Thumbnails(
-                new Default("default-url", 100, 100),
-                new Medium("medium-url", 100, 100),
-                new High("high-url", 100, 100),
-                new Standard("standard-url", 100, 100),
-                new Maxres("thumbnail-url", 100, 100)
+        ThumbnailsRequest thumbnails = new ThumbnailsRequest(
+                new DefaultRequest("default-url", 100, 100),
+                new MediumRequest("medium-url", 100, 100),
+                new HighRequest("high-url", 100, 100),
+                new StandardRequest("standard-url", 100, 100),
+                new MaxresRequest("thumbnail-url", 100, 100)
         );
 
         when(youtubeVideoService.getVideoDetails(any()))
-                .thenReturn(new Item(
+                .thenReturn(new ItemRequest(
                         "youtube#video",
                         "youtube-id-2",
-                        new Snippet(
+                        new SnippetRequest(
                                 "title",
                                 "description",
                                 thumbnails

@@ -1,5 +1,5 @@
 
-package com.github.karixdev.youtubethumbnailranking.youtube.payload.response;
+package com.github.karixdev.youtubethumbnailranking.youtube.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -9,15 +9,15 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Thumbnails {
+public class ThumbnailsRequest {
     @JsonProperty("default")
-    private Default _default;
+    private DefaultRequest _default;
     @JsonProperty("medium")
-    private Medium medium;
+    private MediumRequest medium;
     @JsonProperty("high")
-    private High high;
+    private HighRequest high;
     @JsonProperty("standard")
-    private Standard standard;
+    private StandardRequest standard;
     @JsonProperty("maxres")
-    private Maxres maxres;
+    private MaxresRequest maxres;
 }

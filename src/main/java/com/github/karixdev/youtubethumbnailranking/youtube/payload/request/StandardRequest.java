@@ -1,5 +1,5 @@
 
-package com.github.karixdev.youtubethumbnailranking.youtube.payload.response;
+package com.github.karixdev.youtubethumbnailranking.youtube.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Maxres {
+public class StandardRequest {
     @JsonProperty("url")
     private String url;
     @JsonProperty("width")

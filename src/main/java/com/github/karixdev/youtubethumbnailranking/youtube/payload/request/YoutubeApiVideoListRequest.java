@@ -1,5 +1,5 @@
 
-package com.github.karixdev.youtubethumbnailranking.youtube.payload.response;
+package com.github.karixdev.youtubethumbnailranking.youtube.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class YoutubeApiVideoListResponse {
+public class YoutubeApiVideoListRequest {
     @JsonProperty("items")
-    private List<Item> items = new ArrayList<>();
+    private List<ItemRequest> items = new ArrayList<>();
 }
