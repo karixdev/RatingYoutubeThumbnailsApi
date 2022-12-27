@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -237,5 +238,44 @@ public class GameControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("success"));
+    }
+
+    @Test
+    void GivenUserWhoHasZeroNotEndedGames_WhenGetUserActualActiveGame_ThenRespondsWithNotFoundStatus() throws Exception {
+        doThrow(ResourceNotFoundException.class)
+                .when(gameService)
+                .getUserActualActiveGame(any());
+
+        mockMvc.perform(get("/api/v1/game")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void GivenUserWhoHasNotEndedGamesButTheyAreExpired_WhenGetUserActualActiveGame_ThenRespondsWithNotFoundStatus() throws Exception {
+        doThrow(ResourceNotFoundException.class)
+                .when(gameService)
+                .getUserActualActiveGame(any());
+
+        mockMvc.perform(get("/api/v1/game")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void GivenUserWhoHasNotEndedGamesAndTheyAreNotExpired_WhenGetUserActualActiveGame_ThenRespondsCorrectBodyAndOkStats() throws Exception {
+        when(gameService.getUserActualActiveGame(any()))
+                .thenReturn(new GameResponse(game));
+
+        mockMvc.perform(get("/api/v1/game")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpectAll(
+                        jsonPath("$.id").value(1),
+                        jsonPath("$.thumbnail1.id").value(1),
+                        jsonPath("$.thumbnail1.url").value("thumbnail-url-1"),
+                        jsonPath("$.thumbnail2.id").value(2),
+                        jsonPath("$.thumbnail2.url").value("thumbnail-url-2")
+                );
     }
 }
