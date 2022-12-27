@@ -48,4 +48,14 @@ public class GameController {
                 HttpStatus.OK
         );
     }
+
+    @GetMapping
+    public ResponseEntity<GameResponse> getUserActualActiveGame(
+            @CurrentUser UserPrincipal userPrincipal
+    ) {
+        return new ResponseEntity<>(
+                service.getUserActualActiveGame(userPrincipal),
+                HttpStatus.OK
+        );
+    }
 }

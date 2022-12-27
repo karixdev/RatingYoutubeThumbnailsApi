@@ -138,4 +138,24 @@ public class GameService {
 
         return new SuccessResponse();
     }
+
+    public GameResponse getUserActualActiveGame(UserPrincipal userPrincipal) {
+        List<Game> userNotEndedGames =
+                repository.findByUserAndHasEndedOrderByLastActivityDesc(
+                        userPrincipal.getUser(), Boolean.FALSE);
+
+        if (userNotEndedGames.isEmpty()) {
+            throw new ResourceNotFoundException("There is no actual active game");
+        }
+
+        Game newestGame = userNotEndedGames.get(0);
+
+        LocalDateTime now = LocalDateTime.now(clock);
+
+        if (now.isAfter(newestGame.getLastActivity().plusMinutes(properties.getDuration()))) {
+            throw new ResourceNotFoundException("There is no actual active game");
+        }
+
+        return new GameResponse(newestGame);
+    }
 }

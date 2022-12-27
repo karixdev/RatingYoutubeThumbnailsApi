@@ -520,4 +520,125 @@ public class GameControllerIT {
 
         assertThat(game.getHasEnded()).isTrue();
     }
+
+    @Test
+    void shouldRespondWith404WhenGettingActualActiveGameForUserWhoHasZeroNotEndedGames() {
+        UserPrincipal userPrincipal = new UserPrincipal(
+                userService.createUser(
+                        "email@email.pl",
+                        "username",
+                        "password",
+                        UserRole.ROLE_USER,
+                        Boolean.TRUE
+                ));
+
+        List<Thumbnail> thumbnails = new ArrayList<>();
+
+        for (int i = 0; i < 2; i++) {
+            Thumbnail thumbnail = thumbnailRepository.save(Thumbnail.builder()
+                    .addedBy(userPrincipal.getUser())
+                    .url("thumbnail-url-" + i)
+                    .youtubeVideoId("youtube-id-" + i)
+                    .build());
+
+            thumbnails.add(thumbnail);
+        }
+
+        gameRepository.save(Game.builder()
+                .hasEnded(Boolean.TRUE)
+                .user(userPrincipal.getUser())
+                .lastActivity(LocalDateTime.now(clock))
+                .thumbnail1(thumbnails.get(0))
+                .thumbnail2(thumbnails.get(1))
+                .hasEnded(Boolean.TRUE)
+                .build());
+
+        String token = jwtService.createToken(userPrincipal);
+
+        webClient.get().uri("/api/v1/game")
+                .header("Authorization", "Bearer " + token)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void shouldRespondWith404WhenGettingActualActiveGameForUserWhoHasNotEndedGamesButTheyAreExpired() {
+        UserPrincipal userPrincipal = new UserPrincipal(
+                userService.createUser(
+                        "email@email.pl",
+                        "username",
+                        "password",
+                        UserRole.ROLE_USER,
+                        Boolean.TRUE
+                ));
+
+        List<Thumbnail> thumbnails = new ArrayList<>();
+
+        for (int i = 0; i < 2; i++) {
+            Thumbnail thumbnail = thumbnailRepository.save(Thumbnail.builder()
+                    .addedBy(userPrincipal.getUser())
+                    .url("thumbnail-url-" + i)
+                    .youtubeVideoId("youtube-id-" + i)
+                    .build());
+
+            thumbnails.add(thumbnail);
+        }
+
+        gameRepository.save(Game.builder()
+                .hasEnded(Boolean.TRUE)
+                .user(userPrincipal.getUser())
+                .lastActivity(LocalDateTime.now(clock).minusDays(10))
+                .thumbnail1(thumbnails.get(0))
+                .thumbnail2(thumbnails.get(1))
+                .build());
+
+        String token = jwtService.createToken(userPrincipal);
+
+        webClient.get().uri("/api/v1/game")
+                .header("Authorization", "Bearer " + token)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void shouldGetActualActiveGame() {
+        UserPrincipal userPrincipal = new UserPrincipal(
+                userService.createUser(
+                        "email@email.pl",
+                        "username",
+                        "password",
+                        UserRole.ROLE_USER,
+                        Boolean.TRUE
+                ));
+
+        List<Thumbnail> thumbnails = new ArrayList<>();
+
+        for (int i = 0; i < 2; i++) {
+            Thumbnail thumbnail = thumbnailRepository.save(Thumbnail.builder()
+                    .addedBy(userPrincipal.getUser())
+                    .url("thumbnail-url-" + i)
+                    .youtubeVideoId("youtube-id-" + i)
+                    .build());
+
+            thumbnails.add(thumbnail);
+        }
+
+        Game game = gameRepository.save(Game.builder()
+                .user(userPrincipal.getUser())
+                .lastActivity(LocalDateTime.now(clock))
+                .thumbnail1(thumbnails.get(0))
+                .thumbnail2(thumbnails.get(1))
+                .build());
+
+        String token = jwtService.createToken(userPrincipal);
+
+        webClient.get().uri("/api/v1/game")
+                .header("Authorization", "Bearer " + token)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(game.getId())
+                .jsonPath("$.thumbnail1.id").isEqualTo(game.getThumbnail1().getId())
+                .jsonPath("$.thumbnail2.id").isEqualTo(game.getThumbnail2().getId());
+    }
 }

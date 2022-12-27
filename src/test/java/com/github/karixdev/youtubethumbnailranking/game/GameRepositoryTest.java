@@ -102,4 +102,47 @@ public class GameRepositoryTest {
         assertThat(result.get(0).getLastActivity())
                 .isAfter(result.get(1).getLastActivity());
     }
+
+    @Test
+    void GivenUserAndHasEnded_WhenFindByUserAndHasEndedOrderByLastActivityDesc_ThenReturnsCorrectList() {
+        // Given
+        Boolean hasEnded = Boolean.FALSE;
+
+        for (int i = 3; i <= 4; i++) {
+            Thumbnail otherThumbnail1 = em.persist(Thumbnail.builder()
+                    .addedBy(user)
+                    .url("thumbnail-url-" + i)
+                    .youtubeVideoId("youtube-id-" + i)
+                    .build());
+
+            Thumbnail otherThumbnail2 = em.persist(Thumbnail.builder()
+                    .addedBy(user)
+                    .url("thumbnail-url-" + i)
+                    .youtubeVideoId("youtube-id-" + i)
+                    .build());
+
+            Game otherGame = Game.builder()
+                    .user(user)
+                    .lastActivity(LocalDateTime.now().plusMinutes(i))
+                    .thumbnail1(otherThumbnail1)
+                    .thumbnail2(otherThumbnail2)
+                    .build();
+
+            if (i == 4) {
+                otherGame.setHasEnded(Boolean.TRUE);
+            }
+
+            em.persistAndFlush(otherGame);
+        }
+
+        // When
+        List<Game> result =
+                underTest.findByUserAndHasEndedOrderByLastActivityDesc(
+                        user, hasEnded);
+
+        // Then
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getLastActivity())
+                .isAfter(result.get(1).getLastActivity());
+    }
 }
