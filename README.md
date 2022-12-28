@@ -548,3 +548,73 @@ Code: `500`
 ```
 
 ---
+
+### POST /api/v1/game/end/{id}
+
+Ends game with provided `id`.
+
+**Auth required**: YES
+
+**Permissions required**: NONE
+
+**Path variables**:
+
+| Name | Type | Required |
+|------|------|----------|
+| `id` | Long | True     |
+
+**Success response**:
+
+Code: `200`
+
+```json
+{
+  "message": "success"
+}
+```
+
+**Error response**:
+
+(1)
+If game with provided `id` was not found.
+
+Code: `404`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 404,
+  "error": "Not Found",
+  "path": "/api/v1/game/end/{id}"
+}
+```
+
+(2)
+If user is not owner of the game.
+
+Code: `403`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 403,
+  "error": "Not Found",
+  "path": "/api/v1/game/end/{id}"
+}
+```
+
+(3)
+If game has been already ended.
+
+Code: `400`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 400,
+  "error": "Not Found",
+  "path": "/api/v1/end/{id}"
+}
+```
+
+---
