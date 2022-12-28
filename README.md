@@ -461,12 +461,32 @@ Updates rankings of thumbnails taking part in the game - it is done using [Elo r
 
 Code: `200`
 
+(1)
+If `winner_id` is `thumbnail1` id
+
 ```json
 {
   "id": 1,
   "thumbnail1": {
     "id": 1,
     "url": "address-to-url-1"
+  },
+  "thumbnail2": {
+    "id": 3,
+    "url": "address-to-url-3"
+  }
+}
+```
+
+(2)
+If `winner_id` is `thumbnail2` id
+
+```json
+{
+  "id": 1,
+  "thumbnail1": {
+    "id": 3,
+    "url": "address-to-url-3"
   },
   "thumbnail2": {
     "id": 2,
