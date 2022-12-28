@@ -436,3 +436,115 @@ Code: `500`
 ```
 
 ---
+
+### POST /api/v1/game/round-result/{id}
+
+Updates rankings of thumbnails taking part in the game - it is done using [Elo rating system](https://en.wikipedia.org/wiki/Elo_rating_system). Winner stays in game, and the new opponent is chosen.
+
+**Auth required**: YES
+
+**Permissions required**: NONE
+
+**Path variables**:
+
+| Name | Type | Required |
+|------|------|----------|
+| `id` | Long | True     |
+
+**Request body**:
+
+| Name        | Type | Constraints       |
+|-------------|------|-------------------|
+| `winner_id` | Long | Must not be null. |
+
+**Success response**:
+
+Code: `200`
+
+```json
+{
+  "id": 1,
+  "thumbnail1": {
+    "id": 1,
+    "url": "address-to-url-1"
+  },
+  "thumbnail2": {
+    "id": 2,
+    "url": "address-to-url-2"
+  }
+}
+```
+
+**Error response**:
+
+(1)
+If game with provided `id` was not found.
+
+Code: `404`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 404,
+  "error": "Not Found",
+  "path": "/api/v1/game/round-result/{id}"
+}
+```
+
+(2)
+If user is not owner of the game.
+
+Code: `403`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 403,
+  "error": "Not Found",
+  "path": "/api/v1/game/round-result/{id}"
+}
+```
+
+(3)
+If game has expired or has been ended.
+
+Code: `409`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 409,
+  "error": "Not Found",
+  "path": "/api/v1/game/round-result/{id}"
+}
+```
+
+(4)
+If `winer_id` isn't match thumbnail1 or thumbnail2 id.
+
+Code: `400`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 400,
+  "error": "Not Found",
+  "path": "/api/v1/game/round-result/{id}"
+}
+```
+
+(5)
+If there are not enough thumbnails in database to pick a new opponent.
+
+Code: `500`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 500,
+  "error": "Not Found",
+  "path": "/api/v1/game/start"
+}
+```
+
+---
