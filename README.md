@@ -372,3 +372,61 @@ Code: `403`
   "path": "/api/v1/thumbnail/{id}"
 }
 ```
+
+### POST /api/v1/game/start
+
+Starts a game in which the user chooses between two thumbnails. If the game is left without any action it deactivates itself after time specified in `application.yaml` under variable `game.duration`
+
+**Auth required**: YES
+
+**Permissions required**: NONE
+
+**Success response**:
+
+Code: `200`
+
+```json
+{
+  "id": 1,
+  "thumbnail1": {
+    "id": 1,
+    "url": "address-to-url-1"
+  },
+  "thumbnail2": {
+    "id": 2,
+    "url": "address-to-url-2"
+  }
+}
+```
+
+**Error response**:
+
+(1)
+If user has started a game, and it hasn't expired or ended
+
+Code: `400`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 400,
+  "error": "Not Found",
+  "path": "/api/v1/game/start"
+}
+```
+
+(2)
+If there are not enough thumbnails in database to start a game.
+
+Code: `500`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 500,
+  "error": "Not Found",
+  "path": "/api/v1/game/start"
+}
+```
+
+---
