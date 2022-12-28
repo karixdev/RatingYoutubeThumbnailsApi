@@ -618,3 +618,47 @@ Code: `400`
 ```
 
 ---
+
+### GET /api/v1/game
+
+Gets user's actual active, not expired game.
+
+**Auth required**: YES
+
+**Permissions required**: NONE
+
+**Success response**:
+
+Code: `200`
+
+```json
+{
+  "id": 1,
+  "thumbnail1": {
+    "id": 1,
+    "url": "address-to-url-1"
+  },
+  "thumbnail2": {
+    "id": 2,
+    "url": "address-to-url-2"
+  }
+}
+```
+
+**Error response**:
+
+(1)
+If user doesn't have active, not expired game.
+
+Code: `404`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 404,
+  "error": "Not Found",
+  "path": "/api/v1/game"
+}
+```
+
+---
