@@ -232,6 +232,8 @@ If user is already enabled or requested too many tokens in one hour:
 }
 ```
 
+---
+
 ### POST /api/v1/thumbnail
 
 Adds thumbnail based on provided `youtube_video_id`. When endpoint is called then app calls YouTube API to get details about video. From YouTube API response the url for thumbnail is extracted and then new thumbnail is added to database.  
@@ -319,6 +321,8 @@ Code: `503`
 }
 ```
 
+---
+
 ### DELETE /api/v1/thumbnail/{id}
 
 Deletes a thumbnail based on the given `id`. Authors can delete their thumbnails, the only exception is users with the role `ADMIN` - they can delete everyone's thumbnail.
@@ -372,6 +376,8 @@ Code: `403`
   "path": "/api/v1/thumbnail/{id}"
 }
 ```
+
+---
 
 ### POST /api/v1/game/start
 
