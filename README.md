@@ -682,3 +682,59 @@ Code: `404`
 ```
 
 ---
+
+### GET /api/v1/rating/{youtubeVideoId}
+
+Calculates average rating points for thumbnail with provided `yotoubeVideoId`, and retrieves rating points for authenticated user (if he is not authenticated then `null` is returned)
+
+**Auth required**: NO
+
+**Permissions required**: NONE
+
+**Path variables**:
+
+| Name             | Type   | Required |
+|------------------|--------|----------|
+| `youtubeVideoId` | String | True     |
+
+**Success response**:
+
+Code: `200`
+
+(1)
+If user is authenticated.
+
+```json
+{
+  "global_rating_points": 1337.10,
+  "user_rating_points": 2731.15
+}
+```
+
+(1)
+If user is not authenticated.
+
+```json
+{
+  "global_rating_points": 1337.10,
+  "user_rating_points": null
+}
+```
+
+**Error response**:
+
+(1)
+If thumbnail with provided `youtubeVideoId` was not found.
+
+Code: `404`
+
+```json
+{
+  "timestamp": "timestamp when error occurred",
+  "status": 404,
+  "error": "Not Found",
+  "path": "/api/v1/email-verification/{token}"
+}
+```
+
+---
