@@ -1,10 +1,13 @@
 package com.github.karixdev.youtubethumbnailranking.rating;
 
+import com.github.karixdev.youtubethumbnailranking.rating.payload.response.RatingResponse;
+import com.github.karixdev.youtubethumbnailranking.security.UserPrincipal;
 import com.github.karixdev.youtubethumbnailranking.thumbnail.Thumbnail;
 import com.github.karixdev.youtubethumbnailranking.thumbnail.ThumbnailService;
 import com.github.karixdev.youtubethumbnailranking.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.util.annotation.Nullable;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
@@ -133,5 +136,29 @@ public class RatingService {
                 .thumbnail(thumbnail)
                 .points(properties.getBasePoints())
                 .build());
+    }
+
+    public RatingResponse getThumbnailAveragePoints(String youtubeVideoId, UserPrincipal userPrincipal) {
+        Thumbnail thumbnail =
+                thumbnailService.getThumbnailByYoutubeVideoId(youtubeVideoId);
+
+        RatingResponse response = new RatingResponse();
+
+        Optional<BigDecimal> globalAvg =
+                repository.findAveragePointsByThumbnail(thumbnail);
+
+        response.setGlobalRatingPoints(
+                globalAvg.orElseGet(properties::getBasePoints));
+
+        if (userPrincipal != null) {
+            Optional<BigDecimal> userAvg =
+                    repository.findAveragePointsByThumbnailAndUser(
+                            thumbnail, userPrincipal.getUser());
+
+            response.setUserRatingPoints(
+                    userAvg.orElseGet(properties::getBasePoints));
+        }
+
+        return response;
     }
 }

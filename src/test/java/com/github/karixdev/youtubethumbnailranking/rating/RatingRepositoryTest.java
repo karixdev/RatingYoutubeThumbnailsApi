@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -89,5 +90,90 @@ public class RatingRepositoryTest {
         // Then
         assertThat(result).hasSize(1);
         assertThat(result.get(0)).isEqualTo(rating);
+    }
+
+    @Test
+    void GivenNotExistingThumbnailWhoHasZeroRatings_WhenFindAveragePointsByThumbnail_ThenReturnsEmptyOptional() {
+        // Given
+        Thumbnail otherThumbnail = em.persistAndFlush(Thumbnail.builder()
+                .url("thumbnail-url-2")
+                .youtubeVideoId("youtube-id-2")
+                .addedBy(user)
+                .build());
+
+        // When
+        Optional<BigDecimal> result =
+                underTest.findAveragePointsByThumbnail(otherThumbnail);
+
+        // Then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void GivenThumbnail_WhenFindAveragePointsByThumbnail_ThenReturnsOptionalWithCorrectValue() {
+        User otherUser = em.persist(User.builder()
+                .email("abc-2@abc.pl")
+                .username("username-2")
+                .password("secret-password")
+                .userRole(UserRole.ROLE_USER)
+                .isEnabled(Boolean.TRUE)
+                .build());
+
+        Rating otherRating = em.persistAndFlush(Rating.builder()
+                .points(new BigDecimal(1600))
+                .user(otherUser)
+                .thumbnail(thumbnail)
+                .build());
+
+        // When
+        Optional<BigDecimal> result =
+                underTest.findAveragePointsByThumbnail(thumbnail);
+
+        // Then
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(new BigDecimal("1500.0"));
+    }
+
+    @Test
+    void GivenThumbnailAndUserWhoHasNotRatedThumbnail_WhenFindAveragePointsByThumbnailAndUser_ThenReturnsEmptyOptional() {
+        // Given
+        Thumbnail otherThumbnail = em.persistAndFlush(Thumbnail.builder()
+                .url("thumbnail-url-2")
+                .youtubeVideoId("youtube-id-2")
+                .addedBy(user)
+                .build());
+
+        // When
+        Optional<BigDecimal> result =
+                underTest.findAveragePointsByThumbnailAndUser(
+                        otherThumbnail, user);
+
+        // Then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void GivenThumbnailAndUser_WhenFindAveragePointsByThumbnailAndUser_ThenReturnsOptionalWithCorrectValue() {
+        User otherUser = em.persist(User.builder()
+                .email("abc-2@abc.pl")
+                .username("username-2")
+                .password("secret-password")
+                .userRole(UserRole.ROLE_USER)
+                .isEnabled(Boolean.TRUE)
+                .build());
+
+        em.persistAndFlush(Rating.builder()
+                .points(new BigDecimal(1600))
+                .user(otherUser)
+                .thumbnail(thumbnail)
+                .build());
+
+        // When
+        Optional<BigDecimal> result =
+                underTest.findAveragePointsByThumbnailAndUser(thumbnail, user);
+
+        // Then
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(new BigDecimal("1400.0"));
     }
 }

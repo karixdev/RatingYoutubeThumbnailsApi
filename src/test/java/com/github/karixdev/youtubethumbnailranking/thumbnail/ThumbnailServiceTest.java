@@ -293,4 +293,34 @@ public class ThumbnailServiceTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0)).isEqualTo(thumbnail);
     }
+
+    @Test
+    void GivenNotExistingYoutubeVideoId_WhenGetThumbnailByYoutubeVideoId_ThenThrowsResourceNotFoundExceptionWithCorrectMessage() {
+        // Given
+        String youtubeVideoId = "i-do-not-exist";
+
+        when(thumbnailRepository.findByYoutubeVideoId(any()))
+                .thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.getThumbnailByYoutubeVideoId(youtubeVideoId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Thumbnail with provided youtube id not found");
+    }
+
+    @Test
+    void GivenExistingYoutubeVideoId_WhenGetThumbnailByYoutubeVideoId_ThenReturnsCorrectThumbnail() {
+        // Given
+        String youtubeVideoId = "i-do-not-exist";
+
+        when(thumbnailRepository.findByYoutubeVideoId(any()))
+                .thenReturn(Optional.of(thumbnail));
+
+        // When
+        Thumbnail result =
+                underTest.getThumbnailByYoutubeVideoId(youtubeVideoId);
+
+        // Then
+        assertThat(result).isEqualTo(thumbnail);
+    }
 }

@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .authorizeRequests(auth -> auth
                         .antMatchers("/api/v1/auth/**").permitAll()
                         .antMatchers("/api/v1/email-verification/**").permitAll()
+                        .antMatchers("/api/v1/rating/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

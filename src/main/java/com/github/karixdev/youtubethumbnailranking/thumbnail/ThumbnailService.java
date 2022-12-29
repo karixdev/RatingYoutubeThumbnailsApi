@@ -87,4 +87,10 @@ public class ThumbnailService {
                 thumbnail.getRatings().stream().noneMatch(rating -> rating.getUser().equals(user)))
                 .toList();
     }
+
+    public Thumbnail getThumbnailByYoutubeVideoId(String youtubeVideoId) {
+        return repository.findByYoutubeVideoId(youtubeVideoId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Thumbnail with provided youtube id not found"));
+    }
 }

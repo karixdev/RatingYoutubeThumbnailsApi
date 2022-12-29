@@ -1,5 +1,7 @@
 package com.github.karixdev.youtubethumbnailranking.rating;
 
+import com.github.karixdev.youtubethumbnailranking.rating.payload.response.RatingResponse;
+import com.github.karixdev.youtubethumbnailranking.security.UserPrincipal;
 import com.github.karixdev.youtubethumbnailranking.thumbnail.Thumbnail;
 import com.github.karixdev.youtubethumbnailranking.thumbnail.ThumbnailService;
 import com.github.karixdev.youtubethumbnailranking.user.User;
@@ -282,5 +284,94 @@ public class RatingServiceTest {
 
         verify(repository).save(eq((rating)));
         verify(repository).save(eq(otherRating));
+    }
+
+    @Test
+    void GivenYoutubeVideoIdAndNullUserPrincipal_WhenGetThumbnailAveragePoints_ThenReturnsCorrectRatingResponse() {
+        // Given
+        UserPrincipal userPrincipal = null;
+
+        User otherUser = User.builder()
+                .email("email-2@email.com")
+                .password("password")
+                .username("username-2")
+                .userRole(UserRole.ROLE_USER)
+                .isEnabled(Boolean.TRUE)
+                .build();
+
+        Thumbnail otherThumbnail = Thumbnail.builder()
+                .id(2L)
+                .addedBy(otherUser)
+                .url("thumbnail-url-2")
+                .youtubeVideoId("youtube-id-2")
+                .build();
+
+        Rating otherRating = Rating.builder()
+                .id(110L)
+                .user(otherUser)
+                .points(new BigDecimal(1337))
+                .build();
+
+        otherThumbnail.setRatings(Set.of(otherRating));
+
+        when(repository.findAveragePointsByThumbnail(any()))
+                .thenReturn(Optional.of(new BigDecimal(1337)));
+
+        // When
+        RatingResponse result = underTest.getThumbnailAveragePoints(
+                "youtube-id-2", userPrincipal);
+
+        // Then
+        assertThat(result.getGlobalRatingPoints())
+                .isEqualTo(new BigDecimal(1337));
+        assertThat(result.getUserRatingPoints())
+                .isNull();
+    }
+
+    @Test
+    void GivenYoutubeVideoIdAndUserPrincipal_WhenGetThumbnailAveragePoints_ThenReturnsCorrectRatingResponse() {
+        // Given
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+
+        when(repository.findAveragePointsByThumbnail(any()))
+                .thenReturn(Optional.of(new BigDecimal(1400)));
+
+        when(repository.findAveragePointsByThumbnailAndUser(any(), any()))
+                .thenReturn(Optional.of(new BigDecimal(1400)));
+
+        // When
+        RatingResponse result = underTest.getThumbnailAveragePoints(
+                "youtube-id", userPrincipal);
+
+        // Then
+        assertThat(result.getGlobalRatingPoints())
+                .isEqualTo(new BigDecimal(1400));
+        assertThat(result.getUserRatingPoints())
+                .isEqualTo(new BigDecimal(1400));
+    }
+
+    @Test
+    void GivenYoutubeVideoIdWithNoRatingsAndUserPrincipalWhoHasNotRatedThumbnail_WhenGetThumbnailAveragePoints_ThenReturnsCorrectRatingResponse() {
+        // Given
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+
+        when(repository.findAveragePointsByThumbnail(any()))
+                .thenReturn(Optional.empty());
+
+        when(repository.findAveragePointsByThumbnailAndUser(any(), any()))
+                .thenReturn(Optional.empty());
+
+        when(properties.getBasePoints())
+                .thenReturn(new BigDecimal(1400));
+
+        // When
+        RatingResponse result = underTest.getThumbnailAveragePoints(
+                "youtube-id", userPrincipal);
+
+        // Then
+        assertThat(result.getGlobalRatingPoints())
+                .isEqualTo(new BigDecimal(1400));
+        assertThat(result.getUserRatingPoints())
+                .isEqualTo(new BigDecimal(1400));
     }
 }
