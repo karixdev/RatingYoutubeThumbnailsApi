@@ -35,28 +35,10 @@ If provided request body is invalid
 
 Code: `400`
 
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 400,
-  "error": "Bad Request",
-  "path": "/api/v1/auth/register"
-}
-```
-
 (2)
 If username or email is already taken
 
 Code: `409`
-
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 409,
-  "error": "Conflict",
-  "path": "/api/v1/auth/register"
-}
-```
 
 ---
 
@@ -98,28 +80,10 @@ If provided request body is invalid
 
 Code: `400`
 
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 400,
-  "error": "Bad Request",
-  "path": "/api/v1/auth/sign-in"
-}
-```
-
 (2)
 If user with provided could not found or could not be authenticated
 
 Code: `401`
-
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 401,
-  "error": "Unauthorized",
-  "path": "/api/v1/auth/sing-in"
-}
-```
 
 ---
 
@@ -155,26 +119,10 @@ If `token` was not found
 
 Code: `404`
 
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 404,
-  "error": "Not Found",
-  "path": "/api/v1/email-verification/{token}"
-}
-```
-
 (2)
 If user is already enabled or `token` has expired:
 
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 400,
-  "error": "Bad request",
-  "path": "/api/v1/email-verification/{token}"
-}
-```
+Code: `400`
 
 ---
 
@@ -211,26 +159,10 @@ If user with provided `email` was not found
 
 Code: `404`
 
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 404,
-  "error": "Not Found",
-  "path": "/api/v1/email-verification/resend"
-}
-```
-
 (2)
 If user is already enabled or requested too many tokens in one hour:
 
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 400,
-  "error": "Bad request",
-  "path": "/api/v1/email-verification/resend"
-}
-```
+Code: `400`
 
 ---
 
@@ -270,56 +202,20 @@ If YouTube API responses with empty `items` list.
 
 Code: `404`
 
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 404,
-  "error": "Not Found",
-  "path": "/api/v1/thumbnail"
-}
-```
-
 (2)
 If `youtube_video_id` is too short.
 
 Code: `400`
-
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 400,
-  "error": "Bad request",
-  "path": "/api/v1/thumbnail"
-}
-```
 
 (3)
 If thumbnail with provided `youtube_video_id` already exists in database.
 
 Code: `409`
 
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 409,
-  "error": "Bad request",
-  "path": "/api/v1/thumbnail"
-}
-```
-
 (4)
 If YouTube API is unavailable.
 
 Code: `503`
-
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 503,
-  "error": "Bad request",
-  "path": "/api/v1/thumbnail"
-}
-```
 
 ---
 
@@ -354,28 +250,10 @@ If thumbnail with provided `id` was not found.
 
 Code: `404`
 
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 404,
-  "error": "Not Found",
-  "path": "/api/v1/thumbnail/{id}"
-}
-```
-
 (2)
 If user is not an author and is hasn't got `ADMIN` role.
 
 Code: `403`
-
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 403,
-  "error": "Not Found",
-  "path": "/api/v1/thumbnail/{id}"
-}
-```
 
 ---
 
@@ -412,28 +290,10 @@ If user has started a game, and it hasn't expired or ended
 
 Code: `400`
 
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 400,
-  "error": "Not Found",
-  "path": "/api/v1/game/start"
-}
-```
-
 (2)
 If there are not enough thumbnails in database to start a game.
 
 Code: `500`
-
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 500,
-  "error": "Not Found",
-  "path": "/api/v1/game/start"
-}
-```
 
 ---
 
@@ -502,70 +362,25 @@ If game with provided `id` was not found.
 
 Code: `404`
 
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 404,
-  "error": "Not Found",
-  "path": "/api/v1/game/round-result/{id}"
-}
-```
-
 (2)
 If user is not owner of the game.
 
 Code: `403`
-
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 403,
-  "error": "Not Found",
-  "path": "/api/v1/game/round-result/{id}"
-}
-```
 
 (3)
 If game has expired or has been ended.
 
 Code: `409`
 
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 409,
-  "error": "Not Found",
-  "path": "/api/v1/game/round-result/{id}"
-}
-```
-
 (4)
 If `winer_id` isn't match thumbnail1 or thumbnail2 id.
 
 Code: `400`
 
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 400,
-  "error": "Not Found",
-  "path": "/api/v1/game/round-result/{id}"
-}
-```
-
 (5)
 If there are not enough thumbnails in database to pick a new opponent.
 
 Code: `500`
-
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 500,
-  "error": "Not Found",
-  "path": "/api/v1/game/start"
-}
-```
 
 ---
 
@@ -600,42 +415,15 @@ If game with provided `id` was not found.
 
 Code: `404`
 
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 404,
-  "error": "Not Found",
-  "path": "/api/v1/game/end/{id}"
-}
-```
-
 (2)
 If user is not owner of the game.
 
 Code: `403`
 
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 403,
-  "error": "Not Found",
-  "path": "/api/v1/game/end/{id}"
-}
-```
-
 (3)
 If game has been already ended.
 
 Code: `400`
-
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 400,
-  "error": "Not Found",
-  "path": "/api/v1/end/{id}"
-}
-```
 
 ---
 
@@ -671,15 +459,6 @@ Code: `200`
 If user doesn't have active, not expired game.
 
 Code: `404`
-
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 404,
-  "error": "Not Found",
-  "path": "/api/v1/game"
-}
-```
 
 ---
 
@@ -727,14 +506,5 @@ If user is not authenticated.
 If thumbnail with provided `youtubeVideoId` was not found.
 
 Code: `404`
-
-```json
-{
-  "timestamp": "timestamp when error occurred",
-  "status": 404,
-  "error": "Not Found",
-  "path": "/api/v1/email-verification/{token}"
-}
-```
 
 ---
