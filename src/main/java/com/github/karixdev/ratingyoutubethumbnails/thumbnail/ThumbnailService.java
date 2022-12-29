@@ -15,6 +15,7 @@ import com.github.karixdev.ratingyoutubethumbnails.youtube.payload.request.ItemR
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Random;
 
@@ -24,6 +25,7 @@ public class ThumbnailService {
     private final ThumbnailRepository repository;
     private final YoutubeVideoService youtubeVideoService;
 
+    @Transactional
     public ThumbnailResponse add(ThumbnailRequest payload, UserPrincipal userPrincipal) {
         String youtubeVideoId = payload.getYoutubeVideoId();
 
@@ -47,6 +49,7 @@ public class ThumbnailService {
         return new ThumbnailResponse(thumbnail);
     }
 
+    @Transactional
     public SuccessResponse delete(Long id, UserPrincipal userPrincipal) {
         Thumbnail thumbnail = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(

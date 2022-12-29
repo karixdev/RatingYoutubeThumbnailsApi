@@ -31,6 +31,7 @@ public class GameService {
     private final Clock clock;
     private final GameProperties properties;
 
+    @Transactional
     public GameResponse start(UserPrincipal userPrincipal) {
         User user = userPrincipal.getUser();
 
