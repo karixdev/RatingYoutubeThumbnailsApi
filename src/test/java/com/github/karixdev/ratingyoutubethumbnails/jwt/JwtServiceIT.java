@@ -1,5 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnails.jwt;
 
+import com.github.karixdev.ratingyoutubethumbnails.ContainersEnvironment;
 import com.github.karixdev.ratingyoutubethumbnails.security.UserPrincipal;
 import com.github.karixdev.ratingyoutubethumbnails.user.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,8 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@ActiveProfiles("test")
-public class JwtServiceIT {
+public class JwtServiceIT extends ContainersEnvironment {
     @Autowired
     JwtService underTest;
 

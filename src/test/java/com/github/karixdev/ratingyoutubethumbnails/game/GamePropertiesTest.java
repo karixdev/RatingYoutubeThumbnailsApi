@@ -1,5 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnails.game;
 
+import com.github.karixdev.ratingyoutubethumbnails.ContainersEnvironment;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,8 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@ActiveProfiles("test")
-public class GamePropertiesTest {
+public class GamePropertiesTest extends ContainersEnvironment {
     @Autowired
     GameProperties underTest;
 

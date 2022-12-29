@@ -1,5 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnails.emailverification;
 
+import com.github.karixdev.ratingyoutubethumbnails.ContainersEnvironment;
 import com.github.karixdev.ratingyoutubethumbnails.user.User;
 import com.github.karixdev.ratingyoutubethumbnails.user.UserRepository;
 import com.github.karixdev.ratingyoutubethumbnails.user.UserRole;
@@ -12,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import javax.transaction.Transactional;
 import java.time.Clock;
 import java.time.LocalDateTime;
 
@@ -19,8 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@ActiveProfiles("test")
-public class EmailVerificationControllerIT {
+public class EmailVerificationControllerIT extends ContainersEnvironment {
     @Autowired
     WebTestClient webClient;
 

@@ -1,5 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnails.thumbnail;
 
+import com.github.karixdev.ratingyoutubethumbnails.ContainersEnvironment;
 import com.github.karixdev.ratingyoutubethumbnails.jwt.JwtService;
 import com.github.karixdev.ratingyoutubethumbnails.security.UserPrincipal;
 import com.github.karixdev.ratingyoutubethumbnails.user.UserRepository;
@@ -17,16 +18,16 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-@ActiveProfiles("test")
 @WireMockTest(httpPort = 8888)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-public class ThumbnailControllerIT {
+public class ThumbnailControllerIT  extends ContainersEnvironment {
     @Autowired
     WebTestClient webClient;
 

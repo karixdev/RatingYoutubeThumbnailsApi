@@ -1,5 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnails.game;
 
+import com.github.karixdev.ratingyoutubethumbnails.ContainersEnvironment;
 import com.github.karixdev.ratingyoutubethumbnails.thumbnail.Thumbnail;
 import com.github.karixdev.ratingyoutubethumbnails.user.User;
 import com.github.karixdev.ratingyoutubethumbnails.user.UserRole;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,9 +17,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class GameRepositoryTest {
+public class GameRepositoryTest extends ContainersEnvironment {
     @Autowired
     GameRepository underTest;
 

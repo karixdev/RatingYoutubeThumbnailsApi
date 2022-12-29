@@ -1,5 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnails.email;
 
+import com.github.karixdev.ratingyoutubethumbnails.ContainersEnvironment;
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.ServerSetupTest;
@@ -18,8 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-public class EmailServiceIT {
+public class EmailServiceIT extends ContainersEnvironment {
     @Autowired
     EmailService underTest;
 

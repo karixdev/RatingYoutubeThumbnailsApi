@@ -1,5 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnails.game;
 
+import com.github.karixdev.ratingyoutubethumbnails.ContainersEnvironment;
 import com.github.karixdev.ratingyoutubethumbnails.game.payload.response.GameResponse;
 import com.github.karixdev.ratingyoutubethumbnails.jwt.JwtService;
 import com.github.karixdev.ratingyoutubethumbnails.rating.Rating;
@@ -17,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.Clock;
@@ -29,8 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@ActiveProfiles("test")
-public class GameControllerIT {
+public class GameControllerIT extends ContainersEnvironment {
     @Autowired
     WebTestClient webClient;
 

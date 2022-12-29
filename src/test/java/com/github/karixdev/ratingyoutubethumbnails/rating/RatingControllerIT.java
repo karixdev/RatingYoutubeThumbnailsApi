@@ -1,5 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnails.rating;
 
+import com.github.karixdev.ratingyoutubethumbnails.ContainersEnvironment;
 import com.github.karixdev.ratingyoutubethumbnails.jwt.JwtService;
 import com.github.karixdev.ratingyoutubethumbnails.security.UserPrincipal;
 import com.github.karixdev.ratingyoutubethumbnails.thumbnail.Thumbnail;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.math.BigDecimal;
@@ -21,8 +21,7 @@ import java.math.BigDecimal;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@ActiveProfiles("test")
-public class RatingControllerIT {
+public class RatingControllerIT extends ContainersEnvironment {
     @Autowired
     WebTestClient webClient;
 

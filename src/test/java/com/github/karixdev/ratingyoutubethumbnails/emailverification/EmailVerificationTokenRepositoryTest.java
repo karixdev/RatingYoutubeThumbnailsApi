@@ -1,5 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnails.emailverification;
 
+import com.github.karixdev.ratingyoutubethumbnails.ContainersEnvironment;
 import com.github.karixdev.ratingyoutubethumbnails.user.User;
 import com.github.karixdev.ratingyoutubethumbnails.user.UserRole;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,15 +11,15 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class EmailVerificationTokenRepositoryTest {
+public class EmailVerificationTokenRepositoryTest extends ContainersEnvironment {
     @Autowired
     EmailVerificationTokenRepository underTest;
 

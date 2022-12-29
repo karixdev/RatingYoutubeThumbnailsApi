@@ -1,5 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnails.auth;
 
+import com.github.karixdev.ratingyoutubethumbnails.ContainersEnvironment;
 import com.github.karixdev.ratingyoutubethumbnails.auth.payload.response.SignInResponse;
 import com.github.karixdev.ratingyoutubethumbnails.emailverification.EmailVerificationToken;
 import com.github.karixdev.ratingyoutubethumbnails.emailverification.EmailVerificationTokenRepository;
@@ -18,18 +19,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import javax.mail.internet.MimeMessage;
+import javax.transaction.Transactional;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-public class AuthControllerIT {
+@SpringBootTest(webEnvironment = RANDOM_PORT)
+public class AuthControllerIT extends ContainersEnvironment {
     @Autowired
     WebTestClient webClient;
 
