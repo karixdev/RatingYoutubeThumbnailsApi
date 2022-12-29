@@ -36,7 +36,7 @@ public class EmailVerificationControllerTest {
     ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    void GivenNotExistingToken_WhenVerify_ThenResponsesWith404() throws Exception {
+    void GivenNotExistingToken_WhenVerify_ThenRespondsWith404() throws Exception {
         String token = "i-do-not-exist";
 
         doThrow(new ResourceNotFoundException("Email verification token not found"))
@@ -49,7 +49,7 @@ public class EmailVerificationControllerTest {
     }
 
     @Test
-    void GivenAlreadyVerifiedToken_WhenVerify_ThenResponsesWith400() throws Exception {
+    void GivenAlreadyVerifiedToken_WhenVerify_ThenRespondsWith400() throws Exception {
         String token = "i-do-not-exist";
 
         doThrow(new EmailVerificationTokenExpiredException())
@@ -62,7 +62,7 @@ public class EmailVerificationControllerTest {
     }
 
     @Test
-    void GivenExpiredToken_WhenVerify_ThenResponsesWith400() throws Exception {
+    void GivenExpiredToken_WhenVerify_ThenRespondsWith400() throws Exception {
         String token = "i-do-not-exist";
 
         doThrow(new EmailAlreadyVerifiedException())
@@ -75,7 +75,7 @@ public class EmailVerificationControllerTest {
     }
 
     @Test
-    void GivenValidToken_WhenVerify_ThenResponsesWith200AndSuccessMessage() throws Exception {
+    void GivenValidToken_WhenVerify_ThenRespondsWith200AndSuccessMessage() throws Exception {
         String token = "i-exist";
 
         when(emailVerificationService.verify(any()))
@@ -88,7 +88,7 @@ public class EmailVerificationControllerTest {
     }
 
     @Test
-    void GivenNotValidEmail_WhenResend_ThenResponsesWithBadRequest() throws Exception {
+    void GivenNotValidEmail_WhenResend_ThenRespondsWithBadRequest() throws Exception {
         ResendEmailVerificationTokenRequest payload =
                 new ResendEmailVerificationTokenRequest("not-valid");
 
@@ -102,7 +102,7 @@ public class EmailVerificationControllerTest {
     }
 
     @Test
-    void GivenNotExistingUserEmail_WhenResend_ThenResponsesWithNotFound() throws Exception {
+    void GivenNotExistingUserEmail_WhenResend_ThenRespondsWithNotFound() throws Exception {
         ResendEmailVerificationTokenRequest payload =
                 new ResendEmailVerificationTokenRequest("i-do-not-exist@email.com");
 
@@ -120,7 +120,7 @@ public class EmailVerificationControllerTest {
     }
 
     @Test
-    void GivenValidEmail_WhenResend_ThenResponsesWith200AndSuccessMessage() throws Exception {
+    void GivenValidEmail_WhenResend_ThenRespondsWith200AndSuccessMessage() throws Exception {
         ResendEmailVerificationTokenRequest payload =
                 new ResendEmailVerificationTokenRequest("i-exist@email.com");
 

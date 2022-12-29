@@ -37,7 +37,7 @@ public class AuthControllerTest {
     ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    void GivenInvalidCredentials_WhenRegister_ThenResponsesWithBadRequestStatus() throws Exception {
+    void GivenInvalidCredentials_WhenRegister_ThenRespondsWithBadRequestStatus() throws Exception {
         RegisterRequest payload =
                 new RegisterRequest("abc", "abc", "abc");
         String content = mapper.writeValueAsString(payload);
@@ -50,7 +50,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    void GivenTakenEmail_WhenRegister_ThenResponsesWithConflictStatus() throws Exception {
+    void GivenTakenEmail_WhenRegister_ThenRespondsWithConflictStatus() throws Exception {
         RegisterRequest payload =
                 new RegisterRequest("taken@email.com", "username", "password");
         String content = mapper.writeValueAsString(payload);
@@ -67,7 +67,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    void GivenTakenUsername_WhenRegister_ThenResponsesWithConflictStatus() throws Exception {
+    void GivenTakenUsername_WhenRegister_ThenRespondsWithConflictStatus() throws Exception {
         RegisterRequest payload =
                 new RegisterRequest("available@email.com", "taken-username", "password");
         String content = mapper.writeValueAsString(payload);
@@ -84,7 +84,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    void GivenInvalidCredentials_WhenSignIn_ThenResponsesWithBadRequestStatus() throws Exception {
+    void GivenInvalidCredentials_WhenSignIn_ThenRespondsWithBadRequestStatus() throws Exception {
         SignInRequest payload = new SignInRequest("abc", "abc");
 
         String content = mapper.writeValueAsString(payload);
@@ -97,7 +97,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    void GivenValidCredentials_WhenSignIn_ThenResponsesWithCorrectSingInResponse() throws Exception {
+    void GivenValidCredentials_WhenSignIn_ThenRespondsWithCorrectSingInResponse() throws Exception {
         SignInRequest payload =
                 new SignInRequest("email@email.com", "password");
 
