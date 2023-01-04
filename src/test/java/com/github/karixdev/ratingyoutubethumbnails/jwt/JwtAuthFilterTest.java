@@ -1,5 +1,7 @@
 package com.github.karixdev.ratingyoutubethumbnails.jwt;
 
+import com.github.karixdev.ratingyoutubethumbnails.jwt.JwtAuthFilter;
+import com.github.karixdev.ratingyoutubethumbnails.jwt.JwtService;
 import com.github.karixdev.ratingyoutubethumbnails.security.UserDetailsServiceImpl;
 import com.github.karixdev.ratingyoutubethumbnails.security.UserPrincipal;
 import com.github.karixdev.ratingyoutubethumbnails.user.User;

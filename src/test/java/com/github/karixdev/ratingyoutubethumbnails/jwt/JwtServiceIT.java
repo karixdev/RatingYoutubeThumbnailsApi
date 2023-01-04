@@ -1,6 +1,7 @@
 package com.github.karixdev.ratingyoutubethumbnails.jwt;
 
 import com.github.karixdev.ratingyoutubethumbnails.ContainersEnvironment;
+import com.github.karixdev.ratingyoutubethumbnails.jwt.JwtService;
 import com.github.karixdev.ratingyoutubethumbnails.security.UserPrincipal;
 import com.github.karixdev.ratingyoutubethumbnails.user.User;
 import org.junit.jupiter.api.BeforeEach;
