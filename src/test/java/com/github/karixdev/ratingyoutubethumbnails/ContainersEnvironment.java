@@ -1,5 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnails;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -13,15 +14,20 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @Testcontainers
 @ActiveProfiles("test")
 public class ContainersEnvironment {
-    @Container
     private static final MySQLContainer<?> mySQLContainer =
             new MySQLContainer<>("mysql:latest")
                     .withDatabaseName("rating-youtube-thumbnails-test")
                     .withUsername("root")
-                    .withPassword("root");
+                    .withPassword("root")
+                    .withReuse(true);
+
+    @BeforeAll
+    static void beforeAll() {
+        mySQLContainer.start();
+    }
 
     @DynamicPropertySource
-    static void overrideYoutubeApiBaseUrl(DynamicPropertyRegistry dynamicPropertyRegistry) {
+    static void overrideDatabaseConnectionProperties(DynamicPropertyRegistry dynamicPropertyRegistry) {
         dynamicPropertyRegistry.add(
                 "spring.datasource.url",
                 mySQLContainer::getJdbcUrl);
