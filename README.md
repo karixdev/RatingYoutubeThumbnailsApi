@@ -1,5 +1,24 @@
 # YouTube Thumbnail Ranking
 
+## Table of contents
+
+<!-- TOC -->
+* [YouTube Thumbnail Ranking](#youtube-thumbnail-ranking)
+  * [1. Description](#1-description)
+  * [2. Available endpoints](#2-available-endpoints)
+    * [POST /api/v1/auth/register](#post-apiv1authregister)
+    * [POST /api/v1/auth/sign-in](#post-apiv1authsign-in)
+    * [POST /api/v1/email-verification/{token}](#post-apiv1email-verificationtoken)
+    * [POST /api/v1/email-verification/resend](#post-apiv1email-verificationresend)
+    * [POST /api/v1/thumbnail](#post-apiv1thumbnail)
+    * [DELETE /api/v1/thumbnail/{id}](#delete-apiv1thumbnailid)
+    * [POST /api/v1/game/start](#post-apiv1gamestart)
+    * [POST /api/v1/game/round-result/{id}](#post-apiv1gameround-resultid)
+    * [POST /api/v1/game/end/{id}](#post-apiv1gameendid)
+    * [GET /api/v1/game](#get-apiv1game)
+    * [GET /api/v1/rating/{youtubeVideoId}](#get-apiv1ratingyoutubevideoid)
+<!-- TOC -->
+
 ## 1. Description
 
 The project aimed to create a REST API where users can choose between two thumbnails of YouTube videos. Based on the user's choices, the thumbnail receives a certain amount of rating points, which are calculated using the [ELO rating system](https://en.wikipedia.org/wiki/Elo_rating_system). When the user [starts game](#post-apiv1gamestart) two thumbnails are drawn, the user chooses the one he likes better and then sends the corresponding request to the REST API with [round result](#post-apiv1gameround-resultid), then another thumbnail is drawn, and so on.
