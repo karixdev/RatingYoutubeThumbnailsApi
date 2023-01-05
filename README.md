@@ -1,6 +1,16 @@
 # YouTube Thumbnail Ranking
 
-## 1. Available endpoints
+## 1. Description
+
+The project aimed to create a REST API where users can choose between two thumbnails of YouTube videos. Based on the user's choices, the thumbnail receives a certain amount of rating points, which are calculated using the [ELO rating system](https://en.wikipedia.org/wiki/Elo_rating_system). When the user [starts game](#post-apiv1gamestart) two thumbnails are drawn, the user chooses the one he likes better and then sends the corresponding request to the REST API with [round result](#post-apiv1gameround-resultid), then another thumbnail is drawn, and so on.
+
+To add a thumbnail of an YouTube video you just need to know its link, for example
+- If YouTube video's link is given in the shorter format:
+  - `https://youtu.be/dQw4w9WgXcQ` then `id` is equal to `dQw4w9WgXcQ`
+- If YouTube video's link is given in the longer format:
+  - `https://www.youtube.com/watch?v=YnopHCL1Jk8&ab_channel=TimeRecords` then `id` is equal to `YnopHCL1Jk8`
+
+## 2. Available endpoints
 
 ### POST /api/v1/auth/register
 
