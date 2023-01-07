@@ -25,7 +25,7 @@
 
 The project aimed to create a REST API where users can start a game where they are choosing between two thumbnails of YouTube videos. Based on the user's choices, the thumbnail receives a certain amount of rating points, which are calculated using the [ELO rating system](https://en.wikipedia.org/wiki/Elo_rating_system). When the user [starts game](#post-apiv1gamestart) two thumbnails are drawn, the user chooses the one he likes better and then sends the corresponding request to the REST API with [round result](#post-apiv1gameround-resultid), then another thumbnail is drawn, and so on.
 
-**IMPORTANT** To be able to add thumbnails, you need to have YouTube API `key`. Here's a [link](https://www.youtube.com/watch?v=44OBOSBd73M&ab_channel=AWPLife) to a tutorial that shows how to get it.
+**<ins>IMPORTANT</ins>** To be able to add thumbnails, you need to have YouTube API `key`. Here's a [link](https://www.youtube.com/watch?v=44OBOSBd73M&ab_channel=AWPLife) to a tutorial that shows how to get it.
 
 To add a thumbnail of an YouTube video you just need to know its link, for example
 - If YouTube video's link is given in the shorter format:
@@ -33,7 +33,7 @@ To add a thumbnail of an YouTube video you just need to know its link, for examp
 - If YouTube video's link is given in the longer format:
   - `https://www.youtube.com/watch?v=YnopHCL1Jk8&ab_channel=TimeRecords` then `id` is equal to `YnopHCL1Jk8`
 
-## 3. How to run it
+## 2. How to run it
 
 Requirements: Java (JDK) `17`, Docker
 
@@ -54,11 +54,13 @@ It will start following containers:
 
 To start the application, run the `main` method from: `RatingYoutubeThumbnails.java`.
 
-## 3. Auth
+[//]: # (## 3. Initial data)
+
+## 4. Auth
 
 To access secured routes you need to get your `JWT`. To do so after [signing in](#post-apiv1authsign-in) you'll receive `access_token`. And while trying to access secured add header `Authorization` with value `Beater JWT` (replace `JWT` with your `access_token`).
 
-## 4. Available endpoints
+## 5. Available endpoints
 
 ### POST /api/v1/auth/register
 
