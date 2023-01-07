@@ -54,7 +54,14 @@ It will start following containers:
 
 To start the application, run the `main` method from: `RatingYoutubeThumbnails.java`.
 
-[//]: # (## 3. Initial data)
+## 3. Initial data
+
+There is an available default user with the `ROLE_ADMIN`, and credentials:
+- email: `admin@admin.com`
+- username: `admin`
+- password: `admin123`
+
+There are also 7 thumbnails available, with YouTube video ids: `e-fA-gBCkj0`, `dvgZkm1xWPE`, `O0lf_fE3HwA`, `SSCzDykng4g`, `oxqnFJ3lp5k`, `psuRGfAaju4`, `hT_nvWreIhg`.
 
 ## 4. Auth
 
