@@ -5,9 +5,10 @@
 <!-- TOC -->
 * [YouTube Thumbnail Ranking](#youtube-thumbnail-ranking)
   * [1. Description](#1-description)
-  * [3. How to run it](#3-how-to-run-it)
-  * [3. Auth](#3-auth)
-  * [4. Available endpoints](#4-available-endpoints)
+  * [2. How to run it](#2-how-to-run-it)
+  * [3. Initial data](#3-initial-data)
+  * [4. Auth](#4-auth)
+  * [5. Available endpoints](#5-available-endpoints)
     * [POST /api/v1/auth/register](#post-apiv1authregister)
     * [POST /api/v1/auth/sign-in](#post-apiv1authsign-in)
     * [POST /api/v1/email-verification/{token}](#post-apiv1email-verificationtoken)
@@ -23,7 +24,7 @@
 
 ## 1. Description
 
-The project aimed to create a REST API where users can start a game where they are choosing between two thumbnails of YouTube videos. Based on the user's choices, the thumbnail receives a certain amount of rating points, which are calculated using the [ELO rating system](https://en.wikipedia.org/wiki/Elo_rating_system). When the user [starts game](#post-apiv1gamestart) two thumbnails are drawn, the user chooses the one he likes better and then sends the corresponding request to the REST API with [round result](#post-apiv1gameround-resultid), then another thumbnail is drawn, and so on.
+The project aimed to create a REST API where users can start a game where they are choosing between two YouTube videos thumbnails. Based on the user's choices, the thumbnail receives a certain amount of rating points, which are calculated using the [ELO rating system](https://en.wikipedia.org/wiki/Elo_rating_system). When user [starts game](#post-apiv1gamestart) two thumbnails are drawn, the user chooses the one he likes better and then sends the corresponding request to the REST API with [round result](#post-apiv1gameround-resultid), then another thumbnail is drawn, and so on.
 
 **<ins>IMPORTANT</ins>** To be able to add thumbnails, you need to have YouTube API `key`. Here's a [link](https://www.youtube.com/watch?v=44OBOSBd73M&ab_channel=AWPLife) to a tutorial that shows how to get it.
 
