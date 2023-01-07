@@ -6,10 +6,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @EnableAsync
 @SpringBootApplication
-public class RatingYoutubeThumbnails {
+public class RatingYoutubeThumbnailsApi {
 
 	public static void main(String[] args) {
-		SpringApplication.run(RatingYoutubeThumbnails.class, args);
+		SpringApplication.run(RatingYoutubeThumbnailsApi.class, args);
 	}
 
 }
