@@ -36,6 +36,14 @@ public class DataFixturesTest {
     FixturesProperties properties;
 
     @Test
+    void shouldNotLoadDataFixtures() {
+        when(properties.getLoadFixtures())
+                .thenReturn(true);
+
+        verify(userRepository, never()).findByEmail(any());
+    }
+
+    @Test
     void shouldNotCreateUserIfEmailIsTaken() {
         when(userRepository.findByEmail(eq("admin@admin.com")))
                 .thenReturn(Optional.of(User.builder()
