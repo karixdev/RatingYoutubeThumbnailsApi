@@ -37,8 +37,6 @@ Creates new, disabled user based on provided credentials and sends an email with
 
 **Auth required**: NO
 
-**Permissions required**: NONE
-
 **Request body**:
 
 | Name       | Type   | Constraints                                           |
@@ -76,8 +74,6 @@ Code: `409`
 Signs in enabled user. Response includes `JWT` and user details such as: `email`, `username`, `user_role`, `is_enabled`. 
 
 **Auth required**: NO
-
-**Permissions required**: NONE
 
 **Request body**:
 
@@ -123,8 +119,6 @@ valid then enables user owning the token.
 
 **Auth required**: NO
 
-**Permissions required**: NONE
-
 **Path variables**:
 
 | Name    | Type   | Required |
@@ -163,8 +157,6 @@ you can specify it in `application.yaml` under `email-verification.max-number-of
 
 **Auth required**: NO
 
-**Permissions required**: NONE
-
 **Request body**:
 
 | Name    | Type   | Constraints                   |
@@ -200,8 +192,6 @@ Code: `400`
 Adds thumbnail based on provided `youtube_video_id`. When endpoint is called then app calls YouTube API to get details about video. From YouTube API response the url for thumbnail is extracted and then new thumbnail is added to database.  
 
 **Auth required**: YES
-
-**Permissions required**: NONE
 
 **Request body**:
 
@@ -254,8 +244,6 @@ Deletes a thumbnail based on the given `id`. Authors can delete their thumbnails
 
 **Auth required**: YES
 
-**Permissions required**: NONE
-
 **Path variables**:
 
 | Name | Type | Constraints                           |
@@ -291,8 +279,6 @@ Code: `403`
 Starts a game in which the user chooses between two thumbnails. If the game is left without any action it deactivates itself after time specified in `application.yaml` under variable `game.duration`
 
 **Auth required**: YES
-
-**Permissions required**: NONE
 
 **Success response**:
 
@@ -331,8 +317,6 @@ Code: `500`
 Updates rankings of thumbnails taking part in the game - it is done using [Elo rating system](https://en.wikipedia.org/wiki/Elo_rating_system). Winner stays in game, and the new opponent is chosen.
 
 **Auth required**: YES
-
-**Permissions required**: NONE
 
 **Path variables**:
 
@@ -419,8 +403,6 @@ Ends game with provided `id`.
 
 **Auth required**: YES
 
-**Permissions required**: NONE
-
 **Path variables**:
 
 | Name | Type | Required |
@@ -462,8 +444,6 @@ Gets user's actual active, not expired game.
 
 **Auth required**: YES
 
-**Permissions required**: NONE
-
 **Success response**:
 
 Code: `200`
@@ -496,8 +476,6 @@ Code: `404`
 Calculates average rating points for thumbnail with provided `yotoubeVideoId`, and retrieves rating points for authenticated user (if he is not authenticated then `null` is returned)
 
 **Auth required**: NO
-
-**Permissions required**: NONE
 
 **Path variables**:
 
