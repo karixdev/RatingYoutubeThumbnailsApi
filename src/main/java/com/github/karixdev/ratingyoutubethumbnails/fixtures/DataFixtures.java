@@ -51,10 +51,6 @@ public class DataFixtures implements CommandLineRunner {
                         "url", "https://i.ytimg.com/vi/dvgZkm1xWPE/maxresdefault.jpg"
                 ),
                 Map.of(
-                        "youtubeVideoId", "dvgZkm1xWPE",
-                        "url", "https://i.ytimg.com/vi/dvgZkm1xWPE/maxresdefault.jpg"
-                ),
-                Map.of(
                         "youtubeVideoId", "O0lf_fE3HwA",
                         "url", "https://i.ytimg.com/vi/O0lf_fE3HwA/maxresdefault.jpg"
                 ),

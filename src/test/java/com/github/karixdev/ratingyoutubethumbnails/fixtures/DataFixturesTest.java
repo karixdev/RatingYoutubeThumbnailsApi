@@ -37,9 +37,6 @@ public class DataFixturesTest {
 
     @Test
     void shouldNotLoadDataFixtures() {
-        when(properties.getLoadFixtures())
-                .thenReturn(true);
-
         verify(userRepository, never()).findByEmail(any());
     }
 
@@ -181,6 +178,6 @@ public class DataFixturesTest {
 
         underTest.run();
 
-        verify(thumbnailRepository, times(8)).save(any());
+        verify(thumbnailRepository, times(7)).save(any());
     }
 }
