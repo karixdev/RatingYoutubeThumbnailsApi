@@ -48,3 +48,6 @@ rating:
 
 game:
   duration: 15
+
+fixtures:
+  load: true

@@ -39,3 +39,6 @@ rating:
 
 game:
   duration: 10
+
+fixtures:
+  load: false
