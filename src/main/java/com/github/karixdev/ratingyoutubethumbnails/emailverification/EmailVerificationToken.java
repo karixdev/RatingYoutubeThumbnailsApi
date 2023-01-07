@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -66,7 +67,29 @@ public class EmailVerificationToken {
     @ManyToOne(optional = false)
     @JoinColumn(
             name = "user_id",
-            nullable = false
+            nullable = false,
+            referencedColumnName = "id",
+            foreignKey = @ForeignKey(
+                    name = "email_verification_token_user_id_fk"
+            )
     )
     private User user;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EmailVerificationToken that = (EmailVerificationToken) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(token, that.token) &&
+                Objects.equals(createdAt, that.createdAt) &&
+                Objects.equals(expiresAt, that.expiresAt) &&
+                Objects.equals(confirmedAt, that.confirmedAt) &&
+                Objects.equals(user.getId(), that.user.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, token, createdAt, expiresAt, confirmedAt, user.getId());
+    }
 }
