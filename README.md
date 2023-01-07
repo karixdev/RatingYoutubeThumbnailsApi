@@ -53,7 +53,7 @@ It will start following containers:
 - phpMyAdmin
   - port: `8081`
 
-To start the application, run the `main` method from: `RatingYoutubeThumbnails.java`.
+To start the application, run the `main` method from: `RatingYoutubeThumbnailsApi.java`.
 
 ## 3. Initial data
 
