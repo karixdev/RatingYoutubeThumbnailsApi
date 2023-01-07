@@ -5,8 +5,9 @@
 <!-- TOC -->
 * [YouTube Thumbnail Ranking](#youtube-thumbnail-ranking)
   * [1. Description](#1-description)
-  * [2. Auth](#2-auth)
-  * [3. Available endpoints](#3-available-endpoints)
+  * [3. How to run it](#3-how-to-run-it)
+  * [3. Auth](#3-auth)
+  * [4. Available endpoints](#4-available-endpoints)
     * [POST /api/v1/auth/register](#post-apiv1authregister)
     * [POST /api/v1/auth/sign-in](#post-apiv1authsign-in)
     * [POST /api/v1/email-verification/{token}](#post-apiv1email-verificationtoken)
@@ -30,11 +31,30 @@ To add a thumbnail of an YouTube video you just need to know its link, for examp
 - If YouTube video's link is given in the longer format:
   - `https://www.youtube.com/watch?v=YnopHCL1Jk8&ab_channel=TimeRecords` then `id` is equal to `YnopHCL1Jk8`
 
-## 2. Auth
+## 3. How to run it
+
+Requirements: Java (JDK) `17`, Docker
+
+```shell
+docker-compose up -d
+```
+
+It will start following containers:
+- MySQL
+  - port: `3306`
+- MailCatcher:
+  - port: `1025`
+  - port: `1080` - on this port there is available mail client
+- phpMyAdmin
+  - port: `8081`
+
+To start the application, run the `main` method from: `RatingYoutubeThumbnails.java`
+
+## 3. Auth
 
 To access secured routes you need to get your `JWT`. To do so after [signing in](#post-apiv1authsign-in) you'll receive `access_token`. And while trying to access secured add header `Authorization` with value `Beater JWT` (replace `JWT` with your `access_token`).
 
-## 3. Available endpoints
+## 4. Available endpoints
 
 ### POST /api/v1/auth/register
 
