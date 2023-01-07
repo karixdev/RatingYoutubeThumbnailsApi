@@ -1,14 +1,41 @@
 # YouTube Thumbnail Ranking
 
-## 1. Available endpoints
+## Table of contents
+
+<!-- TOC -->
+* [YouTube Thumbnail Ranking](#youtube-thumbnail-ranking)
+  * [1. Description](#1-description)
+  * [2. Available endpoints](#2-available-endpoints)
+    * [POST /api/v1/auth/register](#post-apiv1authregister)
+    * [POST /api/v1/auth/sign-in](#post-apiv1authsign-in)
+    * [POST /api/v1/email-verification/{token}](#post-apiv1email-verificationtoken)
+    * [POST /api/v1/email-verification/resend](#post-apiv1email-verificationresend)
+    * [POST /api/v1/thumbnail](#post-apiv1thumbnail)
+    * [DELETE /api/v1/thumbnail/{id}](#delete-apiv1thumbnailid)
+    * [POST /api/v1/game/start](#post-apiv1gamestart)
+    * [POST /api/v1/game/round-result/{id}](#post-apiv1gameround-resultid)
+    * [POST /api/v1/game/end/{id}](#post-apiv1gameendid)
+    * [GET /api/v1/game](#get-apiv1game)
+    * [GET /api/v1/rating/{youtubeVideoId}](#get-apiv1ratingyoutubevideoid)
+<!-- TOC -->
+
+## 1. Description
+
+The project aimed to create a REST API where users can start a game where they are choosing between two thumbnails of YouTube videos. Based on the user's choices, the thumbnail receives a certain amount of rating points, which are calculated using the [ELO rating system](https://en.wikipedia.org/wiki/Elo_rating_system). When the user [starts game](#post-apiv1gamestart) two thumbnails are drawn, the user chooses the one he likes better and then sends the corresponding request to the REST API with [round result](#post-apiv1gameround-resultid), then another thumbnail is drawn, and so on.
+
+To add a thumbnail of an YouTube video you just need to know its link, for example
+- If YouTube video's link is given in the shorter format:
+  - `https://youtu.be/dQw4w9WgXcQ` then `id` is equal to `dQw4w9WgXcQ`
+- If YouTube video's link is given in the longer format:
+  - `https://www.youtube.com/watch?v=YnopHCL1Jk8&ab_channel=TimeRecords` then `id` is equal to `YnopHCL1Jk8`
+
+## 2. Available endpoints
 
 ### POST /api/v1/auth/register
 
 Creates new, disabled user based on provided credentials and sends an email with email verification token.
 
 **Auth required**: NO
-
-**Permissions required**: NONE
 
 **Request body**:
 
@@ -47,8 +74,6 @@ Code: `409`
 Signs in enabled user. Response includes `JWT` and user details such as: `email`, `username`, `user_role`, `is_enabled`. 
 
 **Auth required**: NO
-
-**Permissions required**: NONE
 
 **Request body**:
 
@@ -94,8 +119,6 @@ valid then enables user owning the token.
 
 **Auth required**: NO
 
-**Permissions required**: NONE
-
 **Path variables**:
 
 | Name    | Type   | Required |
@@ -134,8 +157,6 @@ you can specify it in `application.yaml` under `email-verification.max-number-of
 
 **Auth required**: NO
 
-**Permissions required**: NONE
-
 **Request body**:
 
 | Name    | Type   | Constraints                   |
@@ -171,8 +192,6 @@ Code: `400`
 Adds thumbnail based on provided `youtube_video_id`. When endpoint is called then app calls YouTube API to get details about video. From YouTube API response the url for thumbnail is extracted and then new thumbnail is added to database.  
 
 **Auth required**: YES
-
-**Permissions required**: NONE
 
 **Request body**:
 
@@ -225,8 +244,6 @@ Deletes a thumbnail based on the given `id`. Authors can delete their thumbnails
 
 **Auth required**: YES
 
-**Permissions required**: NONE
-
 **Path variables**:
 
 | Name | Type | Constraints                           |
@@ -262,8 +279,6 @@ Code: `403`
 Starts a game in which the user chooses between two thumbnails. If the game is left without any action it deactivates itself after time specified in `application.yaml` under variable `game.duration`
 
 **Auth required**: YES
-
-**Permissions required**: NONE
 
 **Success response**:
 
@@ -302,8 +317,6 @@ Code: `500`
 Updates rankings of thumbnails taking part in the game - it is done using [Elo rating system](https://en.wikipedia.org/wiki/Elo_rating_system). Winner stays in game, and the new opponent is chosen.
 
 **Auth required**: YES
-
-**Permissions required**: NONE
 
 **Path variables**:
 
@@ -390,8 +403,6 @@ Ends game with provided `id`.
 
 **Auth required**: YES
 
-**Permissions required**: NONE
-
 **Path variables**:
 
 | Name | Type | Required |
@@ -433,8 +444,6 @@ Gets user's actual active, not expired game.
 
 **Auth required**: YES
 
-**Permissions required**: NONE
-
 **Success response**:
 
 Code: `200`
@@ -467,8 +476,6 @@ Code: `404`
 Calculates average rating points for thumbnail with provided `yotoubeVideoId`, and retrieves rating points for authenticated user (if he is not authenticated then `null` is returned)
 
 **Auth required**: NO
-
-**Permissions required**: NONE
 
 **Path variables**:
 
