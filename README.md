@@ -35,6 +35,8 @@ To add a thumbnail of an YouTube video you just need to know its link, for examp
 
 Requirements: Java (JDK) `17`, Docker
 
+Specify your YouTube API `key` in the `application.yaml` file in the variable `youtube-api.key`.
+
 ```shell
 docker-compose up -d
 ```
@@ -48,7 +50,7 @@ It will start following containers:
 - phpMyAdmin
   - port: `8081`
 
-To start the application, run the `main` method from: `RatingYoutubeThumbnails.java`
+To start the application, run the `main` method from: `RatingYoutubeThumbnails.java`.
 
 ## 3. Auth
 
