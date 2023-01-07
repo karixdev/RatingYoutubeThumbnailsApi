@@ -25,6 +25,8 @@
 
 The project aimed to create a REST API where users can start a game where they are choosing between two thumbnails of YouTube videos. Based on the user's choices, the thumbnail receives a certain amount of rating points, which are calculated using the [ELO rating system](https://en.wikipedia.org/wiki/Elo_rating_system). When the user [starts game](#post-apiv1gamestart) two thumbnails are drawn, the user chooses the one he likes better and then sends the corresponding request to the REST API with [round result](#post-apiv1gameround-resultid), then another thumbnail is drawn, and so on.
 
+**IMPORTANT** To be able to add thumbnails, you need to have YouTube API `key`. Here's a [link](https://www.youtube.com/watch?v=44OBOSBd73M&ab_channel=AWPLife) to a tutorial that shows how to get it.
+
 To add a thumbnail of an YouTube video you just need to know its link, for example
 - If YouTube video's link is given in the shorter format:
   - `https://youtu.be/dQw4w9WgXcQ` then `id` is equal to `dQw4w9WgXcQ`
