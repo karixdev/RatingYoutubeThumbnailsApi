@@ -65,11 +65,7 @@ public class GameService {
 
     @Transactional
     public GameResponse roundResult(Long gameId, GameResultRequest payload, UserPrincipal userPrincipal) {
-        Game game = repository.findById(gameId)
-                .orElseThrow(() -> {
-                    throw new ResourceNotFoundException(
-                            "Game with provided id was not found");
-                });
+        Game game = getById(gameId);
 
         User user = userPrincipal.getUser();
 
@@ -118,11 +114,7 @@ public class GameService {
 
     @Transactional
     public SuccessResponse end(Long gameId, UserPrincipal userPrincipal) {
-        Game game = repository.findById(gameId)
-                .orElseThrow(() -> {
-                    throw new ResourceNotFoundException(
-                            "Game with provided id was not found");
-                });
+        Game game = getById(gameId);
 
         User user = userPrincipal.getUser();
 
@@ -158,5 +150,13 @@ public class GameService {
         }
 
         return new GameResponse(newestGame);
+    }
+
+    private Game getById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> {
+                    throw new ResourceNotFoundException(
+                            "Game with provided id was not found");
+                });
     }
 }
