@@ -3,6 +3,7 @@ package com.github.karixdev.ratingyoutubethumbnailsapi.security;
 import com.github.karixdev.ratingyoutubethumbnailsapi.jwt.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -17,6 +18,7 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import com.github.karixdev.ratingyoutubethumbnailsapi.jwt.JwtService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -29,10 +31,10 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
-                .authorizeRequests(auth -> auth
-                        .antMatchers("/api/v1/auth/**").permitAll()
-                        .antMatchers("/api/v1/email-verification/**").permitAll()
-                        .antMatchers("/api/v1/rating/**").permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/email-verification/**").permitAll()
+                        .requestMatchers("/api/v1/rating/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

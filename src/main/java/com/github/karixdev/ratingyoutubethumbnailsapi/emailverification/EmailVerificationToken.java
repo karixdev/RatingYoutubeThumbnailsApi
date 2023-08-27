@@ -3,7 +3,7 @@ package com.github.karixdev.ratingyoutubethumbnailsapi.emailverification;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.User;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 

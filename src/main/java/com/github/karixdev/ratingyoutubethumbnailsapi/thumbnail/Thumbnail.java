@@ -4,7 +4,7 @@ import com.github.karixdev.ratingyoutubethumbnailsapi.rating.Rating;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.User;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
