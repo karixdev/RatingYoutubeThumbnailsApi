@@ -1,6 +1,8 @@
-package com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail;
+package com.github.karixdev.ratingyoutubethumbnailsapi.it.thumbnail;
 
-import com.github.karixdev.ratingyoutubethumbnailsapi.ContainersEnvironment;
+import com.github.karixdev.ratingyoutubethumbnailsapi.it.ContainersEnvironment;
+import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.Thumbnail;
+import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.ThumbnailRepository;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.User;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.UserRole;
 import org.junit.jupiter.api.BeforeEach;

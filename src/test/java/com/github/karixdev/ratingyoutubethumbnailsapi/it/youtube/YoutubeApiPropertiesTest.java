@@ -1,13 +1,13 @@
-package com.github.karixdev.ratingyoutubethumbnailsapi.youtube;
+package com.github.karixdev.ratingyoutubethumbnailsapi.it.youtube;
 
-import com.github.karixdev.ratingyoutubethumbnailsapi.ContainersEnvironment;
+import com.github.karixdev.ratingyoutubethumbnailsapi.it.ContainersEnvironment;
+import com.github.karixdev.ratingyoutubethumbnailsapi.youtube.YoutubeApiProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = NONE)
 public class YoutubeApiPropertiesTest extends ContainersEnvironment {

@@ -1,6 +1,7 @@
-package com.github.karixdev.ratingyoutubethumbnailsapi.email;
+package com.github.karixdev.ratingyoutubethumbnailsapi.it.email;
 
-import com.github.karixdev.ratingyoutubethumbnailsapi.ContainersEnvironment;
+import com.github.karixdev.ratingyoutubethumbnailsapi.it.ContainersEnvironment;
+import com.github.karixdev.ratingyoutubethumbnailsapi.email.EmailService;
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.ServerSetupTest;

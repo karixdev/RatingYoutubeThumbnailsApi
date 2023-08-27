@@ -1,4 +1,4 @@
-package com.github.karixdev.ratingyoutubethumbnailsapi;
+package com.github.karixdev.ratingyoutubethumbnailsapi.it;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.test.context.ActiveProfiles;

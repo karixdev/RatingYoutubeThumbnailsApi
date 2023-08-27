@@ -1,6 +1,6 @@
-package com.github.karixdev.ratingyoutubethumbnailsapi.auth;
+package com.github.karixdev.ratingyoutubethumbnailsapi.it.auth;
 
-import com.github.karixdev.ratingyoutubethumbnailsapi.ContainersEnvironment;
+import com.github.karixdev.ratingyoutubethumbnailsapi.it.ContainersEnvironment;
 import com.github.karixdev.ratingyoutubethumbnailsapi.auth.payload.response.SignInResponse;
 import com.github.karixdev.ratingyoutubethumbnailsapi.emailverification.EmailVerificationToken;
 import com.github.karixdev.ratingyoutubethumbnailsapi.emailverification.EmailVerificationTokenRepository;

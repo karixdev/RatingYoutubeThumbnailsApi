@@ -1,6 +1,7 @@
-package com.github.karixdev.ratingyoutubethumbnailsapi.emailverification;
+package com.github.karixdev.ratingyoutubethumbnailsapi.it.emailverification;
 
-import com.github.karixdev.ratingyoutubethumbnailsapi.ContainersEnvironment;
+import com.github.karixdev.ratingyoutubethumbnailsapi.emailverification.EmailVerificationProperties;
+import com.github.karixdev.ratingyoutubethumbnailsapi.it.ContainersEnvironment;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

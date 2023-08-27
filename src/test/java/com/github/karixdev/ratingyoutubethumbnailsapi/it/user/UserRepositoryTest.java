@@ -1,6 +1,9 @@
-package com.github.karixdev.ratingyoutubethumbnailsapi.user;
+package com.github.karixdev.ratingyoutubethumbnailsapi.it.user;
 
-import com.github.karixdev.ratingyoutubethumbnailsapi.ContainersEnvironment;
+import com.github.karixdev.ratingyoutubethumbnailsapi.it.ContainersEnvironment;
+import com.github.karixdev.ratingyoutubethumbnailsapi.user.User;
+import com.github.karixdev.ratingyoutubethumbnailsapi.user.UserRepository;
+import com.github.karixdev.ratingyoutubethumbnailsapi.user.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

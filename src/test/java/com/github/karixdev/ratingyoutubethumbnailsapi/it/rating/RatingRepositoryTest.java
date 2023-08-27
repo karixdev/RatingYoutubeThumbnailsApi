@@ -1,6 +1,8 @@
-package com.github.karixdev.ratingyoutubethumbnailsapi.rating;
+package com.github.karixdev.ratingyoutubethumbnailsapi.it.rating;
 
-import com.github.karixdev.ratingyoutubethumbnailsapi.ContainersEnvironment;
+import com.github.karixdev.ratingyoutubethumbnailsapi.it.ContainersEnvironment;
+import com.github.karixdev.ratingyoutubethumbnailsapi.rating.Rating;
+import com.github.karixdev.ratingyoutubethumbnailsapi.rating.RatingRepository;
 import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.Thumbnail;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.User;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.UserRole;
