@@ -1,12 +1,13 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.emailverification;
 
-import com.github.karixdev.ratingyoutubethumbnailsapi.email.EmailService;
+import com.github.karixdev.ratingyoutubethumbnailsapi.email.EmailServiceProvider;
 import com.github.karixdev.ratingyoutubethumbnailsapi.emailverification.exception.EmailAlreadyVerifiedException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.emailverification.exception.EmailVerificationTokenExpiredException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.emailverification.exception.TooManyEmailVerificationTokensException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.emailverification.payload.request.ResendEmailVerificationTokenRequest;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.ResourceNotFoundException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.payload.response.SuccessResponse;
+import com.github.karixdev.ratingyoutubethumbnailsapi.template.TemplateProvider;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.User;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +26,10 @@ import java.util.UUID;
 public class EmailVerificationService {
     private final EmailVerificationTokenRepository tokenRepository;
     private final Clock clock;
-    private final EmailService emailService;
     private final UserService userService;
     private final EmailVerificationProperties properties;
+    private final EmailServiceProvider emailServiceProvider;
+    private final TemplateProvider templateProvider;
 
     @Transactional
     public EmailVerificationToken createToken(User user) {
@@ -50,9 +52,9 @@ public class EmailVerificationService {
                 "token", token.getToken()
         );
 
-        String body = emailService.getMailTemplate("email-verification.html", variables);
+        String body = templateProvider.getTemplate("email-verification.html", variables);
 
-        emailService.sendEmailToUser(token.getUser().getEmail(), "Verify your email", body);
+        emailServiceProvider.sendEmail(token.getUser().getEmail(), "Verify your email", body);
     }
 
     @Transactional

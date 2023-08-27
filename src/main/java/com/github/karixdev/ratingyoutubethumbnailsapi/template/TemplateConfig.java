@@ -1,4 +1,4 @@
-package com.github.karixdev.ratingyoutubethumbnailsapi.shared;
+package com.github.karixdev.ratingyoutubethumbnailsapi.template;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
