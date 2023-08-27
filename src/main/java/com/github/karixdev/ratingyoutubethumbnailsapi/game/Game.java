@@ -14,6 +14,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "game")
 public class Game {
@@ -33,6 +34,7 @@ public class Game {
             updatable = false
     )
     @Setter(AccessLevel.NONE)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @ManyToOne
@@ -77,21 +79,4 @@ public class Game {
     @Column(name = "has_ended")
     @Builder.Default
     private Boolean hasEnded = Boolean.FALSE;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Game game = (Game) o;
-        return Objects.equals(id, game.id) &&
-                Objects.equals(thumbnail1.getId(), game.thumbnail1.getId()) &&
-                Objects.equals(thumbnail2.getId(), game.thumbnail2.getId()) &&
-                Objects.equals(user.getId(), game.user.getId()) &&
-                Objects.equals(lastActivity, game.lastActivity);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, thumbnail1.getId(), thumbnail2.getId(), user.getId(), lastActivity);
-    }
 }

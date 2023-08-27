@@ -11,6 +11,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(
         name = "user",
@@ -42,6 +43,7 @@ public class User {
             updatable = false
     )
     @Setter(AccessLevel.NONE)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(
@@ -74,21 +76,4 @@ public class User {
             nullable = false
     )
     private Boolean isEnabled;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id) &&
-                Objects.equals(username, user.username) &&
-                Objects.equals(email, user.email) &&
-                Objects.equals(userRole, user.userRole) &&
-                Objects.equals(isEnabled, user.isEnabled);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, username, email, userRole, isEnabled);
-    }
 }

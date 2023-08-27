@@ -15,6 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "thumbnail")
 public class Thumbnail {
@@ -34,6 +35,7 @@ public class Thumbnail {
             updatable = false
     )
     @Setter(AccessLevel.NONE)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(
@@ -66,20 +68,4 @@ public class Thumbnail {
     @ToString.Exclude
     @Builder.Default
     private Set<Rating> ratings = new LinkedHashSet<>();
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Thumbnail thumbnail = (Thumbnail) o;
-        return Objects.equals(id, thumbnail.id) &&
-                Objects.equals(youtubeVideoId, thumbnail.youtubeVideoId) &&
-                Objects.equals(url, thumbnail.url) &&
-                Objects.equals(addedBy.getId(), thumbnail.addedBy.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, youtubeVideoId, url, addedBy.getId());
-    }
 }
