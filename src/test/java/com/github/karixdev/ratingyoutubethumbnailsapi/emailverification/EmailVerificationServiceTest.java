@@ -7,7 +7,6 @@ import com.github.karixdev.ratingyoutubethumbnailsapi.emailverification.exceptio
 import com.github.karixdev.ratingyoutubethumbnailsapi.emailverification.payload.request.ResendEmailVerificationTokenRequest;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.ResourceNotFoundException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.payload.response.SuccessResponse;
-import com.github.karixdev.ratingyoutubethumbnailsapi.template.TemplateProvider;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.User;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.UserRole;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.UserService;
@@ -45,9 +44,6 @@ public class EmailVerificationServiceTest {
 
     @Mock
     EmailServiceProvider emailServiceProvider;
-
-    @Mock
-    TemplateProvider templateProvider;
 
     @Mock
     EmailVerificationProperties properties;
@@ -112,9 +108,6 @@ public class EmailVerificationServiceTest {
                 .expiresAt(NOW.plusHours(24).toLocalDateTime())
                 .build();
 
-        when(templateProvider.getTemplate(any(), any()))
-                .thenReturn("template");
-
         doNothing().when(emailServiceProvider)
                 .sendEmail(any(), any(), any());
 
@@ -122,7 +115,6 @@ public class EmailVerificationServiceTest {
         underTest.sendEmailWithVerificationLink(token);
 
         // Then
-        verify(templateProvider).getTemplate(any(), any());
         verify(emailServiceProvider).sendEmail(any(), any(), any());
     }
 
@@ -276,9 +268,6 @@ public class EmailVerificationServiceTest {
         when(clock.getZone()).thenReturn(NOW.getZone());
         when(clock.instant()).thenReturn(NOW.toInstant());
 
-        when(templateProvider.getTemplate(any(), any()))
-                .thenReturn("template");
-
         doNothing().when(emailServiceProvider)
                 .sendEmail(any(), any(), any());
 
@@ -335,9 +324,6 @@ public class EmailVerificationServiceTest {
 
         when(clock.getZone()).thenReturn(NOW.getZone());
         when(clock.instant()).thenReturn(NOW.toInstant());
-
-        when(templateProvider.getTemplate(any(), any()))
-                .thenReturn("template");
 
         doNothing().when(emailServiceProvider)
                 .sendEmail(any(), any(), any());
