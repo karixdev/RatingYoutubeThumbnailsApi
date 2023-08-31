@@ -63,7 +63,8 @@ public class Thumbnail {
 
     @OneToMany(
             mappedBy = "thumbnail",
-            orphanRemoval = true
+            orphanRemoval = true,
+            cascade = CascadeType.ALL
     )
     @ToString.Exclude
     @Builder.Default

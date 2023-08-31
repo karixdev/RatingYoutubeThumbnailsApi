@@ -7,11 +7,13 @@ spring:
       hibernate:
         format_sql: true
 
+    show-sql: true
+
   datasource:
-    url: jdbc:mysql://localhost:3306/rating-youtube-thumbnails
+    url: jdbc:postgresql://localhost:5432/rating-youtube-thumbnails
     username: root
     password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
 
   mail:
     properties:

@@ -16,24 +16,13 @@ import org.springframework.web.bind.annotation.*;
 public class GameController {
     private final GameService service;
 
-    @PostMapping("/start")
-    public ResponseEntity<GameResponse> start(
+    @PostMapping
+    public ResponseEntity<GameResponse> play(
+            @RequestBody(required = false) GameResultRequest payload,
             @CurrentUser UserPrincipal userPrincipal
     ) {
         return new ResponseEntity<>(
-                service.start(userPrincipal),
-                HttpStatus.OK
-        );
-    }
-
-    @PostMapping("/round-result/{id}")
-    public ResponseEntity<GameResponse> result(
-            @PathVariable(name = "id") Long id,
-            @RequestBody GameResultRequest payload,
-            @CurrentUser UserPrincipal userPrincipal
-    ) {
-        return new ResponseEntity<>(
-                service.roundResult(id, payload, userPrincipal),
+                service.play(userPrincipal, payload),
                 HttpStatus.OK
         );
     }
@@ -45,16 +34,6 @@ public class GameController {
     ) {
         return new ResponseEntity<>(
                 service.end(id, userPrincipal),
-                HttpStatus.OK
-        );
-    }
-
-    @GetMapping
-    public ResponseEntity<GameResponse> getUserActualActiveGame(
-            @CurrentUser UserPrincipal userPrincipal
-    ) {
-        return new ResponseEntity<>(
-                service.getUserActualActiveGame(userPrincipal),
                 HttpStatus.OK
         );
     }

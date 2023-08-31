@@ -82,121 +82,6 @@ public class GameControllerTest {
     }
 
     @Test
-    void GivenUserWhoHasJustStartedGame_WhenStart_ThenRespondsWithBadRequestStatus() throws Exception {
-        doThrow(GameHasNotEndedException.class)
-                .when(gameService)
-                .start(any());
-
-        mockMvc.perform(post("/api/v1/game/start")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void GivenUser_WhenStart_ThenRespondsWithCorrectBodyAndOkStatus() throws Exception {
-        when(gameService.start(any()))
-                .thenReturn(new GameResponse(game));
-
-        mockMvc.perform(post("/api/v1/game/start")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpectAll(
-                        jsonPath("$.id").value(1),
-                        jsonPath("$.thumbnail1.id").value(1),
-                        jsonPath("$.thumbnail1.url").value("thumbnail-url-1"),
-                        jsonPath("$.thumbnail2.id").value(2),
-                        jsonPath("$.thumbnail2.url").value("thumbnail-url-2")
-                );
-    }
-
-    @Test
-    void GivenNullWinnerId_WhenRoundResult_ThenRespondsWithBadRequestStatus() throws Exception {
-        mockMvc.perform(post("/api/v1/game/round-result/1")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void GivenNotExistingGameId_WhenRoundResult_ThenRespondsWithNotFoundStatus() throws Exception {
-        doThrow(ResourceNotFoundException.class)
-                .when(gameService)
-                .roundResult(any(), any(), any());
-
-        GameResultRequest payload = new GameResultRequest(1L);
-        String content = mapper.writeValueAsString(payload);
-
-        mockMvc.perform(post("/api/v1/game/round-result/1")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void GivenNotOwnerOfGame_WhenRoundResult_ThenRespondsWithForbiddenStatus() throws Exception {
-        doThrow(PermissionDeniedException.class)
-                .when(gameService)
-                .roundResult(any(), any(), any());
-
-        GameResultRequest payload = new GameResultRequest(1L);
-        String content = mapper.writeValueAsString(payload);
-
-        mockMvc.perform(post("/api/v1/game/round-result/1")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void GivenInvalidWinnerId_WhenRoundResult_ThenRespondsWithBadRequestStatus() throws Exception {
-        doThrow(InvalidWinnerIdException.class)
-                .when(gameService)
-                .roundResult(any(), any(), any());
-
-        GameResultRequest payload = new GameResultRequest(1L);
-        String content = mapper.writeValueAsString(payload);
-
-        mockMvc.perform(post("/api/v1/game/round-result/1")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void GivenValidWinnerIdAndValidUserAndValidGameId_WhenRoundResult_ThenRespondsWithCorrectBodyAndOkStats() throws Exception {
-        GameResultRequest payload = new GameResultRequest(1L);
-        String content = mapper.writeValueAsString(payload);
-
-        Thumbnail otherThumbnail = Thumbnail.builder()
-                .id(3L)
-                .addedBy(user)
-                .url("thumbnail-url-3")
-                .youtubeVideoId("youtube-id-3")
-                .build();
-
-        game.setThumbnail2(otherThumbnail);
-
-        when(gameService.roundResult(any(), any(), any()))
-                .thenReturn(new GameResponse(game));
-
-
-        mockMvc.perform(post("/api/v1/game/round-result/1")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andExpect(status().isOk())
-                .andExpectAll(
-                        jsonPath("$.id").value(1),
-                        jsonPath("$.thumbnail1.id").value(1),
-                        jsonPath("$.thumbnail1.url").value("thumbnail-url-1"),
-                        jsonPath("$.thumbnail2.id").value(3),
-                        jsonPath("$.thumbnail2.url").value("thumbnail-url-3")
-                );
-    }
-
-    @Test
     void GivenNotExistingGameId_WhenEnd_ThenRespondsWithNotFoundStatus() throws Exception {
         doThrow(ResourceNotFoundException.class)
                 .when(gameService)
@@ -240,42 +125,42 @@ public class GameControllerTest {
                 .andExpect(jsonPath("$.message").value("success"));
     }
 
-    @Test
-    void GivenUserWhoHasZeroNotEndedGames_WhenGetUserActualActiveGame_ThenRespondsWithNotFoundStatus() throws Exception {
-        doThrow(ResourceNotFoundException.class)
-                .when(gameService)
-                .getUserActualActiveGame(any());
-
-        mockMvc.perform(get("/api/v1/game")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void GivenUserWhoHasNotEndedGamesButTheyAreExpired_WhenGetUserActualActiveGame_ThenRespondsWithNotFoundStatus() throws Exception {
-        doThrow(ResourceNotFoundException.class)
-                .when(gameService)
-                .getUserActualActiveGame(any());
-
-        mockMvc.perform(get("/api/v1/game")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void GivenUserWhoHasNotEndedGamesAndTheyAreNotExpired_WhenGetUserActualActiveGame_ThenRespondsCorrectBodyAndOkStats() throws Exception {
-        when(gameService.getUserActualActiveGame(any()))
-                .thenReturn(new GameResponse(game));
-
-        mockMvc.perform(get("/api/v1/game")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpectAll(
-                        jsonPath("$.id").value(1),
-                        jsonPath("$.thumbnail1.id").value(1),
-                        jsonPath("$.thumbnail1.url").value("thumbnail-url-1"),
-                        jsonPath("$.thumbnail2.id").value(2),
-                        jsonPath("$.thumbnail2.url").value("thumbnail-url-2")
-                );
-    }
+//    @Test
+//    void GivenUserWhoHasZeroNotEndedGames_WhenGetUserActualActiveGame_ThenRespondsWithNotFoundStatus() throws Exception {
+//        doThrow(ResourceNotFoundException.class)
+//                .when(gameService)
+//                .getUserActualActiveGame(any());
+//
+//        mockMvc.perform(get("/api/v1/game")
+//                        .accept(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isNotFound());
+//    }
+//
+//    @Test
+//    void GivenUserWhoHasNotEndedGamesButTheyAreExpired_WhenGetUserActualActiveGame_ThenRespondsWithNotFoundStatus() throws Exception {
+//        doThrow(ResourceNotFoundException.class)
+//                .when(gameService)
+//                .getUserActualActiveGame(any());
+//
+//        mockMvc.perform(get("/api/v1/game")
+//                        .accept(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isNotFound());
+//    }
+//
+//    @Test
+//    void GivenUserWhoHasNotEndedGamesAndTheyAreNotExpired_WhenGetUserActualActiveGame_ThenRespondsCorrectBodyAndOkStats() throws Exception {
+//        when(gameService.getUserActualActiveGame(any()))
+//                .thenReturn(new GameResponse(game));
+//
+//        mockMvc.perform(get("/api/v1/game")
+//                        .accept(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andExpectAll(
+//                        jsonPath("$.id").value(1),
+//                        jsonPath("$.thumbnail1.id").value(1),
+//                        jsonPath("$.thumbnail1.url").value("thumbnail-url-1"),
+//                        jsonPath("$.thumbnail2.id").value(2),
+//                        jsonPath("$.thumbnail2.url").value("thumbnail-url-2")
+//                );
+//    }
 }

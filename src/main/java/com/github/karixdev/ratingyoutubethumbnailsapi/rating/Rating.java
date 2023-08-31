@@ -49,7 +49,9 @@ public class Rating {
     private User user;
 
     @ToString.Exclude
-    @ManyToOne
+    @ManyToOne(
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}
+    )
     @JoinColumn(
             name = "thumbnail_id",
             referencedColumnName = "id",

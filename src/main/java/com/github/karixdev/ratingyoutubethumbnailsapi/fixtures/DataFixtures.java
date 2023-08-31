@@ -57,19 +57,19 @@ public class DataFixtures implements CommandLineRunner {
                 Map.of(
                         "youtubeVideoId", "SSCzDykng4g",
                         "url", "https://i.ytimg.com/vi/SSCzDykng4g/maxresdefault.jpg"
-                ),
-                Map.of(
-                        "youtubeVideoId", "oxqnFJ3lp5k",
-                        "url", "https://i.ytimg.com/vi/oxqnFJ3lp5k/maxresdefault.jpg"
-                ),
-                Map.of(
-                        "youtubeVideoId", "psuRGfAaju4",
-                        "url", "https://i.ytimg.com/vi/psuRGfAaju4/maxresdefault.jpg"
-                ),
-                Map.of(
-                        "youtubeVideoId", "hT_nvWreIhg",
-                        "url", "https://i.ytimg.com/vi/hT_nvWreIhg/maxresdefault.jpg"
                 )
+//                Map.of(
+//                        "youtubeVideoId", "oxqnFJ3lp5k",
+//                        "url", "https://i.ytimg.com/vi/oxqnFJ3lp5k/maxresdefault.jpg"
+//                ),
+//                Map.of(
+//                        "youtubeVideoId", "psuRGfAaju4",
+//                        "url", "https://i.ytimg.com/vi/psuRGfAaju4/maxresdefault.jpg"
+//                ),
+//                Map.of(
+//                        "youtubeVideoId", "hT_nvWreIhg",
+//                        "url", "https://i.ytimg.com/vi/hT_nvWreIhg/maxresdefault.jpg"
+//                )
         );
 
         thumbnails.forEach(map -> {

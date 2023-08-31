@@ -1,12 +1,11 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.game;
 
 import com.github.karixdev.ratingyoutubethumbnailsapi.game.exception.GameHasAlreadyEndedException;
-import com.github.karixdev.ratingyoutubethumbnailsapi.game.exception.GameHasEndedException;
-import com.github.karixdev.ratingyoutubethumbnailsapi.game.exception.GameHasNotEndedException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.game.exception.InvalidWinnerIdException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.game.payload.request.GameResultRequest;
 import com.github.karixdev.ratingyoutubethumbnailsapi.game.payload.response.GameResponse;
 import com.github.karixdev.ratingyoutubethumbnailsapi.rating.RatingService;
+import com.github.karixdev.ratingyoutubethumbnailsapi.round.RoundService;
 import com.github.karixdev.ratingyoutubethumbnailsapi.security.UserPrincipal;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.PermissionDeniedException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.ResourceNotFoundException;
@@ -14,10 +13,10 @@ import com.github.karixdev.ratingyoutubethumbnailsapi.shared.payload.response.Su
 import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.Thumbnail;
 import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.ThumbnailService;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.User;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import jakarta.transaction.Transactional;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,55 +29,50 @@ public class GameService {
     private final GameRepository repository;
     private final Clock clock;
     private final GameProperties properties;
+    private final RoundService roundService;
+
 
     @Transactional
-    public GameResponse start(UserPrincipal userPrincipal) {
+    public GameResponse play(UserPrincipal userPrincipal, GameResultRequest payload) {
         User user = userPrincipal.getUser();
 
-        List<Game> userGames =
-                repository.findByUserOrderByLastActivityDesc(user);
+        List<Game> userGames = repository.findByUserOrderByLastActivityDesc(user);
 
-        LocalDateTime now = LocalDateTime.now(clock);
-
-        if (!userGames.isEmpty()) {
-            LocalDateTime expectedEnd = userGames.get(0)
-                    .getLastActivity()
-                    .plusMinutes(properties.getDuration());
-
-            if (now.isBefore(expectedEnd) && !userGames.get(0).getHasEnded()) {
-                throw new GameHasNotEndedException();
-            }
+        if (userGames.isEmpty() || isGameExpired(userGames.get(0))) {
+            return startNewGame(user);
         }
 
-        Thumbnail thumbnail1 = thumbnailService.getRandomThumbnail();
-        Thumbnail thumbnail2 = ratingService.pickOpponent(thumbnail1, user, null);
+        if (payload == null) {
+            return new GameResponse(userGames.get(0));
+        }
 
-        Game game = repository.save(Game.builder()
+        return continueGame(userGames.get(0), user, payload);
+    }
+
+    private boolean isGameExpired(Game game) {
+        LocalDateTime now = LocalDateTime.now(clock);
+        return game.getHasEnded() || now.isAfter(game.getLastActivity().plusMinutes(properties.getDuration()));
+    }
+
+    private GameResponse startNewGame(User user) {
+        Thumbnail thumbnail1 = thumbnailService.getRandomThumbnail();
+
+        Game game = Game.builder()
                 .thumbnail1(thumbnail1)
-                .thumbnail2(thumbnail2)
                 .user(user)
-                .lastActivity(now)
-                .build());
+                .lastActivity(LocalDateTime.now(clock))
+                .build();
+
+        Thumbnail thumbnail2 = ratingService.pickOpponent(game, thumbnail1, user);
+        game.setThumbnail2(thumbnail2);
+
+        repository.save(game);
+        roundService.create(game, thumbnail1, thumbnail2);
 
         return new GameResponse(game);
     }
 
-    @Transactional
-    public GameResponse roundResult(Long gameId, GameResultRequest payload, UserPrincipal userPrincipal) {
-        Game game = getById(gameId);
-
-        User user = userPrincipal.getUser();
-
-        if (!game.getUser().equals(user)) {
-            throw new PermissionDeniedException("You are not the owner of the game");
-        }
-
-        LocalDateTime now = LocalDateTime.now(clock);
-
-        if (now.isAfter(game.getLastActivity().plusMinutes(properties.getDuration())) || game.getHasEnded()) {
-            throw new GameHasEndedException();
-        }
-
+    private GameResponse continueGame(Game game, User user, GameResultRequest payload) {
         Long winnerId = payload.getWinnerId();
 
         if (!winnerId.equals(game.getThumbnail1().getId()) &&
@@ -92,11 +86,9 @@ public class GameService {
         Thumbnail loser = game.getThumbnail1().getId().equals(winnerId)
                 ? game.getThumbnail2() : game.getThumbnail1();
 
-        // update ratings
         ratingService.updateRatings(winner, loser, user);
 
-        // pick new opponent
-        Thumbnail newOpponent = ratingService.pickOpponent(winner, user, loser);
+        Thumbnail newOpponent = ratingService.pickOpponent(game, winner, user);
 
         if (game.getThumbnail2().getId().equals(loser.getId())) {
             game.setThumbnail2(newOpponent);
@@ -104,10 +96,10 @@ public class GameService {
             game.setThumbnail1(newOpponent);
         }
 
-        // update last activity
-        game.setLastActivity(now);
+        game.setLastActivity(LocalDateTime.now(clock));
 
-        game = repository.save(game);
+        repository.save(game);
+        roundService.create(game, game.getThumbnail1(), game.getThumbnail2());
 
         return new GameResponse(game);
     }
@@ -130,26 +122,6 @@ public class GameService {
         repository.save(game);
 
         return new SuccessResponse();
-    }
-
-    public GameResponse getUserActualActiveGame(UserPrincipal userPrincipal) {
-        List<Game> userNotEndedGames =
-                repository.findByUserAndHasEndedOrderByLastActivityDesc(
-                        userPrincipal.getUser(), Boolean.FALSE);
-
-        if (userNotEndedGames.isEmpty()) {
-            throw new ResourceNotFoundException("There is no actual active game");
-        }
-
-        Game newestGame = userNotEndedGames.get(0);
-
-        LocalDateTime now = LocalDateTime.now(clock);
-
-        if (now.isAfter(newestGame.getLastActivity().plusMinutes(properties.getDuration()))) {
-            throw new ResourceNotFoundException("There is no actual active game");
-        }
-
-        return new GameResponse(newestGame);
     }
 
     private Game getById(Long id) {

@@ -14,14 +14,14 @@ import java.util.Objects;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(
-        name = "user",
+        name = "app_user",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "user_username_unique",
+                        name = "app_user_username_unique",
                         columnNames = "username"
                 ),
                 @UniqueConstraint(
-                        name = "user_email_unique",
+                        name = "app_user_email_unique",
                         columnNames = "email"
                 )
         }
@@ -30,11 +30,11 @@ public class User {
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "user_gen"
+            generator = "app_user_gen"
     )
     @SequenceGenerator(
-            name = "user_gen",
-            sequenceName = "user_seq",
+            name = "app_user_gen",
+            sequenceName = "app_user_seq",
             allocationSize = 1
     )
     @Column(

@@ -1,6 +1,8 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.rating;
 
+import com.github.karixdev.ratingyoutubethumbnailsapi.game.Game;
 import com.github.karixdev.ratingyoutubethumbnailsapi.rating.payload.response.RatingResponse;
+import com.github.karixdev.ratingyoutubethumbnailsapi.round.RoundService;
 import com.github.karixdev.ratingyoutubethumbnailsapi.security.UserPrincipal;
 import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.Thumbnail;
 import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.ThumbnailService;
@@ -21,62 +23,19 @@ public class RatingService {
     private final RatingRepository repository;
     private final ThumbnailService thumbnailService;
 
-    public Thumbnail pickOpponent(Thumbnail thumbnail, User user, Thumbnail previousOpponent) {
+    @Transactional
+    public Thumbnail pickOpponent(Game game, Thumbnail thumbnail, User user) {
         Rating thumbnailRating = repository
                 .findByThumbnailAndUser(thumbnail, user)
-                .orElseGet(() -> repository.save(Rating.builder()
-                        .thumbnail(thumbnail)
-                        .user(user)
-                        .points(properties.getBasePoints())
-                        .build()));
+                .orElseGet(() -> createRatingForThumbnailAndUser(thumbnail, user));
 
-        List<Thumbnail> thumbnailsWithoutUserRating =
-                thumbnailService.getThumbnailsWithoutUserRating(user);
-
-        List<Rating> ratings = repository.findByUserAndThumbnailNot(
-                thumbnail, user);
-
-        // Conditional to check
-        if (previousOpponent != null) {
-            ratings = ratings.stream()
-                    .filter(rating ->
-                            !rating.getThumbnail().equals(previousOpponent))
-                    .toList();
-
-            thumbnailsWithoutUserRating = thumbnailsWithoutUserRating.stream()
-                    .filter(thumbnail1 -> !thumbnail1.equals(previousOpponent))
-                    .toList();
-        }
-
-        if (ratings.isEmpty()) {
-            return thumbnailService.getRandomThumbnailFromList(
-                    thumbnailsWithoutUserRating);
-        }
-
-        Optional<Rating> closestRatingFromListOptional = ratings.stream().min((rating1, rating2) -> {
-            BigDecimal diff1 = thumbnailRating.getPoints()
-                    .subtract(rating1.getPoints())
-                    .abs();
-            BigDecimal diff2 = thumbnailRating.getPoints()
-                    .subtract(rating2.getPoints())
-                    .abs();
-
-            return diff1.compareTo(diff2);
-        });
-
-        Rating closestRatingFromList = closestRatingFromListOptional.get();
-
-        BigDecimal diffBetweenBasePoints = thumbnailRating.getPoints()
-                .subtract(properties.getBasePoints()).abs();
-
-        // (1)
-        if (closestRatingFromList.getPoints().compareTo(diffBetweenBasePoints) > 0 &&
-                thumbnailsWithoutUserRating.isEmpty()) {
-            return closestRatingFromList.getThumbnail();
-        }
-
-        return thumbnailService.getRandomThumbnailFromList(
-                thumbnailsWithoutUserRating);
+        return thumbnailService.getThumbnailNotInGameWithClosestRating(
+                game,
+                user,
+                properties.getBasePoints(),
+                thumbnail,
+                thumbnailRating.getPoints()
+        ).orElseThrow(() -> new RuntimeException("Could not find opponent"));
     }
 
     @Transactional
@@ -128,8 +87,9 @@ public class RatingService {
                 .setScale(2, RoundingMode.HALF_UP);
     }
 
-    @Transactional
     private Rating createRatingForThumbnailAndUser(Thumbnail thumbnail, User user) {
+        System.out.println("1-1");
+        System.out.println(user);
         return repository.save(Rating.builder()
                 .user(user)
                 .thumbnail(thumbnail)
