@@ -1,12 +1,19 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.game;
 
+import com.github.karixdev.ratingyoutubethumbnailsapi.round.Round;
+import com.github.karixdev.ratingyoutubethumbnailsapi.round.exception.EmptyRoundSetException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.Thumbnail;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.User;
 import lombok.*;
 
 import jakarta.persistence.*;
+
+import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -39,28 +46,6 @@ public class Game {
 
     @ManyToOne
     @JoinColumn(
-            name = "thumbnail1_id",
-            referencedColumnName = "id",
-            foreignKey = @ForeignKey(
-                    name = "game_thumbnail1_id_fk"
-            )
-    )
-    @ToString.Exclude
-    private Thumbnail thumbnail1;
-
-    @ManyToOne
-    @JoinColumn(
-            name = "thumbnail2_id",
-            referencedColumnName = "id",
-            foreignKey = @ForeignKey(
-                    name = "game_thumbnail2_id_fk"
-            )
-    )
-    @ToString.Exclude
-    private Thumbnail thumbnail2;
-
-    @ManyToOne
-    @JoinColumn(
             name = "user_id",
             referencedColumnName = "id",
             foreignKey = @ForeignKey(
@@ -78,5 +63,36 @@ public class Game {
 
     @Column(name = "has_ended")
     @Builder.Default
-    private Boolean hasEnded = Boolean.FALSE;
+    private Boolean hasEnded = false;
+
+    @OneToMany(
+            mappedBy = "game",
+            orphanRemoval = true,
+            cascade = CascadeType.ALL
+    )
+    @ToString.Exclude
+    @Builder.Default
+    private Set<Round> rounds = new LinkedHashSet<>();
+
+    public void addRound(Thumbnail thumbnail1, Thumbnail thumbnail2, Clock clock) {
+        rounds.add(Round.builder()
+                .thumbnail1(thumbnail1)
+                .thumbnail2(thumbnail2)
+                .game(this)
+                .createdAt(LocalDateTime.now(clock))
+                .build());
+    }
+
+    public Round getLatestRound() {
+        return rounds.stream()
+                .max(Comparator.comparing(
+                        Round::getCreatedAt,
+                        LocalDateTime::compareTo
+                ))
+                .orElseThrow(EmptyRoundSetException::new);
+    }
+
+    public boolean isGameExpired(Clock clock, int maxTimeOfNoGameUpdate) {
+        return hasEnded || LocalDateTime.now(clock).isAfter(lastActivity.plusMinutes(maxTimeOfNoGameUpdate));
+    }
 }

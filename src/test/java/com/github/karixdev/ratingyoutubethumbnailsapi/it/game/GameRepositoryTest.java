@@ -60,8 +60,6 @@ public class GameRepositoryTest extends ContainersEnvironment {
         game = em.persistAndFlush(Game.builder()
                 .user(user)
                 .lastActivity(LocalDateTime.now())
-                .thumbnail1(thumbnail1)
-                .thumbnail2(thumbnail2)
                 .build());
     }
 
@@ -88,8 +86,6 @@ public class GameRepositoryTest extends ContainersEnvironment {
         em.persistAndFlush(Game.builder()
                 .user(user)
                 .lastActivity(LocalDateTime.now().plusMinutes(20))
-                .thumbnail1(thumbnail1)
-                .thumbnail2(thumbnail2)
                 .build());
 
         // When
@@ -123,8 +119,6 @@ public class GameRepositoryTest extends ContainersEnvironment {
             Game otherGame = Game.builder()
                     .user(user)
                     .lastActivity(LocalDateTime.now().plusMinutes(i))
-                    .thumbnail1(otherThumbnail1)
-                    .thumbnail2(otherThumbnail2)
                     .build();
 
             if (i == 4) {

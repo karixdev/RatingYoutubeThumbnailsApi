@@ -127,8 +127,6 @@ public class GameServiceTest {
                 .thenReturn(Optional.of(Game.builder()
                         .id(1L)
                         .user(user)
-                        .thumbnail1(thumbnail1)
-                        .thumbnail2(thumbnail2)
                         .lastActivity(NOW.toLocalDateTime().minusMinutes(2))
                         .build()));
 
@@ -155,8 +153,6 @@ public class GameServiceTest {
                 .thenReturn(Optional.of(Game.builder()
                         .id(1L)
                         .user(user)
-                        .thumbnail1(thumbnail1)
-                        .thumbnail2(otherThumbnail)
                         .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
                         .hasEnded(Boolean.TRUE)
                         .build()));
@@ -183,8 +179,6 @@ public class GameServiceTest {
         Game game = Game.builder()
                 .id(1L)
                 .user(user)
-                .thumbnail1(thumbnail1)
-                .thumbnail2(otherThumbnail)
                 .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
                 .build();
 

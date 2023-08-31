@@ -5,6 +5,7 @@ import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.Thumbnail;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -42,4 +43,10 @@ public class Round {
     @ManyToOne(optional = false)
     @JoinColumn(name = "thumbnail_2_id", nullable = false)
     private Thumbnail thumbnail2;
+
+    @Column(
+            name = "created_at",
+            nullable = false
+    )
+    private LocalDateTime createdAt;
 }

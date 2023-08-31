@@ -107,8 +107,6 @@ public class ThumbnailRepositoryTest extends ContainersEnvironment {
         em.persist(thumbnail3);
 
         Game game = Game.builder()
-                .thumbnail1(thumbnail1)
-                .thumbnail2(thumbnail2)
                 .user(user)
                 .lastActivity(LocalDateTime.now())
                 .build();
@@ -144,8 +142,6 @@ public class ThumbnailRepositoryTest extends ContainersEnvironment {
         em.persist(thumbnail2);
 
         Game game = Game.builder()
-                .thumbnail1(thumbnail1)
-                .thumbnail2(thumbnail2)
                 .user(user)
                 .lastActivity(LocalDateTime.now())
                 .build();
@@ -187,8 +183,6 @@ public class ThumbnailRepositoryTest extends ContainersEnvironment {
         em.persist(thumbnail2);
 
         Game game = Game.builder()
-                .thumbnail1(thumbnail1)
-                .thumbnail2(thumbnail2)
                 .user(user)
                 .lastActivity(LocalDateTime.now())
                 .build();
@@ -229,8 +223,6 @@ public class ThumbnailRepositoryTest extends ContainersEnvironment {
         em.persist(thumbnail2);
 
         Game game = Game.builder()
-                .thumbnail1(thumbnail1)
-                .thumbnail2(thumbnail2)
                 .user(user)
                 .lastActivity(LocalDateTime.now())
                 .build();
@@ -276,8 +268,6 @@ public class ThumbnailRepositoryTest extends ContainersEnvironment {
         em.persist(thumbnail3);
 
         Game game = Game.builder()
-                .thumbnail1(thumbnail1)
-                .thumbnail2(thumbnail2)
                 .user(user)
                 .lastActivity(LocalDateTime.now())
                 .build();
