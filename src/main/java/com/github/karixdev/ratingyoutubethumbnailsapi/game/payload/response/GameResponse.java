@@ -10,6 +10,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,19 +20,17 @@ public class GameResponse {
     @JsonProperty("id")
     Long id;
 
-    @JsonProperty("thumbnail1")
+    @JsonProperty("thumbnails")
     @JsonIgnoreProperties({"youtube_video_id", "added_by"})
-    ThumbnailResponse thumbnail1;
-
-    @JsonProperty("thumbnail2")
-    @JsonIgnoreProperties({"youtube_video_id", "added_by"})
-    ThumbnailResponse thumbnail2;
+    List<ThumbnailResponse> thumbnails;
 
     public GameResponse(Game game) {
         Round latestRound = game.getLatestRound();
 
         this.id = game.getId();
-        this.thumbnail1 = new ThumbnailResponse(latestRound.getThumbnail1());
-        this.thumbnail2 = new ThumbnailResponse(latestRound.getThumbnail2());
+        this.thumbnails = List.of(
+                new ThumbnailResponse(latestRound.getThumbnail1()),
+                new ThumbnailResponse(latestRound.getThumbnail2())
+        );
     }
 }
