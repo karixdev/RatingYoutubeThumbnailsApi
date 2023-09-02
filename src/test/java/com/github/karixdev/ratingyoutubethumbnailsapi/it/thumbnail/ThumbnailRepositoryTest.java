@@ -293,6 +293,7 @@ public class ThumbnailRepositoryTest extends ContainersEnvironment {
                 .game(game)
                 .thumbnail1(thumbnail1)
                 .thumbnail2(thumbnail2)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 
