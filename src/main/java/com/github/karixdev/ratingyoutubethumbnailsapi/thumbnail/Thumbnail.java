@@ -69,4 +69,8 @@ public class Thumbnail {
     @ToString.Exclude
     @Builder.Default
     private Set<Rating> ratings = new LinkedHashSet<>();
+
+    public void addRating(Rating rating) {
+        ratings.add(rating);
+    }
 }
