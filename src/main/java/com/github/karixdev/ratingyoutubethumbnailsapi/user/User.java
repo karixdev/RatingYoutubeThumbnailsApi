@@ -76,4 +76,8 @@ public class User {
             nullable = false
     )
     private Boolean isEnabled;
+
+    public boolean isAdmin() {
+        return userRole == UserRole.ROLE_ADMIN;
+    }
 }

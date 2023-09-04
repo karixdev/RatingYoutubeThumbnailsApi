@@ -1,9 +1,14 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.game;
 
 import com.github.karixdev.ratingyoutubethumbnailsapi.UnitTestDataUtil;
+import com.github.karixdev.ratingyoutubethumbnailsapi.game.exception.GameHasAlreadyEndedException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.round.Round;
 import com.github.karixdev.ratingyoutubethumbnailsapi.round.exception.EmptyRoundSetException;
+import com.github.karixdev.ratingyoutubethumbnailsapi.security.UserPrincipal;
+import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.PermissionDeniedException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.Thumbnail;
+import com.github.karixdev.ratingyoutubethumbnailsapi.user.User;
+import com.github.karixdev.ratingyoutubethumbnailsapi.user.UserRole;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -13,11 +18,13 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -141,5 +148,110 @@ class GameTest {
 
         // Then
         assertThat(result).isFalse();
+    }
+
+    @Test
+    void GivenUserThatIsNotOwnerOfGameNorIsAdmin_WhenEnd_ThenThrowsPermissionDeniedExceptionWithCorrectMessage() {
+        // Given
+        Game underTest = Game.builder()
+                .user(createUser(1L, UserRole.ROLE_USER))
+                .build();
+
+        User user = createUser(2L, UserRole.ROLE_USER);
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.endGame(user, clock, 10))
+                .isInstanceOf(PermissionDeniedException.class)
+                .hasMessage("You are not the owner of the game");
+    }
+
+    @Test
+    void test1HasEndedTrue() {
+        // Given
+        User user = createUser(1L, UserRole.ROLE_USER);
+        Game underTest = Game.builder()
+                .user(user)
+                .hasEnded(true)
+                .build();
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.endGame(user, clock, 10))
+                .isInstanceOf(GameHasAlreadyEndedException.class)
+                .hasMessage("Game has already ended");
+    }
+
+    @Test
+    void test2Expired() {
+        // Given
+        User user = createUser(1L, UserRole.ROLE_USER);
+        LocalDateTime lastActivity = LocalDateTime.of(2023, 1, 1, 1, 1);
+        int maxTimeOfNoGameUpdate = 10;
+
+        Game underTest = Game.builder()
+                .user(user)
+                .hasEnded(false)
+                .lastActivity(lastActivity)
+                .build();
+
+        when(clock.getZone()).thenReturn(ZoneId.of("UTC+0"));
+        when(clock.instant()).thenReturn(lastActivity.plusMinutes(maxTimeOfNoGameUpdate + 1).toInstant(ZoneOffset.of("+0")));
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.endGame(user, clock, maxTimeOfNoGameUpdate))
+                .isInstanceOf(GameHasAlreadyEndedException.class)
+                .hasMessage("Game has already ended");
+    }
+
+    @Test
+    void test2Ends() {
+        // Given
+        User user = createUser(1L, UserRole.ROLE_USER);
+        LocalDateTime lastActivity = LocalDateTime.of(2023, 1, 1, 1, 1);
+        int maxTimeOfNoGameUpdate = 10;
+
+        Game underTest = Game.builder()
+                .user(user)
+                .hasEnded(false)
+                .lastActivity(lastActivity)
+                .build();
+
+        when(clock.getZone()).thenReturn(ZoneId.of("UTC+0"));
+        when(clock.instant()).thenReturn(lastActivity.toInstant(ZoneOffset.of("+0")));
+
+        // When
+        underTest.endGame(user, clock, maxTimeOfNoGameUpdate);
+
+        // Then
+        assertThat(underTest.getHasEnded()).isTrue();
+    }
+
+    @Test
+    void test2EndsAdmin() {
+        // Given
+        User user = createUser(1L, UserRole.ROLE_ADMIN);
+        LocalDateTime lastActivity = LocalDateTime.of(2023, 1, 1, 1, 1);
+        int maxTimeOfNoGameUpdate = 10;
+
+        Game underTest = Game.builder()
+                .user(createUser(2L, UserRole.ROLE_USER))
+                .hasEnded(false)
+                .lastActivity(lastActivity)
+                .build();
+
+        when(clock.getZone()).thenReturn(ZoneId.of("UTC+0"));
+        when(clock.instant()).thenReturn(lastActivity.toInstant(ZoneOffset.of("+0")));
+
+        // When
+        underTest.endGame(user, clock, maxTimeOfNoGameUpdate);
+
+        // Then
+        assertThat(underTest.getHasEnded()).isTrue();
+    }
+
+    private static User createUser(Long id, UserRole role) {
+        return User.builder()
+                .id(id)
+                .userRole(role)
+                .build();
     }
 }

@@ -1,13 +1,11 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.game;
 
-import com.github.karixdev.ratingyoutubethumbnailsapi.game.exception.GameHasAlreadyEndedException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.game.exception.InvalidWinnerIdException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.game.payload.request.GameResultRequest;
 import com.github.karixdev.ratingyoutubethumbnailsapi.game.payload.response.GameResponse;
 import com.github.karixdev.ratingyoutubethumbnailsapi.rating.RatingService;
 import com.github.karixdev.ratingyoutubethumbnailsapi.round.Round;
 import com.github.karixdev.ratingyoutubethumbnailsapi.security.UserPrincipal;
-import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.PermissionDeniedException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.ResourceNotFoundException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.payload.response.SuccessResponse;
 import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.Thumbnail;
@@ -89,30 +87,16 @@ public class GameService {
     }
 
     @Transactional
-    public SuccessResponse end(Long gameId, UserPrincipal userPrincipal) {
-        Game game = getById(gameId);
-
+    public void end(Long gameId, UserPrincipal userPrincipal) {
+        Game game = getByIdOrElseThrow(gameId);
         User user = userPrincipal.getUser();
 
-        if (!game.getUser().equals(user)) {
-            throw new PermissionDeniedException("You are not the owner of the game");
-        }
-
-        if (game.getHasEnded()) {
-            throw new GameHasAlreadyEndedException();
-        }
-
-        game.setHasEnded(Boolean.TRUE);
+        game.endGame(user, clock, properties.getDuration());
         repository.save(game);
-
-        return new SuccessResponse();
     }
 
-    private Game getById(Long id) {
+    private Game getByIdOrElseThrow(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> {
-                    throw new ResourceNotFoundException(
-                            "Game with provided id was not found");
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("Game with provided id was not found"));
     }
 }

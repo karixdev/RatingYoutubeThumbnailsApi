@@ -1,7 +1,9 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.game;
 
+import com.github.karixdev.ratingyoutubethumbnailsapi.game.exception.GameHasAlreadyEndedException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.round.Round;
 import com.github.karixdev.ratingyoutubethumbnailsapi.round.exception.EmptyRoundSetException;
+import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.PermissionDeniedException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.Thumbnail;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.User;
 import lombok.*;
@@ -94,5 +96,21 @@ public class Game {
 
     public boolean isGameExpired(Clock clock, int maxTimeOfNoGameUpdate) {
         return hasEnded || LocalDateTime.now(clock).isAfter(lastActivity.plusMinutes(maxTimeOfNoGameUpdate));
+    }
+
+    private boolean isOwnedBy(User user) {
+        return this.user.equals(user);
+    }
+
+    public void endGame(User user, Clock clock, int maxTimeOfNoGameUpdate) {
+        if (!isOwnedBy(user) && !user.isAdmin()) {
+            throw new PermissionDeniedException("You are not the owner of the game");
+        }
+
+        if (isGameExpired(clock, maxTimeOfNoGameUpdate)) {
+            throw new GameHasAlreadyEndedException();
+        }
+
+        setHasEnded(true);
     }
 }

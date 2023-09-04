@@ -32,9 +32,7 @@ public class GameController {
             @PathVariable(name = "id") Long id,
             @CurrentUser UserPrincipal userPrincipal
     ) {
-        return new ResponseEntity<>(
-                service.end(id, userPrincipal),
-                HttpStatus.OK
-        );
+        service.end(id, userPrincipal);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

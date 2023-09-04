@@ -17,7 +17,6 @@ import com.github.karixdev.ratingyoutubethumbnailsapi.user.User;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.UserRepository;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.UserRole;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.UserService;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -472,9 +471,8 @@ public class GameControllerIT extends ContainersEnvironment {
         webClient.post().uri("/api/v1/game/end/" + game.getId())
                 .header("Authorization", "Bearer " + jwt)
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.message").isEqualTo("success");
+                .expectStatus().isNoContent()
+                .expectBody();
 
         game = gameRepository.findById(game.getId()).orElseThrow();
 

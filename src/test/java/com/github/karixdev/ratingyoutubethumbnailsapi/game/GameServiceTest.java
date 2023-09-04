@@ -275,6 +275,9 @@ public class GameServiceTest {
         Long gameId = 1337L;
         UserPrincipal userPrincipal = new UserPrincipal(user);
 
+        when(repository.findById(eq(gameId)))
+                .thenReturn(Optional.empty());
+
         // When & Then
         assertThatThrownBy(() -> underTest.end(gameId, userPrincipal))
                 .isInstanceOf(ResourceNotFoundException.class)
@@ -282,75 +285,30 @@ public class GameServiceTest {
     }
 
     @Test
-    void GivenUserThatIsNotOwnerOfGame_WhenEnd_ThenThrowsPermissionDeniedExceptionWithCorrectMessage() {
-        // Given
-        Long gameId = 1L;
-
-        UserPrincipal userPrincipal = new UserPrincipal(User.builder()
-                .id(2L)
-                .email("email-2@email.com")
-                .password("password-2")
-                .username("username-2")
-                .userRole(UserRole.ROLE_USER)
-                .isEnabled(Boolean.TRUE)
-                .build());
-
-        when(repository.findById(any()))
-                .thenReturn(Optional.of(Game.builder()
-                        .id(1L)
-                        .user(user)
-                        .lastActivity(NOW.toLocalDateTime().minusMinutes(2))
-                        .build()));
-
-        // When & Then
-        assertThatThrownBy(() -> underTest.end(gameId, userPrincipal))
-                .isInstanceOf(PermissionDeniedException.class)
-                .hasMessage("You are not the owner of the game");
-    }
-
-    @Test
-    void GivenGameIdThatHasEnded_WhenEnd_ThenThrowsGameHasAlreadyEndedExceptionWithCorrectMessage() {
+    void GivenValidGameIdAndValidUserPrincipal_WhenEnd_ThenEndsGame() {
         // Given
         Long gameId = 1L;
         UserPrincipal userPrincipal = new UserPrincipal(user);
 
-        when(repository.findById(any()))
-                .thenReturn(Optional.of(Game.builder()
-                        .id(1L)
-                        .user(user)
-                        .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
-                        .hasEnded(Boolean.TRUE)
-                        .build()));
-
-        // When & Then
-        assertThatThrownBy(() -> underTest.end(gameId, userPrincipal))
-                .isInstanceOf(GameHasAlreadyEndedException.class)
-                .hasMessage("Game has already ended");
-    }
-
-    @Test
-    void GivenValidGameIdAndValidUserPrincipal_WhenEnd_ThenReturnsMessageResponseAndSetsHasEndedToTrue() {
-        // Given
-        Long gameId = 1L;
-        UserPrincipal userPrincipal = new UserPrincipal(user);
+        when(clock.getZone()).thenReturn(NOW.getZone());
+        when(clock.instant()).thenReturn(NOW.toInstant());
 
         Game game = Game.builder()
-                .id(1L)
+                .id(gameId)
                 .user(user)
-                .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
+                .lastActivity(NOW.toLocalDateTime())
                 .build();
 
-        when(repository.findById(any()))
+        when(repository.findById(eq(gameId)))
                 .thenReturn(Optional.of(game));
 
+
         // When
-        SuccessResponse result = underTest.end(gameId, userPrincipal);
+        underTest.end(gameId, new UserPrincipal(user));
 
         // Then
-        assertThat(result.getMessage()).isEqualTo("success");
         assertThat(game.getHasEnded()).isTrue();
-
-        verify(repository).save(eq(game));
+        verify(repository).save(game);
     }
 
     private static Round createRound(Game game, Thumbnail thumbnail1, Thumbnail thumbnail2) {
