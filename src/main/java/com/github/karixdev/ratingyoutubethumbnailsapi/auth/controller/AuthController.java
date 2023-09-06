@@ -3,6 +3,7 @@ package com.github.karixdev.ratingyoutubethumbnailsapi.auth.controller;
 import com.github.karixdev.ratingyoutubethumbnailsapi.auth.payload.RegisterRequest;
 import com.github.karixdev.ratingyoutubethumbnailsapi.auth.service.AuthService;
 import com.github.karixdev.ratingyoutubethumbnailsapi.infrastucture.exception.handler.payload.ErrorDetail;
+import com.github.karixdev.ratingyoutubethumbnailsapi.infrastucture.exception.handler.payload.ValidationErrorDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,7 +33,7 @@ public class AuthController {
             content = {
                     @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorDetail.class)
+                            schema = @Schema(implementation = ValidationErrorDetails.class)
                     )
             }
     )

@@ -1,15 +1,17 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.infrastucture.exception.handler.payload;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
-public record ErrorDetail(
+public record ValidationErrorDetails(
         @JsonProperty("timestamp")
         LocalDateTime timestamp,
         @JsonProperty("status")
-        HttpStatus status,
+        int status,
         @JsonProperty("message")
-        String message
+        String message,
+        @JsonProperty("fields")
+        Map<String, String> fields
 ) {}

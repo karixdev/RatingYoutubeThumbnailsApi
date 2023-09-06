@@ -1,10 +1,9 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.user.exception;
 
-import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.AppException;
-import org.springframework.http.HttpStatus;
+import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.ValidationException;
 
-public class UnavailableUserEmailException extends AppException {
+public class UnavailableUserEmailException extends ValidationException {
     public UnavailableUserEmailException() {
-        super("Provided email is unavailable", HttpStatus.BAD_REQUEST);
+        super("email", "Email is unavailable");
     }
 }
