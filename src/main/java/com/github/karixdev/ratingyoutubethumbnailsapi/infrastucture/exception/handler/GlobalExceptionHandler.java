@@ -2,7 +2,7 @@ package com.github.karixdev.ratingyoutubethumbnailsapi.infrastucture.exception.h
 
 import com.github.karixdev.ratingyoutubethumbnailsapi.infrastucture.exception.handler.payload.ValidationErrorDetails;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.AppException;
-import com.github.karixdev.ratingyoutubethumbnailsapi.infrastucture.exception.handler.payload.ErrorDetail;
+import com.github.karixdev.ratingyoutubethumbnailsapi.infrastucture.exception.handler.payload.ErrorDetails;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +22,13 @@ public class GlobalExceptionHandler {
     private final Clock clock;
 
     @ExceptionHandler(Exception.class)
-    ResponseEntity<ErrorDetail> handleGlobalException(Exception e) {
+    ResponseEntity<ErrorDetails> handleGlobalException(Exception e) {
         log.error("Exception occurred {}", e.getMessage(), e);
 
         return new ResponseEntity<>(
-                new ErrorDetail(
+                new ErrorDetails(
                         LocalDateTime.now(clock),
-                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
                         HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()
                 ),
                 HttpStatus.INTERNAL_SERVER_ERROR
@@ -36,13 +36,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AppException.class)
-    ResponseEntity<ErrorDetail> handleAppException(AppException e) {
+    ResponseEntity<ErrorDetails> handleAppException(AppException e) {
         log.error("Exception occurred {}", e.getMessage(), e);
 
         return new ResponseEntity<>(
-                new ErrorDetail(
+                new ErrorDetails(
                         LocalDateTime.now(clock),
-                        e.getHttpStatus(),
+                        e.getHttpStatus().value(),
                         e.getMessage()
                 ),
                 e.getHttpStatus()

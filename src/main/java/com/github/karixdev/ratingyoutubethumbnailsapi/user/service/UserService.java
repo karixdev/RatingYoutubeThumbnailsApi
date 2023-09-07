@@ -10,12 +10,15 @@ import com.github.karixdev.ratingyoutubethumbnailsapi.user.mapper.UserMapper;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserServiceApi {
+public class UserService implements UserServiceApi, UserDetailsService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper mapper;
@@ -40,5 +43,12 @@ public class UserService implements UserServiceApi {
         repository.save(user);
 
         return mapper.userToDTO(user);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return repository.findByEmail(email)
+                .map(mapper::userToDTO)
+                .orElseThrow(() -> new UsernameNotFoundException("User with provided email not found"));
     }
 }

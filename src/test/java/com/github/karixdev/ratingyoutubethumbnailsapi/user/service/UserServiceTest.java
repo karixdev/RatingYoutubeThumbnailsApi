@@ -1,6 +1,7 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.user.service;
 
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.user.NewUserDTO;
+import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.user.UserDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.entity.User;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.entity.UserRole;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.exception.UnavailableUserEmailException;
@@ -12,9 +13,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
@@ -105,6 +108,53 @@ class UserServiceTest {
 
         // Then
         verify(repository).save(eq(user));
+        verify(mapper).userToDTO(eq(user));
+    }
+
+    @Test
+    void GivenEmailThatNoUserHas_WhenLoadUserByUsername_ThenThrowUsernameNotFoundException() {
+        // Given
+        String email = "email@email.com";
+
+        when(repository.findByEmail(eq(email)))
+                .thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.loadUserByUsername(email))
+                .isInstanceOf(UsernameNotFoundException.class);
+    }
+
+    @Test
+    void GivenEmail_WhenLoadUserByUsername_ThenUserIsMappedIntoUserDTO() {
+        // Given
+        String email = "email@email.com";
+
+        User user = User.builder()
+                .id(UUID.randomUUID())
+                .email(email)
+                .username("username")
+                .password("password")
+                .role(UserRole.USER)
+                .build();
+
+        UserDTO userDTO = new UserDTO(
+                user.getId(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getRole(),
+                user.getPassword()
+        );
+
+        when(repository.findByEmail(eq(email)))
+                .thenReturn(Optional.of(user));
+
+        when(mapper.userToDTO(eq(user)))
+                .thenReturn(userDTO);
+
+        // When
+        underTest.loadUserByUsername(email);
+
+        // Then
         verify(mapper).userToDTO(eq(user));
     }
 }

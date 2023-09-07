@@ -102,6 +102,62 @@ class AuthControllerIT extends ContainersEnvironment {
         assertThat(user.getRole()).isEqualTo(UserRole.USER);
     }
 
+    @Test
+    void shouldNotLoginUserGivenCredentialsWithInvalidEmail() {
+        userRepository.save(createUser("email2@email.com", "username", "password"));
+
+        String body = """
+                {
+                    "email": "email@email.com",
+                    "password": "password"
+                }
+                """;
+
+        webClient.post().uri("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(body)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void shouldNotLoginUserGivenCredentialsWithInvalidPassword() {
+        userRepository.save(createUser("email@email.com", "username", "password2"));
+
+        String body = """
+                {
+                    "email": "email@email.com",
+                    "password": "password"
+                }
+                """;
+
+        webClient.post().uri("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(body)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void shouldLoginUser() {
+        userRepository.save(createUser("email@email.com", "username", "password"));
+
+        String body = """
+                {
+                    "email": "email@email.com",
+                    "password": "password"
+                }
+                """;
+
+        webClient.post().uri("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(body)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("accessToken").isNotEmpty();
+    }
+
     private User createUser(String email, String username, String password) {
         return User.builder()
                 .email(email)

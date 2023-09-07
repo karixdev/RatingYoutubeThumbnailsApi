@@ -1,8 +1,10 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.auth.controller;
 
+import com.github.karixdev.ratingyoutubethumbnailsapi.auth.payload.LoginRequest;
 import com.github.karixdev.ratingyoutubethumbnailsapi.auth.payload.RegisterRequest;
+import com.github.karixdev.ratingyoutubethumbnailsapi.auth.payload.response.LoginResponse;
 import com.github.karixdev.ratingyoutubethumbnailsapi.auth.service.AuthService;
-import com.github.karixdev.ratingyoutubethumbnailsapi.infrastucture.exception.handler.payload.ErrorDetail;
+import com.github.karixdev.ratingyoutubethumbnailsapi.infrastucture.exception.handler.payload.ErrorDetails;
 import com.github.karixdev.ratingyoutubethumbnailsapi.infrastucture.exception.handler.payload.ValidationErrorDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final AuthService authService;
+    private final AuthService service;
 
     @Operation(summary = "Register new account")
     @ApiResponse(
@@ -43,13 +45,27 @@ public class AuthController {
             content = {
                     @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorDetail.class)
+                            schema = @Schema(implementation = ErrorDetails.class)
                     )
             }
     )
     @PostMapping("/register")
     ResponseEntity<Void> register(@RequestBody @Valid RegisterRequest request) {
-        authService.register(request);
+        service.register(request);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Operation(summary = "Login and get JWT")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Successfully logged in and created JWT",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = LoginRequest.class)
+            )
+    )
+    @PostMapping("/login")
+    ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
+        return new ResponseEntity<>(service.login(request), HttpStatus.OK);
     }
 }

@@ -7,3 +7,6 @@ spring:
     username:
     password:
     url:
+
+jwt:
+  secret: Sv4!&PbRKwp0hH44hmchf8CPjyWtI(Cj
