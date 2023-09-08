@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 @Configuration
 public class JwtConfig {
@@ -19,5 +20,10 @@ public class JwtConfig {
         return JWT.require(algorithm)
                 .withIssuer(JwtProperties.ISSUER)
                 .build();
+    }
+
+    @Bean
+    JwtAuthFilter jwtAuthFilter(JwtService jwtService, UserDetailsService userDetailsService) {
+        return new JwtAuthFilter(jwtService, userDetailsService);
     }
 }
