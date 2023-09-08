@@ -55,7 +55,7 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @Operation(summary = "Login and get JWT")
+    @Operation(summary = "Login and obtain JWT")
     @ApiResponse(
             responseCode = "200",
             description = "Successfully logged in and created JWT",
@@ -63,6 +63,36 @@ public class AuthController {
                     mediaType = "application/json",
                     schema = @Schema(implementation = LoginRequest.class)
             )
+    )
+    @ApiResponse(
+            responseCode = "401",
+            description = "Invalid credentials",
+            content = {
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDetails.class)
+                    )
+            }
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "Invalid request data",
+            content = {
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ValidationErrorDetails.class)
+                    )
+            }
+    )
+    @ApiResponse(
+            responseCode = "500",
+            description = "Internal server error",
+            content = {
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDetails.class)
+                    )
+            }
     )
     @PostMapping("/login")
     ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
