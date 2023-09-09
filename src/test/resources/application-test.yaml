@@ -10,3 +10,7 @@ spring:
 
 jwt:
   secret: Sv4!&PbRKwp0hH44hmchf8CPjyWtI(Cj
+
+youtube-api:
+  base-url: http://localhost:9999
+  key: ""

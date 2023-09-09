@@ -11,3 +11,7 @@ spring:
 
 jwt:
   secret: UKf5sq!#WaNX7Rfv$Y%&iO^IRf2INSR1
+
+youtube-api:
+  base-url: https://youtube.googleapis.com/youtube/v3
+  key: AIzaSyBpWoXdFi_eprveOLLupKpGp5xEt8LNaTY
