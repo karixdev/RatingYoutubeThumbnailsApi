@@ -1,5 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.video.service;
 
+import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.user.UserDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.video.VideoDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.video.WriteVideoDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.youtube.YoutubeVideoDTO;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -42,4 +44,13 @@ public class VideoService implements VideoServiceApi {
 
         return mapper.entityToDto(video);
     }
+
+    @Override
+    public VideoDTO delete(UUID id, UserDTO user) {
+        Video video = repository.findById(id).orElseThrow();
+
+        return null;
+    }
+
+
 }
