@@ -1,6 +1,9 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.video.entity;
 
+import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.user.UserDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.entity.EntityState;
+import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.ForbiddenActionException;
+import com.github.karixdev.ratingyoutubethumbnailsapi.user.entity.UserRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -111,5 +114,13 @@ public class Video {
     )
     @Builder.Default
     private EntityState state = EntityState.PERSISTED;
+
+    public void moveIntoRemovedState(UserDTO user) {
+        if (!userId.equals(user.id()) && user.role() != UserRole.ADMIN) {
+            throw new ForbiddenActionException();
+        }
+
+        setState(EntityState.REMOVED);
+    }
 
 }

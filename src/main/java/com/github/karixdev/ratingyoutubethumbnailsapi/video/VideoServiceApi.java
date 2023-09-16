@@ -8,5 +8,5 @@ import java.util.UUID;
 
 public interface VideoServiceApi {
     VideoDTO create(WriteVideoDTO dto);
-    VideoDTO delete(UUID id, UserDTO user);
+    void delete(UUID id, UserDTO user);
 }

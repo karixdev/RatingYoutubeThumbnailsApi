@@ -3,6 +3,8 @@ package com.github.karixdev.ratingyoutubethumbnailsapi.video.service;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.user.UserDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.video.WriteVideoDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.youtube.YoutubeVideoDTO;
+import com.github.karixdev.ratingyoutubethumbnailsapi.shared.entity.EntityState;
+import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.ResourceNotFoundException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.utils.TestUtils;
 import com.github.karixdev.ratingyoutubethumbnailsapi.video.entity.Video;
 import com.github.karixdev.ratingyoutubethumbnailsapi.video.exception.NotExistingYoutubeVideoException;
@@ -23,7 +25,9 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -114,5 +118,36 @@ class VideoServiceTest {
         // Then
         verify(repository).save(eq(video));
         verify(mapper).entityToDto(eq(video));
+    }
+
+    @Test
+    void GivenIdOfNotExistingVideo_WhenDelete_ThenThrowsResourceNotFoundException() {
+        // Given
+        UUID id = UUID.randomUUID();
+
+        when(repository.findById(id))
+                .thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.delete(id, null))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Video with provided id not found");
+    }
+
+    @Test
+    void GivenIdAndUserDTO_WhenDelete_ThenMovesVideoIntoRemovedStatus() {
+        // Given
+        UserDTO userDTO = TestUtils.createUserDTO();
+        Video video = TestUtils.createVideo("ytId", userDTO.id());
+        UUID id = video.getId();
+
+        when(repository.findById(id))
+                .thenReturn(Optional.of(video));
+
+        // When
+        underTest.delete(id, userDTO);
+
+        // Then
+        assertThat(video.getState()).isEqualTo(EntityState.REMOVED);
     }
 }

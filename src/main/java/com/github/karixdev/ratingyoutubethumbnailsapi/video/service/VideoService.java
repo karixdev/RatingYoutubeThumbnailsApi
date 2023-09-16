@@ -4,6 +4,7 @@ import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.user.UserDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.video.VideoDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.video.WriteVideoDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.youtube.YoutubeVideoDTO;
+import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.ResourceNotFoundException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.video.VideoServiceApi;
 import com.github.karixdev.ratingyoutubethumbnailsapi.video.entity.Video;
 import com.github.karixdev.ratingyoutubethumbnailsapi.video.exception.NotExistingYoutubeVideoException;
@@ -45,12 +46,13 @@ public class VideoService implements VideoServiceApi {
         return mapper.entityToDto(video);
     }
 
+    @Transactional
     @Override
-    public VideoDTO delete(UUID id, UserDTO user) {
-        Video video = repository.findById(id).orElseThrow();
+    public void delete(UUID id, UserDTO user) {
+        Video video = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Video with provided id not found"));
 
-        return null;
+        video.moveIntoRemovedState(user);
     }
-
 
 }

@@ -11,6 +11,8 @@ import com.github.karixdev.ratingyoutubethumbnailsapi.utils.TestUtils;
 import com.github.karixdev.ratingyoutubethumbnailsapi.video.entity.Video;
 import com.github.karixdev.ratingyoutubethumbnailsapi.video.repository.VideoRepository;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -51,6 +54,9 @@ class VideoControllerIT extends ContainersEnvironment {
 
     @Autowired
     WebTestClient webClient;
+
+    @Autowired
+    EntityManager em;
 
     static String key = "123";
 
@@ -199,6 +205,79 @@ class VideoControllerIT extends ContainersEnvironment {
 
         assertThat(resultVideo.getMaxResThumbnail()).isEqualTo("max");
         responseBody.jsonPath("$.thumbnails.maxRes").isEqualTo("max");
+    }
+
+    @Test
+    void shouldNotDeleteNotExistingVideo() {
+        User user = userRepository.save(TestUtils.createUser());
+        UserDTO userDTO = userMapper.userToDTO(user);
+
+        String jwt = jwtService.create(userDTO);
+
+        webClient.delete().uri("/api/videos/" + UUID.randomUUID())
+                .header("Authorization", "Bearer " + jwt)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void shouldNotDeleteVideoUploadedByOtherUser() {
+        User user = userRepository.save(TestUtils.createUser());
+        UserDTO userDTO = userMapper.userToDTO(user);
+
+        Video video = videoRepository.save(TestUtils.createVideo("ytId", UUID.randomUUID()));
+
+        String jwt = jwtService.create(userDTO);
+
+        webClient.delete().uri("/api/videos/" + video.getId())
+                .header("Authorization", "Bearer " + jwt)
+                .exchange()
+                .expectStatus().isForbidden();
+
+        Optional<Video> optionalVideo = videoRepository.findById(video.getId());
+        assertThat(optionalVideo).isPresent();
+
+        assertThat(optionalVideo.get().getState()).isEqualTo(EntityState.PERSISTED);
+    }
+
+    @Test
+    void shouldDeleteVideoUploadedByOtherUserForAdmin() {
+        User user = userRepository.save(TestUtils.createAdmin());
+        UserDTO userDTO = userMapper.userToDTO(user);
+
+        Video video = videoRepository.save(TestUtils.createVideo("ytId", userDTO.id()));
+
+        String jwt = jwtService.create(userDTO);
+
+        webClient.delete().uri("/api/videos/" + video.getId())
+                .header("Authorization", "Bearer " + jwt)
+                .exchange()
+                .expectStatus().isNoContent();
+
+        Optional<Video> optionalVideo = videoRepository.findById(video.getId());
+        assertThat(optionalVideo).isPresent();
+
+        assertThat(optionalVideo.get().getState()).isEqualTo(EntityState.REMOVED);
+    }
+
+    @Test
+    void shouldDeleteVideo() {
+        User user = userRepository.save(TestUtils.createUser());
+        UserDTO userDTO = userMapper.userToDTO(user);
+
+        Video video = videoRepository.save(TestUtils.createVideo("ytId", userDTO.id()));
+
+        String jwt = jwtService.create(userDTO);
+
+        webClient.delete().uri("/api/videos/" + video.getId())
+                .header("Authorization", "Bearer " + jwt)
+                .exchange()
+                .expectStatus().isNoContent();
+
+        Optional<Video> optionalVideo = videoRepository.findById(video.getId());
+        assertThat(optionalVideo).isPresent();
+
+        assertThat(optionalVideo.get().getState()).isEqualTo(EntityState.REMOVED);
     }
 
 }

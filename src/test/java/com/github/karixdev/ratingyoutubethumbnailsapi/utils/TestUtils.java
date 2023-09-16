@@ -21,6 +21,16 @@ public class TestUtils {
         );
     }
 
+    public static UserDTO createAdminUserDTO() {
+        return new UserDTO(
+                UUID.randomUUID(),
+                "email@email.com",
+                "username",
+                UserRole.ADMIN,
+                "password"
+        );
+    }
+
     public static YoutubeVideoDTO createYoutubeVideoDTO(String id) {
         return new YoutubeVideoDTO(
                 id,
@@ -51,6 +61,10 @@ public class TestUtils {
                 .build();
     }
 
+    public static Video createVideo(String ytId, UUID userId) {
+        return createVideo(null, ytId, userId, LocalDateTime.now());
+    }
+
     public static Video createVideo() {
         return createVideo(UUID.randomUUID(), "youtube-id", UUID.randomUUID(), LocalDateTime.now());
     }
@@ -61,6 +75,15 @@ public class TestUtils {
                 .username("username")
                 .password("password")
                 .role(UserRole.USER)
+                .build();
+    }
+
+    public static User createAdmin() {
+        return User.builder()
+                .email("admin@admin.com")
+                .username("admin")
+                .password("password")
+                .role(UserRole.ADMIN)
                 .build();
     }
 
