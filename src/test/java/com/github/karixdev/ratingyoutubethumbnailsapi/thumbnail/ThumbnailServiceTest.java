@@ -1,5 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail;
 
+import com.github.karixdev.ratingyoutubethumbnailsapi.game.Game;
 import com.github.karixdev.ratingyoutubethumbnailsapi.rating.Rating;
 import com.github.karixdev.ratingyoutubethumbnailsapi.security.UserPrincipal;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.PermissionDeniedException;
@@ -20,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -322,5 +324,32 @@ public class ThumbnailServiceTest {
 
         // Then
         assertThat(result).isEqualTo(thumbnail);
+    }
+
+    @Test
+    void GivenGameAndUserAndDefaultPointsAndThumbnailAndPoints_WhenGetThumbnailNotInGameWithClosestRating_ThenFindThumbnailNotInGameWithClosestRatingIsCalled() {
+        // Given
+        User user = userPrincipal.getUser();
+        Game game = Game.builder().id(1L).build();
+        BigDecimal defaultPoints = BigDecimal.valueOf(1400);
+        BigDecimal points = BigDecimal.valueOf(1400);
+
+        // When
+        underTest.getThumbnailNotInGameWithClosestRating(
+                game,
+                user,
+                defaultPoints,
+                thumbnail,
+                points
+        );
+
+        // Then
+        verify(thumbnailRepository).findThumbnailNotInGameWithClosestRating(
+                eq(game.getId()),
+                eq(user.getId()),
+                eq(defaultPoints),
+                eq(thumbnail.getId()),
+                eq(points)
+        );
     }
 }

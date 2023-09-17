@@ -1,6 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.emailverification;
 
-import com.github.karixdev.ratingyoutubethumbnailsapi.email.EmailService;
+import com.github.karixdev.ratingyoutubethumbnailsapi.email.EmailServiceProvider;
 import com.github.karixdev.ratingyoutubethumbnailsapi.emailverification.exception.EmailAlreadyVerifiedException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.emailverification.exception.EmailVerificationTokenExpiredException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.emailverification.exception.TooManyEmailVerificationTokensException;
@@ -12,12 +12,11 @@ import com.github.karixdev.ratingyoutubethumbnailsapi.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -25,9 +24,27 @@ import java.util.UUID;
 public class EmailVerificationService {
     private final EmailVerificationTokenRepository tokenRepository;
     private final Clock clock;
-    private final EmailService emailService;
     private final UserService userService;
     private final EmailVerificationProperties properties;
+    private final EmailServiceProvider emailServiceProvider;
+
+    private final String messageTemplate = """
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Verify your email</title>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>Hi %s!</h1>
+                    <p>Here's your token: %s - it only lasts for 24 hours.</p>
+                </div>
+            </body>
+            </html>
+            """;
 
     @Transactional
     public EmailVerificationToken createToken(User user) {
@@ -45,14 +62,12 @@ public class EmailVerificationService {
     }
 
     public void sendEmailWithVerificationLink(EmailVerificationToken token) {
-        Map<String, Object> variables = Map.of(
-                "username", token.getUser().getUsername(),
-                "token", token.getToken()
+        String body = messageTemplate.formatted(
+                token.getUser().getUsername(),
+                token.getToken()
         );
 
-        String body = emailService.getMailTemplate("email-verification.html", variables);
-
-        emailService.sendEmailToUser(token.getUser().getEmail(), "Verify your email", body);
+        emailServiceProvider.sendEmail(token.getUser().getEmail(), "Verify your email", body);
     }
 
     @Transactional

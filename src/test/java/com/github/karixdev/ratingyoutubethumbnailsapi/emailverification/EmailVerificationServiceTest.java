@@ -1,6 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.emailverification;
 
-import com.github.karixdev.ratingyoutubethumbnailsapi.email.EmailService;
+import com.github.karixdev.ratingyoutubethumbnailsapi.email.EmailServiceProvider;
 import com.github.karixdev.ratingyoutubethumbnailsapi.emailverification.exception.EmailAlreadyVerifiedException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.emailverification.exception.EmailVerificationTokenExpiredException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.emailverification.exception.TooManyEmailVerificationTokensException;
@@ -43,7 +43,7 @@ public class EmailVerificationServiceTest {
     Clock clock;
 
     @Mock
-    EmailService emailService;
+    EmailServiceProvider emailServiceProvider;
 
     @Mock
     EmailVerificationProperties properties;
@@ -108,18 +108,14 @@ public class EmailVerificationServiceTest {
                 .expiresAt(NOW.plusHours(24).toLocalDateTime())
                 .build();
 
-        when(emailService.getMailTemplate(any(), any()))
-                .thenReturn("template");
-
-        doNothing().when(emailService)
-                .sendEmailToUser(any(), any(), any());
+        doNothing().when(emailServiceProvider)
+                .sendEmail(any(), any(), any());
 
         // When
         underTest.sendEmailWithVerificationLink(token);
 
         // Then
-        verify(emailService).getMailTemplate(any(), any());
-        verify(emailService).sendEmailToUser(any(), any(), any());
+        verify(emailServiceProvider).sendEmail(any(), any(), any());
     }
 
     @Test
@@ -272,11 +268,8 @@ public class EmailVerificationServiceTest {
         when(clock.getZone()).thenReturn(NOW.getZone());
         when(clock.instant()).thenReturn(NOW.toInstant());
 
-        when(emailService.getMailTemplate(any(), any()))
-                .thenReturn("template");
-
-        doNothing().when(emailService)
-                .sendEmailToUser(any(), any(), any());
+        doNothing().when(emailServiceProvider)
+                .sendEmail(any(), any(), any());
 
         // When
         SuccessResponse result = underTest.resend(payload);
@@ -332,11 +325,8 @@ public class EmailVerificationServiceTest {
         when(clock.getZone()).thenReturn(NOW.getZone());
         when(clock.instant()).thenReturn(NOW.toInstant());
 
-        when(emailService.getMailTemplate(any(), any()))
-                .thenReturn("template");
-
-        doNothing().when(emailService)
-                .sendEmailToUser(any(), any(), any());
+        doNothing().when(emailServiceProvider)
+                .sendEmail(any(), any(), any());
 
         // When
         SuccessResponse result = underTest.resend(payload);

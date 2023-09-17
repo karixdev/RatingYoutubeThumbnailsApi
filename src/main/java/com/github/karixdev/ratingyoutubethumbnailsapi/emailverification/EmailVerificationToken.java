@@ -3,7 +3,7 @@ package com.github.karixdev.ratingyoutubethumbnailsapi.emailverification;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.User;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -13,6 +13,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(
         name = "email_verification_token",
@@ -40,6 +41,7 @@ public class EmailVerificationToken {
             updatable = false
     )
     @Setter(AccessLevel.NONE)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(
@@ -74,22 +76,4 @@ public class EmailVerificationToken {
             )
     )
     private User user;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        EmailVerificationToken that = (EmailVerificationToken) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(token, that.token) &&
-                Objects.equals(createdAt, that.createdAt) &&
-                Objects.equals(expiresAt, that.expiresAt) &&
-                Objects.equals(confirmedAt, that.confirmedAt) &&
-                Objects.equals(user.getId(), that.user.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, token, createdAt, expiresAt, confirmedAt, user.getId());
-    }
 }

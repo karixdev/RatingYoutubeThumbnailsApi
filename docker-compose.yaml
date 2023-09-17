@@ -30,3 +30,14 @@ services:
     ports:
       - '1025:1025'
       - '1080:1080'
+
+  postgres:
+    container_name: postgres
+    image: postgres:15.1-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: rating-youtube-thumbnails
+    ports:
+      - '5432:5432'

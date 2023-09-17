@@ -1,18 +1,18 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.game;
 
 import com.github.karixdev.ratingyoutubethumbnailsapi.game.exception.GameHasAlreadyEndedException;
-import com.github.karixdev.ratingyoutubethumbnailsapi.game.exception.GameHasEndedException;
-import com.github.karixdev.ratingyoutubethumbnailsapi.game.exception.GameHasNotEndedException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.game.exception.InvalidWinnerIdException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.game.payload.request.GameResultRequest;
 import com.github.karixdev.ratingyoutubethumbnailsapi.game.payload.response.GameResponse;
 import com.github.karixdev.ratingyoutubethumbnailsapi.rating.RatingService;
+import com.github.karixdev.ratingyoutubethumbnailsapi.round.Round;
 import com.github.karixdev.ratingyoutubethumbnailsapi.security.UserPrincipal;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.PermissionDeniedException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.ResourceNotFoundException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.payload.response.SuccessResponse;
 import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.Thumbnail;
 import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.ThumbnailService;
+import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.payload.response.ThumbnailResponse;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.User;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.UserRole;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,8 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -98,244 +97,176 @@ public class GameServiceTest {
     }
 
     @Test
-    void GivenUserPrincipal_WhenStart_ThenReturnsCorrectGameResponse() {
+    void GivenUserWithEmptyGamesSet_WhenPlay_ThenStartsNewGame() {
         // Given
+        User user = createUser();
         UserPrincipal userPrincipal = new UserPrincipal(user);
+
+        when(repository.findByUserOrderByLastActivityDesc(eq(user)))
+                .thenReturn(List.of());
 
         when(clock.getZone()).thenReturn(NOW.getZone());
         when(clock.instant()).thenReturn(NOW.toInstant());
 
-        when(repository.save(any()))
-                .thenReturn(Game.builder()
-                        .id(1L)
-                        .user(user)
-                        .thumbnail1(thumbnail1)
-                        .thumbnail2(thumbnail2)
-                        .lastActivity(NOW.toLocalDateTime())
-                        .build());
+        Game game = Game.builder()
+                .user(user)
+                .lastActivity(NOW.toLocalDateTime())
+                .build();
+
+        Thumbnail thumbnail1 = createThumbnail(1L, "url-1", "yt-id-1", user);
+        when(thumbnailService.getRandomThumbnail())
+                .thenReturn(thumbnail1);
+
+        Thumbnail thumbnail2 = createThumbnail(1L, "url-2", "yt-id-2", user);
+        when(ratingService.pickOpponent(eq(game), eq(thumbnail1), eq(user)))
+                .thenReturn(thumbnail2);
 
         // When
-        GameResponse result = underTest.start(userPrincipal);
+        underTest.play(userPrincipal, null);
 
         // Then
-        assertThat(result.getId()).isEqualTo(1L);
-
-        assertThat(result.getThumbnail1().getId()).isEqualTo(1L);
-        assertThat(result.getThumbnail1().getUrl()).isEqualTo("thumbnail-url-1");
-
-        assertThat(result.getThumbnail2().getId()).isEqualTo(2L);
-        assertThat(result.getThumbnail2().getUrl()).isEqualTo("thumbnail-url-2");
-
-        verify(repository).save(any());
+        verify(repository).save(eq(game));
     }
 
     @Test
-    void GivenUserPrincipalThatHasJustStartedGame_WhenStart_ThenThrowsGameHasNotEndedExceptionWithCorrectMessage() {
+    void GivenUserWithExpiredLatestGame_WhenPlay_ThenStartsNewGame() {
         // Given
+        User user = createUser();
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+
+        when(repository.findByUserOrderByLastActivityDesc(eq(user)))
+                .thenReturn(List.of(Game.builder().id(1L).hasEnded(true).build()));
+
+        when(clock.getZone()).thenReturn(NOW.getZone());
+        when(clock.instant()).thenReturn(NOW.toInstant());
+
+        Game game = Game.builder()
+                .user(user)
+                .lastActivity(NOW.toLocalDateTime())
+                .build();
+
+        Thumbnail thumbnail1 = createThumbnail(1L, "url-1", "yt-id-1", user);
+        when(thumbnailService.getRandomThumbnail())
+                .thenReturn(thumbnail1);
+
+        Thumbnail thumbnail2 = createThumbnail(1L, "url-2", "yt-id-2", user);
+        when(ratingService.pickOpponent(eq(game), eq(thumbnail1), eq(user)))
+                .thenReturn(thumbnail2);
+
+        // When
+        underTest.play(userPrincipal, null);
+
+        // Then
+        verify(repository).save(eq(game));
+    }
+
+    @Test
+    void GivenUserWithActiveGameAndNullGameResultRequest_WhenPlay_ThenCorrectGameResponseIsReturned() {
+        // Given
+        User user = createUser();
         UserPrincipal userPrincipal = new UserPrincipal(user);
 
         when(clock.getZone()).thenReturn(NOW.getZone());
         when(clock.instant()).thenReturn(NOW.toInstant());
 
-        when(repository.findByUserOrderByLastActivityDesc(any()))
-                .thenReturn(List.of(Game.builder()
-                        .id(1L)
-                        .user(user)
-                        .thumbnail1(thumbnail1)
-                        .thumbnail2(thumbnail2)
-                        .lastActivity(NOW.toLocalDateTime().plusMinutes(1))
-                        .build()));
+        Thumbnail thumbnail1 = createThumbnail(1L, "url-1", "yt-id-1", user);
+        Thumbnail thumbnail2 = createThumbnail(2L, "url-2", "yt-id-2", user);
+        Game game = Game.builder()
+                .id(1L)
+                .hasEnded(false)
+                .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
+                .build();
+        game.addRound(thumbnail1, thumbnail2, clock);
 
         when(properties.getDuration()).thenReturn(10);
 
-        // When & Then
-        assertThatThrownBy(() -> underTest.start(userPrincipal))
-                .isInstanceOf(GameHasNotEndedException.class)
-                .hasMessage("Game has not ended yet");
-    }
-
-    @Test
-    void GivenNotExistingGameId_WhenResult_ThenThrowsResourceNotFoundExceptionWithCorrectMessage() {
-        // Given
-        Long gameId = 1337L;
-
-        UserPrincipal userPrincipal = new UserPrincipal(user);
-        GameResultRequest payload = new GameResultRequest();
-
-        when(repository.findById(any()))
-                .thenReturn(Optional.empty());
-
-        // When & Then
-        assertThatThrownBy(() -> underTest.roundResult(gameId, payload, userPrincipal))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Game with provided id was not found");
-    }
-
-    @Test
-    void GivenUserThatIsNotOwnerOfGame_WhenResult_ThenThrowsPermissionDeniedExceptionWithCorrectMessage() {
-        // Given
-        Long gameId = 1L;
-        GameResultRequest payload = new GameResultRequest(1L);
-        UserPrincipal userPrincipal = new UserPrincipal(User.builder()
-                .id(2L)
-                .email("email-2@email.com")
-                .password("password-2")
-                .username("username-2")
-                .userRole(UserRole.ROLE_USER)
-                .isEnabled(Boolean.TRUE)
-                .build());
-
-        when(repository.findById(any()))
-                .thenReturn(Optional.of(Game.builder()
-                        .id(1L)
-                        .user(user)
-                        .thumbnail1(thumbnail1)
-                        .thumbnail2(thumbnail2)
-                        .lastActivity(NOW.toLocalDateTime().minusMinutes(2))
-                        .build()));
-
-        // When & Then
-        assertThatThrownBy(() -> underTest.roundResult(gameId, payload, userPrincipal))
-                .isInstanceOf(PermissionDeniedException.class)
-                .hasMessage("You are not the owner of the game");
-    }
-
-    @Test
-    void GivenExpiredGameId_WhenResult_ThenThrowsGameHasEndedExceptionWithCorrectMessage() {
-        // Given
-        Long gameId = 1L;
-        GameResultRequest payload = new GameResultRequest(1L);
-        UserPrincipal userPrincipal = new UserPrincipal(user);
-
-        when(properties.getDuration())
-                .thenReturn(10);
-
-        when(clock.getZone()).thenReturn(NOW.getZone());
-        when(clock.instant()).thenReturn(NOW.toInstant());
-
-        when(repository.findById(any()))
-                .thenReturn(Optional.of(Game.builder()
-                        .id(1L)
-                        .user(user)
-                        .thumbnail1(thumbnail1)
-                        .thumbnail2(thumbnail2)
-                        .lastActivity(NOW.toLocalDateTime().minusMinutes(30))
-                        .build()));
-
-        // When & Then
-        assertThatThrownBy(() -> underTest.roundResult(gameId, payload, userPrincipal))
-                .isInstanceOf(GameHasEndedException.class)
-                .hasMessage("Game has ended");
-    }
-
-    @Test
-    void GivenEndedGameId_WhenResult_ThenThrowsGameHasEndedExceptionWithCorrectMessage() {
-        // Given
-        Long gameId = 1L;
-        GameResultRequest payload = new GameResultRequest(1L);
-        UserPrincipal userPrincipal = new UserPrincipal(user);
-
-        when(properties.getDuration())
-                .thenReturn(10);
-
-        when(clock.getZone()).thenReturn(NOW.getZone());
-        when(clock.instant()).thenReturn(NOW.toInstant());
-
-        when(repository.findById(any()))
-                .thenReturn(Optional.of(Game.builder()
-                        .id(1L)
-                        .user(user)
-                        .thumbnail1(thumbnail1)
-                        .thumbnail2(thumbnail2)
-                        .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
-                        .hasEnded(Boolean.TRUE)
-                        .build()));
-
-        // When & Then
-        assertThatThrownBy(() -> underTest.roundResult(gameId, payload, userPrincipal))
-                .isInstanceOf(GameHasEndedException.class)
-                .hasMessage("Game has ended");
-    }
-
-    @Test
-    void GivenInvalidPayload_WhenResult_ThenInvalidWinnerIdExceptionWithCorrectMessage() {
-        // Given
-        Long gameId = 1L;
-        GameResultRequest payload = new GameResultRequest(3L);
-        UserPrincipal userPrincipal = new UserPrincipal(user);
-
-        when(properties.getDuration())
-                .thenReturn(10);
-
-        when(clock.getZone()).thenReturn(NOW.getZone());
-        when(clock.instant()).thenReturn(NOW.toInstant());
-
-        when(repository.findById(any()))
-                .thenReturn(Optional.of(Game.builder()
-                        .id(1L)
-                        .user(user)
-                        .thumbnail1(thumbnail1)
-                        .thumbnail2(thumbnail2)
-                        .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
-                        .build()));
-
-        // When & Then
-        assertThatThrownBy(() -> underTest.roundResult(gameId, payload, userPrincipal))
-                .isInstanceOf(InvalidWinnerIdException.class)
-                .hasMessage("You have provided invalid winner id");
-    }
-
-    @Test
-    void GivenValidGameIdAndValidPayloadAndValidUserPrincipal_WhenResult_ThenReturnsProperGameResponse() {
-        // Given
-        Long gameId = 1L;
-        GameResultRequest payload = new GameResultRequest(1L);
-        UserPrincipal userPrincipal = new UserPrincipal(user);
-
-        when(properties.getDuration())
-                .thenReturn(10);
-
-        when(clock.getZone()).thenReturn(NOW.getZone());
-        when(clock.instant()).thenReturn(NOW.toInstant());
-
-        when(repository.findById(any()))
-                .thenReturn(Optional.of(Game.builder()
-                        .id(1L)
-                        .user(user)
-                        .thumbnail1(thumbnail1)
-                        .thumbnail2(thumbnail2)
-                        .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
-                        .build()));
-
-        Thumbnail otherThumbnail = Thumbnail.builder()
-                .id(3L)
-                .addedBy(user)
-                .url("thumbnail-url-3")
-                .youtubeVideoId("youtube-id-3")
-                .build();
-
-
-        when(repository.save(any())).thenReturn(Game.builder()
-                .id(1L)
-                .user(user)
-                .thumbnail1(thumbnail1)
-                .thumbnail2(otherThumbnail)
-                .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
-                .build());
+        when(repository.findByUserOrderByLastActivityDesc(eq(user)))
+                .thenReturn(List.of(game));
 
         // When
-        GameResponse result = underTest.roundResult(gameId, payload, userPrincipal);
+        GameResponse result = underTest.play(userPrincipal, null);
 
         // Then
-        verify(ratingService).updateRatings(eq(thumbnail1), eq(thumbnail2), eq(user));
-
         assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getThumbnails().stream().map(ThumbnailResponse::getId))
+                .containsExactly(thumbnail1.getId(), thumbnail2.getId());
+    }
 
-        assertThat(result.getThumbnail1().getUrl()).isEqualTo("thumbnail-url-1");
-        assertThat(result.getThumbnail1().getId()).isEqualTo(1L);
+    @Test
+    void GivenUserWithActiveGameAndNotNullInvalidRequest_WhenPlay_ThenInvalidWinnerIdExceptionIsThrown() {
+        // Given
+        User user = createUser();
+        UserPrincipal userPrincipal = new UserPrincipal(user);
 
-        assertThat(result.getThumbnail2().getUrl()).isEqualTo("thumbnail-url-3");
-        assertThat(result.getThumbnail2().getId()).isEqualTo(3L);
+        GameResultRequest payload = new GameResultRequest(34L);
+
+        when(clock.getZone()).thenReturn(NOW.getZone());
+        when(clock.instant()).thenReturn(NOW.toInstant());
+
+        Thumbnail thumbnail1 = createThumbnail(1L, "url-1", "yt-id-1", user);
+        Thumbnail thumbnail2 = createThumbnail(2L, "url-2", "yt-id-2", user);
+        Game game = Game.builder()
+                .id(1L)
+                .hasEnded(false)
+                .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
+                .build();
+        game.addRound(thumbnail1, thumbnail2, clock);
+
+        when(properties.getDuration()).thenReturn(10);
+
+        when(repository.findByUserOrderByLastActivityDesc(eq(user)))
+                .thenReturn(List.of(game));
+
+        // When & Then
+        assertThatThrownBy(() -> underTest.play(userPrincipal, payload))
+                .isInstanceOf(InvalidWinnerIdException.class);
+    }
+
+    @Test
+    void GivenUserWithActiveGameAndNotNullRequest_WhenPlay_ThenRatingsAreUpdatedAndNewOpponentIsChosen() {
+        // Given
+        User user = createUser();
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+
+        GameResultRequest payload = new GameResultRequest(1L);
+
+        when(clock.getZone()).thenReturn(NOW.getZone());
+        when(clock.instant()).thenReturn(NOW.toInstant());
+
+        Thumbnail thumbnail1 = createThumbnail(1L, "url-1", "yt-id-1", user);
+        Thumbnail thumbnail2 = createThumbnail(2L, "url-2", "yt-id-2", user);
+        Game game = Game.builder()
+                .id(1L)
+                .hasEnded(false)
+                .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
+                .build();
+
+        Set<Round> rounds = new HashSet<>();
+        rounds.add(createRound(game, thumbnail1, thumbnail2));
+        game.setRounds(rounds);
+
+        when(properties.getDuration()).thenReturn(10);
+
+        when(repository.findByUserOrderByLastActivityDesc(eq(user)))
+                .thenReturn(List.of(game));
+
+        Thumbnail thumbnail3 = createThumbnail(3L, "url-3", "yt-id-3", user);
+        when(ratingService.pickOpponent(eq(game), eq(thumbnail1), eq(user)))
+                .thenReturn(thumbnail3);
+
+        // When
+        underTest.play(userPrincipal, payload);
+
+        // Then
+        verify(ratingService).updateRatings(
+                eq(thumbnail1),
+                eq(thumbnail2),
+                eq(user)
+        );
+
+        Round latestRound = game.getLatestRound();
+        assertThat(latestRound.getThumbnail1()).isEqualTo(thumbnail1);
+        assertThat(latestRound.getThumbnail2()).isEqualTo(thumbnail3);
     }
 
     @Test
@@ -344,6 +275,9 @@ public class GameServiceTest {
         Long gameId = 1337L;
         UserPrincipal userPrincipal = new UserPrincipal(user);
 
+        when(repository.findById(eq(gameId)))
+                .thenReturn(Optional.empty());
+
         // When & Then
         assertThatThrownBy(() -> underTest.end(gameId, userPrincipal))
                 .isInstanceOf(ResourceNotFoundException.class)
@@ -351,173 +285,59 @@ public class GameServiceTest {
     }
 
     @Test
-    void GivenUserThatIsNotOwnerOfGame_WhenEnd_ThenThrowsPermissionDeniedExceptionWithCorrectMessage() {
-        // Given
-        Long gameId = 1L;
-
-        UserPrincipal userPrincipal = new UserPrincipal(User.builder()
-                .id(2L)
-                .email("email-2@email.com")
-                .password("password-2")
-                .username("username-2")
-                .userRole(UserRole.ROLE_USER)
-                .isEnabled(Boolean.TRUE)
-                .build());
-
-        when(repository.findById(any()))
-                .thenReturn(Optional.of(Game.builder()
-                        .id(1L)
-                        .user(user)
-                        .thumbnail1(thumbnail1)
-                        .thumbnail2(thumbnail2)
-                        .lastActivity(NOW.toLocalDateTime().minusMinutes(2))
-                        .build()));
-
-        // When & Then
-        assertThatThrownBy(() -> underTest.end(gameId, userPrincipal))
-                .isInstanceOf(PermissionDeniedException.class)
-                .hasMessage("You are not the owner of the game");
-    }
-
-    @Test
-    void GivenGameIdThatHasEnded_WhenEnd_ThenThrowsGameHasAlreadyEndedExceptionWithCorrectMessage() {
+    void GivenValidGameIdAndValidUserPrincipal_WhenEnd_ThenEndsGame() {
         // Given
         Long gameId = 1L;
         UserPrincipal userPrincipal = new UserPrincipal(user);
 
-        Thumbnail otherThumbnail = Thumbnail.builder()
-                .id(3L)
-                .addedBy(user)
-                .url("thumbnail-url-3")
-                .youtubeVideoId("youtube-id-3")
-                .build();
-
-        when(repository.findById(any()))
-                .thenReturn(Optional.of(Game.builder()
-                        .id(1L)
-                        .user(user)
-                        .thumbnail1(thumbnail1)
-                        .thumbnail2(otherThumbnail)
-                        .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
-                        .hasEnded(Boolean.TRUE)
-                        .build()));
-
-        // When & Then
-        assertThatThrownBy(() -> underTest.end(gameId, userPrincipal))
-                .isInstanceOf(GameHasAlreadyEndedException.class)
-                .hasMessage("Game has already ended");
-    }
-
-    @Test
-    void GivenValidGameIdAndValidUserPrincipal_WhenEnd_ThenReturnsMessageResponseAndSetsHasEndedToTrue() {
-        // Given
-        Long gameId = 1L;
-        UserPrincipal userPrincipal = new UserPrincipal(user);
-
-        Thumbnail otherThumbnail = Thumbnail.builder()
-                .id(3L)
-                .addedBy(user)
-                .url("thumbnail-url-3")
-                .youtubeVideoId("youtube-id-3")
-                .build();
+        when(clock.getZone()).thenReturn(NOW.getZone());
+        when(clock.instant()).thenReturn(NOW.toInstant());
 
         Game game = Game.builder()
-                .id(1L)
+                .id(gameId)
                 .user(user)
-                .thumbnail1(thumbnail1)
-                .thumbnail2(otherThumbnail)
-                .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
+                .lastActivity(NOW.toLocalDateTime())
                 .build();
 
-        when(repository.findById(any()))
+        when(repository.findById(eq(gameId)))
                 .thenReturn(Optional.of(game));
 
+
         // When
-        SuccessResponse result = underTest.end(gameId, userPrincipal);
+        underTest.end(gameId, new UserPrincipal(user));
 
         // Then
-        assertThat(result.getMessage()).isEqualTo("success");
         assertThat(game.getHasEnded()).isTrue();
-
-        verify(repository).save(eq(game));
+        verify(repository).save(game);
     }
 
-    @Test
-    void GivenUserPrincipalWhoHasZeroNotEndedGames_WhenGetUserActualActiveGame_ThenThrowsResourceNotFoundExceptionWithCorrectMessage() {
-        // Given
-        UserPrincipal userPrincipal = new UserPrincipal(user);
-
-        when(repository.findByUserAndHasEndedOrderByLastActivityDesc(any(), any()))
-                .thenReturn(List.of());
-
-        // When & Then
-        assertThatThrownBy(() -> underTest.getUserActualActiveGame(userPrincipal))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("There is no actual active game");
-    }
-
-    @Test
-    void GivenUserPrincipalWhoHasNotEndedGamesButTheyAreExpired_WhenGetUserActualActiveGame_ThenThrowsResourceNotFoundExceptionWithCorrectMessage() {
-        // Given
-        Long gameId = 1L;
-        UserPrincipal userPrincipal = new UserPrincipal(user);
-
-        Game game = Game.builder()
-                .id(1L)
-                .user(user)
+    private static Round createRound(Game game, Thumbnail thumbnail1, Thumbnail thumbnail2) {
+        return Round.builder()
+                .id(UUID.randomUUID())
                 .thumbnail1(thumbnail1)
                 .thumbnail2(thumbnail2)
-                .lastActivity(NOW.toLocalDateTime().minusMinutes(30))
+                .game(game)
+                .createdAt(NOW.toLocalDateTime().minusMinutes(5))
                 .build();
-
-        when(repository.findByUserAndHasEndedOrderByLastActivityDesc(any(), any()))
-                .thenReturn(List.of(game));
-
-        when(properties.getDuration())
-                .thenReturn(10);
-
-        when(clock.getZone()).thenReturn(NOW.getZone());
-        when(clock.instant()).thenReturn(NOW.toInstant());
-
-        // When & Then
-        assertThatThrownBy(() -> underTest.getUserActualActiveGame(userPrincipal))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("There is no actual active game");
     }
 
-    @Test
-    void GivenUserPrincipalWhoHasNotEndedGames_WhenGetUserActualActiveGame_ThenReturnsCorrectGameResponse() {
-        // Given
-        Long gameId = 1L;
-        UserPrincipal userPrincipal = new UserPrincipal(user);
-
-        Game game = Game.builder()
-                .id(1L)
-                .user(user)
-                .thumbnail1(thumbnail1)
-                .thumbnail2(thumbnail2)
-                .lastActivity(NOW.toLocalDateTime().minusMinutes(1))
+    private static Thumbnail createThumbnail(Long id, String url, String ytId, User user) {
+        return Thumbnail.builder()
+                .id(id)
+                .url(url)
+                .youtubeVideoId(ytId)
+                .addedBy(user)
                 .build();
+    }
 
-        when(repository.findByUserAndHasEndedOrderByLastActivityDesc(any(), any()))
-                .thenReturn(List.of(game));
-
-        when(properties.getDuration())
-                .thenReturn(10);
-
-        when(clock.getZone()).thenReturn(NOW.getZone());
-        when(clock.instant()).thenReturn(NOW.toInstant());
-
-        // When
-        GameResponse result = underTest.getUserActualActiveGame(userPrincipal);
-
-        // Then
-        assertThat(result.getId()).isEqualTo(1L);
-
-        assertThat(result.getThumbnail1().getId()).isEqualTo(1L);
-        assertThat(result.getThumbnail1().getUrl()).isEqualTo("thumbnail-url-1");
-
-        assertThat(result.getThumbnail2().getId()).isEqualTo(2L);
-        assertThat(result.getThumbnail2().getUrl()).isEqualTo("thumbnail-url-2");
+    private static User createUser() {
+        return User.builder()
+                .id(1L)
+                .email("email@email.com")
+                .username("username")
+                .password("password")
+                .userRole(UserRole.ROLE_USER)
+                .isEnabled(true)
+                .build();
     }
 }

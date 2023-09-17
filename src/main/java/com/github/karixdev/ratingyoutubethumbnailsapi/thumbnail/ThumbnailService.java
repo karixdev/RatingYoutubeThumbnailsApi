@@ -1,5 +1,6 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail;
 
+import com.github.karixdev.ratingyoutubethumbnailsapi.game.Game;
 import com.github.karixdev.ratingyoutubethumbnailsapi.security.UserPrincipal;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.PermissionDeniedException;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.exception.ResourceNotFoundException;
@@ -15,8 +16,11 @@ import com.github.karixdev.ratingyoutubethumbnailsapi.youtube.payload.request.It
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
+
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -95,5 +99,21 @@ public class ThumbnailService {
         return repository.findByYoutubeVideoId(youtubeVideoId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Thumbnail with provided youtube id not found"));
+    }
+
+    public Optional<Thumbnail> getThumbnailNotInGameWithClosestRating(
+            Game game,
+            User user,
+            BigDecimal defaultPoints,
+            Thumbnail thumbnail,
+            BigDecimal points
+    ) {
+        return repository.findThumbnailNotInGameWithClosestRating(
+                game.getId(),
+                user.getId(),
+                defaultPoints,
+                thumbnail.getId(),
+                points
+        );
     }
 }

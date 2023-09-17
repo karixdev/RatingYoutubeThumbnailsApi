@@ -4,7 +4,7 @@ import com.github.karixdev.ratingyoutubethumbnailsapi.thumbnail.Thumbnail;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.User;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -14,6 +14,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "rating")
 public class Rating {
@@ -33,6 +34,7 @@ public class Rating {
             updatable = false
     )
     @Setter(AccessLevel.NONE)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @ToString.Exclude
@@ -47,7 +49,9 @@ public class Rating {
     private User user;
 
     @ToString.Exclude
-    @ManyToOne
+    @ManyToOne(
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}
+    )
     @JoinColumn(
             name = "thumbnail_id",
             referencedColumnName = "id",
@@ -64,20 +68,4 @@ public class Rating {
             nullable = false
     )
     private BigDecimal points;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Rating rating = (Rating) o;
-        return Objects.equals(id, rating.id) &&
-                Objects.equals(user.getId(), rating.user.getId())
-                && Objects.equals(thumbnail.getId(), rating.thumbnail.getId())
-                && Objects.equals(points, rating.points);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, user.getId(), thumbnail.getId(), points);
-    }
 }
