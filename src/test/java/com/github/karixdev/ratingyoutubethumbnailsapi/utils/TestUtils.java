@@ -1,12 +1,16 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.utils;
 
+import com.github.karixdev.ratingyoutubethumbnailsapi.rating.entity.Rating;
+import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.constants.RatingConstants;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.user.UserDTO;
+import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.video.VideoDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.youtube.YoutubeVideoDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.entity.EntityState;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.entity.User;
 import com.github.karixdev.ratingyoutubethumbnailsapi.user.entity.UserRole;
 import com.github.karixdev.ratingyoutubethumbnailsapi.video.entity.Video;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -129,6 +133,23 @@ public class TestUtils {
                     ]
                 }
                 """;
+    }
+
+    public static Rating createRating(UUID id, UUID userId, UUID videoId, BigDecimal points) {
+        return Rating.builder()
+                .id(id)
+                .userId(userId)
+                .videoId(videoId)
+                .points(points)
+                .build();
+    }
+
+    public static Rating createRating(UUID userId, UUID videoId, BigDecimal points) {
+        return Rating.builder()
+                .userId(userId)
+                .videoId(videoId)
+                .points(points)
+                .build();
     }
 
 }
