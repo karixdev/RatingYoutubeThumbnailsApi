@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,6 +44,24 @@ class RatingRepositoryIT extends ContainersEnvironment {
         // Then
         assertThat(result).isPresent();
         assertThat(result.get()).isEqualTo(rating);
+    }
+
+    @Test
+    void GivenUserId_WhenFindByUserId_ThenReturnsListUserRatings() {
+        // Given
+        UUID userId = UUID.randomUUID();
+
+        Rating rating1 = em.persist(TestUtils.createRating(userId, UUID.randomUUID(), new BigDecimal("1")));
+        Rating rating2 = em.persist(TestUtils.createRating(userId, UUID.randomUUID(), new BigDecimal("1")));
+
+        em.persist(TestUtils.createRating(UUID.randomUUID(), UUID.randomUUID(), new BigDecimal("1")));
+
+        // When
+        List<Rating> result = underTest.findByUserId(userId);
+
+        // Then
+        assertThat(result).hasSize(2);
+        assertThat(result).containsExactly(rating1, rating2);
     }
 
 }

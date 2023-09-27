@@ -1,7 +1,10 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.utils;
 
+import com.github.karixdev.ratingyoutubethumbnailsapi.game.entity.Game;
+import com.github.karixdev.ratingyoutubethumbnailsapi.game.entity.GameRound;
 import com.github.karixdev.ratingyoutubethumbnailsapi.rating.entity.Rating;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.constants.RatingConstants;
+import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.rating.RatingDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.user.UserDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.video.VideoDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.youtube.YoutubeVideoDTO;
@@ -71,6 +74,10 @@ public class TestUtils {
 
     public static Video createVideo() {
         return createVideo(UUID.randomUUID(), "youtube-id", UUID.randomUUID(), LocalDateTime.now());
+    }
+
+    public static VideoDTO createVideo(UUID id, UUID userId, String ytId) {
+        return new VideoDTO(id, userId, ytId, null);
     }
 
     public static User createUser() {
@@ -149,6 +156,40 @@ public class TestUtils {
                 .userId(userId)
                 .videoId(videoId)
                 .points(points)
+                .build();
+    }
+
+    public static RatingDTO createRating(UUID userId, UUID videoId, String points) {
+        return new RatingDTO(
+                UUID.randomUUID(),
+                userId,
+                videoId,
+                new BigDecimal(points)
+        );
+    }
+
+    public static RatingDTO createRating(String points) {
+        return new RatingDTO(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                new BigDecimal(points)
+        );
+    }
+
+    public static Game createGame(UUID userId, LocalDateTime lastActivity) {
+        return Game.builder()
+                .userId(userId)
+                .lastActivity(lastActivity)
+                .build();
+    }
+
+    public static GameRound createGameRound(UUID firstVideoId, UUID secondVideoId) {
+        return GameRound.builder()
+                .id(UUID.randomUUID())
+                .firstVideoId(firstVideoId)
+                .secondVideoId(secondVideoId)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 
