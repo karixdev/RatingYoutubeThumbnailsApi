@@ -80,6 +80,10 @@ public class TestUtils {
         return new VideoDTO(id, userId, ytId, null);
     }
 
+    public static Video createVideo(UUID id, String ytId) {
+        return createVideo(id, ytId, UUID.randomUUID(), LocalDateTime.now());
+    }
+
     public static User createUser() {
         return User.builder()
                 .email("email@email.com")

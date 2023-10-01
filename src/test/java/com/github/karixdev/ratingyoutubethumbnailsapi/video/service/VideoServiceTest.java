@@ -1,6 +1,7 @@
 package com.github.karixdev.ratingyoutubethumbnailsapi.video.service;
 
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.user.UserDTO;
+import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.video.VideoDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.video.WriteVideoDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.dto.youtube.YoutubeVideoDTO;
 import com.github.karixdev.ratingyoutubethumbnailsapi.shared.entity.EntityState;
@@ -16,7 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -24,12 +27,16 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.InstanceOfAssertFactories.map;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -150,4 +157,61 @@ class VideoServiceTest {
         // Then
         assertThat(video.getState()).isEqualTo(EntityState.REMOVED);
     }
+
+    @Test
+    void GivenListOfIdsAndFalse_WhenFindRandom_ThenFindsRandomVideoWhichIdIsInListOfIds() {
+        // Given
+        List<UUID> ids = List.of(UUID.randomUUID(), UUID.randomUUID());
+        when(repository.countByIdIn(ids)).thenReturn(2);
+
+        Video video1 = TestUtils.createVideo(ids.get(0), "ytId1");
+
+        when(repository.findByIdIn(eq(ids), any()))
+                .thenReturn(new PageImpl<>(List.of(video1)));
+
+        // When
+        underTest.findRandom(ids, false);
+
+        // Then
+        verify(mapper).entityToDto(eq(video1));
+
+        verify(repository, never()).countByIdNotIn(any());
+        verify(repository, never()).findByIdNotIn(any(), any());
+    }
+
+    @Test
+    void GivenListOfIdsAndTrue_WhenFindRandom_ThenFindsRandomVideoWhichIdIsNotInListOfIds() {
+        // Given
+        List<UUID> ids = List.of(UUID.randomUUID(), UUID.randomUUID());
+        when(repository.countByIdNotIn(ids)).thenReturn(2);
+
+        Video video1 = TestUtils.createVideo(ids.get(0), "ytId1");
+
+        when(repository.findByIdNotIn(eq(ids), any()))
+                .thenReturn(new PageImpl<>(List.of(video1)));
+
+        // When
+        underTest.findRandom(ids, true);
+
+        // Then
+        verify(mapper).entityToDto(eq(video1));
+
+        verify(repository, never()).countByIdIn(any());
+        verify(repository, never()).findByIdIn(any(), any());
+    }
+
+    @Test
+    void GivenListOfIdsSoThatCountMethodReturnsZero_WhenFindRandom_ThenReturnsEmptyOptional() {
+        // Given
+        List<UUID> ids = List.of(UUID.randomUUID(), UUID.randomUUID());
+        
+        when(repository.countByIdNotIn(eq(ids))).thenReturn(0);
+
+        // When
+        Optional<VideoDTO> result = underTest.findRandom(ids, true);
+
+        // Then
+        assertThat(result).isEmpty();
+    }
+
 }

@@ -105,6 +105,26 @@ class RatingServiceTest {
     }
 
     @Test
+    void GivenUser_WhenFindUserRating_ThenRetrievesUserRatingAndMapsThemIntoDTOs() {
+        // Given
+        UserDTO user = TestUtils.createUserDTO();
+
+        List<Rating> userRatings = List.of(
+                TestUtils.createRating(UUID.randomUUID(), user.id(), UUID.randomUUID(), new BigDecimal("1")),
+                TestUtils.createRating(UUID.randomUUID(), user.id(), UUID.randomUUID(), new BigDecimal("2"))
+        );
+        when(repository.findByUserId(eq(user.id())))
+                .thenReturn(userRatings);
+
+        // When
+        underTest.findUserRatings(user);
+
+        // Then
+        verify(mapper).entityToDTO(eq(userRatings.get(0)));
+        verify(mapper).entityToDTO(eq(userRatings.get(1)));
+    }
+
+    @Test
     void GivenRatingsListContainingOnlyRefRating_WhenFindRatingWithSmallestPointsDiff_ThenReturnsEmptyOptional() {
         // Given
         RatingDTO refRating = TestUtils.createRating("1400");
@@ -159,7 +179,7 @@ class RatingServiceTest {
     }
 
     @Test
-    void Given_WhenFindByUserAndVideoOrCreate_ThenCreatesRatingUserAndMovieWithBaseRatingPoints() {
+    void GivenRatingUserAndVideo_WhenFindByUserAndVideoOrCreate_ThenRetrievesRatingAndMapsIntoDTO() {
         // Given
         UserDTO user = TestUtils.createUserDTO();
         VideoDTO video = TestUtils.createVideo(UUID.randomUUID(), user.id(), "ytId");
